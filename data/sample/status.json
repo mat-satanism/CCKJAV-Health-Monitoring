@@ -1,0 +1,20 @@
+{
+  "indicators": [
+    { "type": "heart_rate", "latest": 78, "status": "yellow", "baseline": 64, "deviation": 1.8, "trend": "up", "message": "Above your normal for 3 days", "actions": ["Rest 10 min and re-measure"] },
+    { "type": "bp_sys", "latest": 124, "status": "green", "baseline": 118, "deviation": 0.6, "trend": "flat", "message": "", "actions": [] },
+    { "type": "bp_dia", "latest": 80, "status": "green", "baseline": 76, "deviation": 0.5, "trend": "flat", "message": "", "actions": [] },
+    { "type": "glucose", "latest": 92, "status": "green", "baseline": 90, "deviation": 0.2, "trend": "flat", "message": "", "actions": [] },
+    { "type": "temp", "latest": 36.7, "status": "green", "baseline": 36.6, "deviation": 0.3, "trend": "flat", "message": "", "actions": [] },
+    { "type": "sleep_hours", "latest": 5.1, "status": "yellow", "baseline": 7.0, "deviation": -2.1, "trend": "down", "message": "Short sleep 3 nights in a row", "actions": ["Dim lights 1 h before sleep"] },
+    { "type": "mood", "latest": 2, "status": "yellow", "baseline": 4, "deviation": -1.9, "trend": "down", "message": "Mood lower than usual", "actions": ["Talk to a crewmate"] },
+    { "type": "exercise_min", "latest": null, "status": "grey", "message": "No data yet", "actions": ["Log today's workout"] }
+  ],
+  "systems": [
+    { "system": "cardiovascular", "status": "yellow", "indicators": ["heart_rate", "bp_sys", "bp_dia"] },
+    { "system": "metabolic", "status": "green", "indicators": ["glucose"] },
+    { "system": "immune", "status": "green", "indicators": ["temp"] },
+    { "system": "behavioral", "status": "yellow", "indicators": ["mood"] },
+    { "system": "sleep", "status": "yellow", "indicators": ["sleep_hours"] },
+    { "system": "musculoskeletal", "status": "grey", "indicators": ["exercise_min"] }
+  ]
+}
