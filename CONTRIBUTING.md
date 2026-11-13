@@ -14,4 +14,4 @@
 Short, imperative: `add status endpoint`, `body map: color zones by status`.
 
 ## Working in parallel
-Everyone codes against `docs/api-contract.md` and `data/sample/*.json`. Frontend does not wait for backend: use the sample JSON until the endpoint exists.
+Everyone codes against `docs/api-contract.md`. The backend always runs with a synthetic demo mission, so the UI has data from the start. Data/ML work plugs in through `backend/app/analytics.py` and `backend/app/demo.py` (see README).

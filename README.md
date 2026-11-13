@@ -21,11 +21,24 @@ On long-duration missions (Moon, Mars) astronauts must spot health changes in th
 
 ## Repo structure
 ```
-backend/    FastAPI app (API, rule engine, analytics)
-frontend/   React + Vite + TypeScript UI
-data/       thresholds, content texts, sample/synthetic data
-docs/       api contract, sources, decisions
+backend/app/
+  main.py        API endpoints
+  models.py      data models (mirror of docs/api-contract.md)
+  config.py      indicators, body systems, environments, thresholds loader
+  rules.py       status per indicator/system, advice, escalation level
+  analytics.py   baseline / deviation / trend / forecast  <- plug ML models in here
+  demo.py        synthetic 30-day demo mission            <- replace with cleaned data
+backend/tests/   pytest
+frontend/        React + Vite + TypeScript UI (see frontend/README.md)
+data/            thresholds.json (demo values)
+docs/            api contract, sources
 ```
+
+## For the data / ML team
+- **Models:** implement the functions in `backend/app/analytics.py`. Keep the signatures; each gets a time-ordered list of floats for one indicator.
+- **Data:** to show real/cleaned data in the app, make `demo_mission()` in `backend/app/demo.py` return your records as `Measurement` objects.
+- **Thresholds:** edit `data/thresholds.json` and add the source to `docs/sources.md`.
+- Notebooks go to `notebooks/`, raw data to `data/raw/` (keep large files out of git).
 
 ## Quick start
 Backend:
@@ -35,14 +48,15 @@ python -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
 uvicorn app.main:app --reload
 ```
-Open http://127.0.0.1:8000/docs
+Open http://127.0.0.1:8000/docs. Tests: `pytest` inside `backend/`.
 
-Frontend (once scaffolded, see `frontend/README.md`):
+Frontend (second terminal):
 ```bash
 cd frontend
 npm install
 npm run dev
 ```
+Open http://localhost:5173. The backend starts with a synthetic demo mission; "Reset demo" in the UI restores it.
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for workflow.
 
