@@ -67,8 +67,9 @@ def put_context(ctx: MissionContext):
 @app.post("/measurements", response_model=list[Measurement])
 def add_measurements(items: list[Measurement]):
     for m in items:
-        if m.type not in INDICATORS:
-            raise HTTPException(422, f"Unknown indicator {m.type}")
+        lo, hi = BOUNDS[m.type]
+        if not lo <= m.value <= hi:
+            raise HTTPException(422, f"{m.type}={m.value} is outside the plausible range {lo}-{hi}")
     MEASUREMENTS.extend(items)
     return items
 
@@ -109,7 +110,7 @@ def forecast(indicator: str, days: int = 7):
     if indicator not in INDICATORS:
         raise HTTPException(404, "Unknown indicator")
     values = [m.value for m in list_measurements(type=indicator)]
-    lo, hi = BOUNDS.get(indicator, (0, float("inf")))
+    lo, hi = BOUNDS[indicator]
     return {"type": indicator, "values": [min(hi, max(lo, v)) for v in analytics.forecast(values, days)]}
 
 

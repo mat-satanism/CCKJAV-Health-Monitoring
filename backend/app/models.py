@@ -4,9 +4,9 @@ from uuid import uuid4
 
 from pydantic import BaseModel, Field
 
+# Keep in sync with config.INDICATORS. To add one (e.g. spo2), add it in both places.
 IndicatorType = Literal[
-    "heart_rate", "bp_sys", "bp_dia", "glucose", "temp", "sleep_hours", "mood",
-    "spo2", "weight", "exercise_min", "radiation_dose",
+    "heart_rate", "bp_sys", "bp_dia", "glucose", "temp", "sleep_hours", "mood", "exercise_min",
 ]
 Status = Literal["green", "yellow", "red", "grey"]
 BodySystem = Literal[

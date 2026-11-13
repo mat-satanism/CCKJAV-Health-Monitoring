@@ -1,11 +1,11 @@
 {
-  "_note": "DEMO values based on common adult reference ranges on Earth. Not medical advice. Replace with sourced values and list sources in docs/sources.md.",
+  "_note": "DEMO values based on common adult reference ranges on Earth. Not medical advice. Replace with sourced values and list sources in docs/sources.md. null = this side never turns red (only yellow).",
   "heart_rate":   { "red_low": 45,  "yellow_low": 55,  "yellow_high": 100, "red_high": 120, "source": "TODO" },
   "bp_sys":       { "red_low": 85,  "yellow_low": 95,  "yellow_high": 130, "red_high": 160, "source": "TODO" },
   "bp_dia":       { "red_low": 50,  "yellow_low": 60,  "yellow_high": 85,  "red_high": 100, "source": "TODO" },
   "glucose":      { "red_low": 55,  "yellow_low": 70,  "yellow_high": 140, "red_high": 200, "source": "TODO" },
   "temp":         { "red_low": 35.0,"yellow_low": 36.0,"yellow_high": 37.5,"red_high": 38.5,"source": "TODO" },
   "sleep_hours":  { "red_low": 4,   "yellow_low": 6,   "yellow_high": 10,  "red_high": 12,  "source": "TODO" },
-  "mood":         { "red_low": 1,   "yellow_low": 2,   "yellow_high": 5,   "red_high": 6,   "source": "TODO" },
-  "exercise_min": { "red_low": 0,   "yellow_low": 60,  "yellow_high": 240, "red_high": 400, "source": "TODO" }
+  "mood":         { "red_low": null,"yellow_low": 2,   "yellow_high": 5,   "red_high": null,"source": "TODO" },
+  "exercise_min": { "red_low": null,"yellow_low": 60,  "yellow_high": 240, "red_high": null,"source": "TODO" }
 }

@@ -23,7 +23,8 @@ def _threshold_status(ind: str, value: float) -> str:
     t = THRESHOLDS.get(ind)
     if not t:
         return "green"
-    if value <= t["red_low"] or value >= t["red_high"]:
+    red_low, red_high = t.get("red_low"), t.get("red_high")
+    if (red_low is not None and value <= red_low) or (red_high is not None and value >= red_high):
         return "red"
     if value < t["yellow_low"] or value > t["yellow_high"]:
         return "yellow"

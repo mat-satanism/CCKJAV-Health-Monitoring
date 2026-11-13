@@ -7,15 +7,22 @@ NASA Space Apps Challenge 2026 — astronaut self-assessment health monitoring t
 ## The problem
 On long-duration missions (Moon, Mars) astronauts must spot health changes in themselves: radiation, isolation, altered gravity, distance from Earth and a closed environment affect the heart, bones, immune system, sleep and mood. Our tool gathers health indicators, shows status at a glance and tells the astronaut what to do and when to escalate to flight surgeons.
 
-## MVP features
+## Features
+Working now:
 - **Body Map**: clickable astronaut figure, each body system colored by status.
-- **Daily Check-in**: 2-minute guided measurements (heart rate, blood pressure, glucose, temperature, sleep, mood) with how-to instructions.
-- **Personal baseline**: status is computed against the astronaut's own norm plus absolute safety limits.
-- **Trends**: dynamic charts with baseline band and 7-day forecast.
-- **Assistant**: rule-based advice with escalation levels (self / crew / ground).
-- **Gamification**: daily tasks, points, streaks, badges.
+- **Daily Check-in**: heart rate, blood pressure, glucose, temperature, sleep, exercise, mood.
+- **Personal baseline**: status is computed against the astronaut's own norm plus absolute limits.
+- **Trends**: charts with the personal baseline line and a 7-day forecast.
+- **Assistant**: rule-based advice with escalation levels (self / crew / ground) and a comms-delay note.
+- **Daily tasks** with points.
 - **Mission context**: ISS, transit, rover, Moon base, Mars base (gravity, comms delay).
-- **Mission replay**: synthetic 180-day mission with events for the demo.
+- **Demo data**: synthetic 30-day mission.
+
+Planned:
+- How-to-measure instructions in the check-in and body system descriptions.
+- Streaks and badges.
+- Longer mission replay with injected events.
+- Report for the ground flight surgeon.
 
 > Not medical advice. Thresholds are for demonstration and must be verified with medical sources.
 

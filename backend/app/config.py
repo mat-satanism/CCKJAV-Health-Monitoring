@@ -15,9 +15,12 @@ INDICATORS: dict[str, dict] = {
     "exercise_min": {"label": "Exercise",       "unit": "min",   "system": "musculoskeletal"},
 }
 
-# Physically possible value range, used to clamp forecasts.
+# Plausible input range (not medical limits): values outside are rejected as
+# typos/sensor errors, and forecasts are clamped to it.
 BOUNDS: dict[str, tuple[float, float]] = {
-    "mood": (1, 5), "sleep_hours": (0, 24), "exercise_min": (0, 600),
+    "heart_rate": (20, 250), "bp_sys": (50, 260), "bp_dia": (30, 160),
+    "glucose": (20, 600), "temp": (30, 45), "sleep_hours": (0, 24),
+    "mood": (1, 5), "exercise_min": (0, 600),
 }
 
 SYSTEMS: dict[str, dict] = {

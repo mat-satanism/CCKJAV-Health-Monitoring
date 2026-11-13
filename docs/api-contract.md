@@ -29,8 +29,11 @@ Indicators: `heart_rate` (bpm), `bp_sys`/`bp_dia` (mmHg), `glucose` (mg/dL), `te
 
 Body systems: `cardiovascular`, `musculoskeletal`, `behavioral`, `immune`, `metabolic`, `sleep`.
 
+## Validation
+`POST /measurements` rejects (422) unknown indicator types and values outside the plausible range in `BOUNDS` (`backend/app/config.py`), e.g. heart rate 20-250 bpm, mood 1-5.
+
 ## Status logic
-1. Latest value outside `red_*` limits in `data/thresholds.json` → red; outside `yellow_*` → yellow.
+1. Latest value outside `red_*` limits in `data/thresholds.json` → red; outside `yellow_*` → yellow. A `null` red limit means that side only goes yellow (used for mood and exercise: one bad day shouldn't call the ground).
 2. Otherwise, |deviation from personal baseline| ≥ 2 → yellow.
 3. No data → grey. A system takes the worst status of its indicators.
 4. Escalation: any red → `ground`; 2+ yellow → `crew`; else `self`.
