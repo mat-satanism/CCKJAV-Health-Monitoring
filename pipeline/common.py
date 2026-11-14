@@ -27,6 +27,8 @@ DAILY_COLUMNS = [
     "exercise_min",        # moderately + very active minutes (device)
     "steps",               # steps per day (device)
     "temp_skin",           # nightly skin temperature, deg C (device, LifeSnaps)
+    # Short mood survey in LifeSnaps: 1 = the person ticked this feeling that day, 0 = did not.
+    "emo_alert", "emo_happy", "emo_neutral", "emo_relaxed", "emo_sad", "emo_tense", "emo_tired",
 ]
 
 

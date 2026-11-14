@@ -57,7 +57,15 @@ Body systems: `cardiovascular`, `musculoskeletal`, `behavioral`, `immune`, `meta
 | GET | /forecast/{indicator}?days=7 | `{type, values: number[]}` |
 | GET | /tasks | Task[] |
 | POST | /tasks/{id}/complete | Task |
+| GET | /mission | simulated crew mission: `{day, days_total, crew[], source: "synthetic", note}` |
+| PUT | /mission/day?day=N | move the mission clock (1..days_total) |
+| GET | /mission/crew | per astronaut: indicators vs personal norm, symptoms, risks for 48 h with signs, `fit_for_high_demand`, `unfit_reasons`, `cautions` |
+| GET | /mission/tasks | today's tasks: `status` planned / reassigned / postponed / needs decision, `reassigned_to`, `reason`, `warning` |
+| GET | /mission/alerts | crew-wide alerts (solar flare, same symptoms in 3+ people) |
+| GET | /mission/doctor?role=cmo\|ground | anomalies, risks above 3x usual, symptoms, alerts; `ground` adds the 20 min data delay |
 | GET | /reference/blood?crew=C001 | BloodRow[]: NASA Inspiration4 blood tests, reference only, not daily status |
 | POST | /demo/reset | reload the demo mission (real PMData days where they exist, grey elsewhere; see demo.py) |
+
+Mission rules (backend/app/mission.py): red = outside safe limits; yellow = 3+ spreads from the person's own 14-day norm. A red indicator or a fever / dizziness symptom takes someone off high-demand tasks; a high model risk only asks the CMO to confirm.
 
 Todo: `/report` (summary for ground flight surgeon), persistent storage.

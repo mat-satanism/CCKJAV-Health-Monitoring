@@ -4,7 +4,7 @@ import pandas as pd
 import pytest
 
 from pipeline import demo, inspiration4, lifesnaps, nhanes, pmdata
-from pipeline.common import DAILY_COLUMNS, finish_daily
+from pipeline.common import DAILY_COLUMNS, PROCESSED, finish_daily
 
 
 def test_wellness_keeps_last_answer_per_local_day():
@@ -127,3 +127,17 @@ def test_r45_glucose_is_marked_not_dropped():
     assert out.loc["C003", "value"] == 36
     assert "delayed" in out.loc["C003", "quality_note"]
     assert pd.isna(out.loc["C001", "quality_note"])
+
+
+def test_demo_adds_synthetic_vitals_only_when_asked():
+    daily = pd.DataFrame({
+        "person_id": ["p", "p"], "date": ["2019-11-06", "2019-11-07"],
+        "heart_rate": [50, 49], "sleep_hours": [7, 6], "mood": [4, 3], "exercise_min": [10, 20],
+    })
+    ref = pd.read_csv(PROCESSED / "nhanes_reference.csv")
+    plain = demo.demo_mission(daily, person="p", start="2019-11-06", days=2)
+    full = demo.demo_mission(daily, person="p", start="2019-11-06", days=2, nhanes_reference=ref)
+    assert set(plain["source"]) == {"sensor", "manual"}
+    synth = full[full["source"] == "synthetic"]
+    assert set(synth["type"]) == {"bp_sys", "bp_dia", "glucose", "temp"} and len(synth) == 8
+    assert synth.loc[synth["type"] == "temp", "value"].between(35.5, 37.5).all()

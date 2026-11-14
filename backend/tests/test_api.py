@@ -63,13 +63,13 @@ def test_complete_task():
     assert client.post("/tasks/bp/complete").json()["done"] is True
 
 
-def test_demo_is_real_where_data_exists_and_grey_elsewhere():
+def test_demo_marks_real_and_synthetic_values():
     status = {i["type"]: i for i in client.get("/status").json()["indicators"]}
-    assert status["heart_rate"]["source"] == "sensor"
-    assert status["mood"]["source"] == "manual"
-    assert status["bp_sys"]["status"] == "grey"
-    assert status["glucose"]["status"] == "grey"
-    assert status["temp"]["status"] == "grey"
+    assert status["heart_rate"]["source"] == "sensor"        # real PMData
+    assert status["mood"]["source"] == "manual"              # real PMData self-report
+    for ind in ("bp_sys", "bp_dia", "glucose", "temp"):      # never measured by this person
+        assert status[ind]["source"] == "synthetic"
+        assert status[ind]["status"] != "grey"
 
 
 def test_blood_reference_keeps_flagged_samples_with_a_note():

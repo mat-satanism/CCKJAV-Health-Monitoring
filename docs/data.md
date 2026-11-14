@@ -8,7 +8,8 @@ From the repository root, with the same virtual env as the backend (see README):
 source backend/.venv/bin/activate
 pip install -r pipeline/requirements.txt
 python -m pipeline.get_data     # ~2.1 GB into data/raw/ (not in git); existing files are skipped
-python -m pipeline.build        # writes data/processed/ (in git, ~1 MB)
+python -m pipeline.build        # writes data/processed/ (in git) incl. the simulated mission in sim/
+python -m pipeline.model        # trains the risk model -> models/risk_model.json, sim/predictions.csv
 pytest pipeline/tests
 ```
 
@@ -43,6 +44,7 @@ One row per person per day. Self-reports and device values are separate columns 
 | `exercise_min` | moderately + very active minutes | minutes, device | PMData, LifeSnaps |
 | `steps` | steps per day | device | all |
 | `temp_skin` | nightly **skin** temperature (not body temperature, about 34 deg C) | deg C, device | LifeSnaps |
+| `emo_alert`, `emo_happy`, `emo_neutral`, `emo_relaxed`, `emo_sad`, `emo_tense`, `emo_tired` | short mood survey: 1 = the person ticked this feeling that day, 0 = did not. Filled on 2290 of 7410 LifeSnaps days, 63 people | 0 / 1, self-report | LifeSnaps |
 
 Cleaning rules:
 
@@ -80,6 +82,48 @@ Glucose in `data/thresholds.json` (agreed 2026-11-14): yellow above 114, red abo
 
 ## `data/processed/demo_mission.csv`
 
-30 real days of one PMData participant in the backend's `Measurement` format (`astronaut_id, mission_day, ts, type, value, unit, source`), for `demo_mission()` in `backend/app/demo.py`. Person and window: `pm_p06`, 2019-11-06 to 2019-12-05 (`pipeline/demo.py`).
+30 days of one PMData participant in the backend's `Measurement` format. Heart rate, sleep, mood and exercise are real; blood pressure, glucose and temperature, which this person never measured, are synthetic (`source = synthetic`): the level is the NHANES median for adults 20-60 (a typical healthy person), day-to-day changes follow the assumptions in `pipeline/simulation.py`. Generated in `pipeline/demo.py` with seed 606. Columns: `astronaut_id, mission_day, ts, type, value, unit, source`; read by `demo_mission()` in `backend/app/demo.py`. Person and window: `pm_p06`, 2019-11-06 to 2019-12-05 (`pipeline/demo.py`).
 
 Why this one: of the 16 PMData people, 10 have a 30-day window with 98-100% of resting heart rate, self-reported sleep, mood and exercise filled. pm_p06 is complete and has a clear story: days 1-14 are calm (the personal baseline), on days 18-24 sleep drops to 2-4 h and resting heart rate rises from about 49 to 51.8 bpm, then it recovers. `ts` keeps the real 2019 dates; the backend can shift them to the current mission.
+
+## Feature tables for the model: `features_pmdata.csv`, `features_lifesnaps.csv`
+
+Built by `pipeline/features.py` from `daily.csv`. One row = one person on one **calendar** day `t`. Days without any record stay as empty rows, so "tomorrow" is always `t + 1` and never "the next record" (LifeSnaps has 563 such gap days). MMASH is not included: it has no calendar dates and only 1-2 days per person. Run `python -m pipeline.baselines` for the scores a model has to beat.
+
+| Group | Columns | Meaning |
+|---|---|---|
+| Who and when | `person_id`, `source_dataset`, `date`, `day`, `dow` | `dow` = day of week, 0 = Monday |
+| Split | `fold`, `is_test` | people are dealt into 5 folds with seed 42; fold 4 is held out as the final test. No person is in two folds. PMData: 13 training / 3 test people. LifeSnaps: 57 / 14 |
+| Today | the raw column, e.g. `heart_rate`, `sleep_hours_device`, `mood` | value on day t |
+| Personal norm | `<col>_base` | median of the previous 14 days (t-14 .. t-1, today not included); empty if fewer than 7 of those days have a value |
+| Deviation | `<col>_dev`, `<col>_dev3`, `<col>_z` | today minus norm, the mean of that over the last 3 days, and the deviation divided by the spread of the previous 14 days (with a minimum spread so a flat series does not give infinity) |
+| Target | PMData `target_worse_mood`; LifeSnaps `target_neg_emotion` | see below |
+| For the baseline | `worse_mood_today`, `neg_emotion_today` | the same yes/no for day t, used by the "same as today" reference |
+
+PMData columns with norm and deviation: `heart_rate`, `sleep_hours_device`, `exercise_min`, `steps`, `sleep_hours`, `mood`, `fatigue`, `stress`. Today's value only: `sleep_quality`, `soreness`, `readiness`. LifeSnaps: `heart_rate`, `sleep_hours_device`, `exercise_min`, `steps`, `stress_score`, `temp_skin`.
+
+**Targets (what the model predicts for tomorrow).**
+- PMData `target_worse_mood` = 1 if tomorrow's mood is below this person's usual (median mood of the last 14 days, today included), else 0. Plain mood is not used: 64% of answers are "3".
+- LifeSnaps `target_neg_emotion` = 1 if tomorrow the person ticked sad, tense/anxious or tired. Empty unless all three were answered.
+
+**How many rows can be used** (rows where the target exists):
+
+| | Rows with a target | People | Also with a norm for pulse, sleep and exercise today | People | Share of 1 in the target |
+|---|---|---|---|---|---|
+| PMData | 1517 | 16 | 979 | 14 | 15.7% (training), 11.3% (test) |
+| LifeSnaps | 2282 | 63 | 1469 | 49 | 57.7% (training), 51.7% (test) |
+
+**Reference scores** (`python -m pipeline.baselines`, held-out test people). Balanced accuracy is the mean of the hit rate on each class, 0.5 = guessing.
+
+| Dataset | Method | Balanced accuracy | F1 of "worse tomorrow" |
+|---|---|---|---|
+| PMData | always the majority class | 0.500 | 0.000 |
+| PMData | same as today | 0.654 | 0.384 |
+| LifeSnaps | always the majority class | 0.500 | 0.682 |
+| LifeSnaps | same as today | 0.639 | 0.656 |
+
+A model is only interesting if it beats "same as today" on the test people. Test sets are small (3 PMData people), so differences of a few points are noise.
+
+**Decisions that are provisional** (change them in `pipeline/features.py`): norm = 14 days with at least 7 values; minimum spread = 10th percentile of the training spreads; test fold = 1 of 5. The backend still uses its own norm (first 14 values), see the analysis of 7 / 14 / 21 days in the team document.
+
+**Leakage rules, tested in `pipeline/tests/test_features.py`:** the norm uses only days before today; changing values after day t does not change any feature of day t; "tomorrow" is the next calendar day; each person is in exactly one fold; z-score floors come from training people only.

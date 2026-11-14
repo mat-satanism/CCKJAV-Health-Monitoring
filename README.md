@@ -1,8 +1,8 @@
-# CCKJAV Health Monitoring
+# Crew Health Navigator
 
 NASA Space Apps Challenge 2026 — astronaut self-assessment health monitoring tool.
 
-> Working name. Final name TBD by the team.
+Repository: CCKJAV Health Monitoring.
 
 ## The problem
 On long-duration missions (Moon, Mars) astronauts must spot health changes in themselves: radiation, isolation, altered gravity, distance from Earth and a closed environment affect the heart, bones, immune system, sleep and mood. Our tool gathers health indicators, shows status at a glance and tells the astronaut what to do and when to escalate to flight surgeons.
@@ -16,13 +16,15 @@ Working now:
 - **Assistant**: rule-based advice with escalation levels (self / crew / ground) and a comms-delay note.
 - **Daily tasks** with points.
 - **Mission context**: ISS, transit, rover, Moon base, Mars base (gravity, comms delay).
-- **Demo data**: synthetic 30-day mission.
+- **Demo data (My check-in)**: 30 real days of one PMData participant for heart rate, sleep, mood and exercise; blood pressure, glucose and temperature are synthetic (typical NHANES level + simulated daily changes) and labelled as such.
+- **Crew mission (simulation)**: 5 astronauts over 30 days, synthetic data calibrated on real people. Mission clock, crew status, risks for the next 48 h, and tasks that move to a fit crew member with the reason (e.g. John's EVA goes to Stefan because of fever).
+- **Doctors' tab**: crew medical officer onboard (live) or flight surgeon on Earth (20 min delay): anomalies vs each person's norm, risks with the signs behind them, symptoms, crew-wide alerts (CO2, solar flare).
+- **Risk model**: one logistic regression per event, trained on simulated missions; works offline from a 3 KB JSON file.
 
 Planned:
 - How-to-measure instructions in the check-in and body system descriptions.
 - Streaks and badges.
-- Longer mission replay with injected events.
-- Report for the ground flight surgeon.
+- Printable report for the ground flight surgeon.
 
 > Not medical advice. Thresholds are for demonstration and must be verified with medical sources.
 
@@ -47,6 +49,7 @@ docs/            api contract, sources
 - **Thresholds:** edit `data/thresholds.json` and add the source to `docs/sources.md`.
 - Notebooks go to `notebooks/`, raw data to `data/raw/` (keep large files out of git).
 - **Cleaned data:** `python -m pipeline.get_data` then `python -m pipeline.build` fills `data/processed/` (daily wearable table, Inspiration4 blood tests, NHANES reference ranges). Columns and cleaning rules: [docs/data.md](docs/data.md).
+- **Simulation and model:** `python -m pipeline.build` also writes the simulated crew mission to `data/processed/sim/`; `python -m pipeline.model` trains the risk model (`models/risk_model.json`) and writes the demo predictions. Design, assumptions and results: [docs/simulation.md](docs/simulation.md).
 
 ## Quick start
 Backend:
