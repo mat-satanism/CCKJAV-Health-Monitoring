@@ -82,7 +82,7 @@ Glucose in `data/thresholds.json` (agreed 2026-11-14): yellow above 114, red abo
 
 ## `data/processed/demo_mission.csv`
 
-30 real days of one PMData participant in the backend's `Measurement` format (`astronaut_id, mission_day, ts, type, value, unit, source`), for `demo_mission()` in `backend/app/demo.py`. Person and window: `pm_p06`, 2019-11-06 to 2019-12-05 (`pipeline/demo.py`).
+30 days of one PMData participant in the backend's `Measurement` format. Heart rate, sleep, mood and exercise are real; blood pressure, glucose and temperature, which this person never measured, are synthetic (`source = synthetic`): the level is the NHANES median for adults 20-60 (a typical healthy person), day-to-day changes follow the assumptions in `pipeline/simulation.py`. Generated in `pipeline/demo.py` with seed 606. Columns: `astronaut_id, mission_day, ts, type, value, unit, source`; read by `demo_mission()` in `backend/app/demo.py`. Person and window: `pm_p06`, 2019-11-06 to 2019-12-05 (`pipeline/demo.py`).
 
 Why this one: of the 16 PMData people, 10 have a 30-day window with 98-100% of resting heart rate, self-reported sleep, mood and exercise filled. pm_p06 is complete and has a clear story: days 1-14 are calm (the personal baseline), on days 18-24 sleep drops to 2-4 h and resting heart rate rises from about 49 to 51.8 bpm, then it recovers. `ts` keeps the real 2019 dates; the backend can shift them to the current mission.
 

@@ -113,9 +113,10 @@ export default function App() {
 
           <div className="detail">
             <p className="muted demo-note">
-              Demo: heart rate, sleep, mood and exercise are real days of one PMData participant
-              (device or self-report). Blood pressure, glucose and temperature have no data for
-              this person, so they stay grey.
+              Demo: heart rate, sleep, mood and exercise are 30 real days of one PMData participant
+              (device or self-report). This person never measured blood pressure, glucose or temperature,
+              so those are synthetic: a typical level from NHANES with simulated day-to-day changes,
+              marked "synthetic".
             </p>
             {selected && (
               <SystemPanel key={`${selected}-${version}`} system={selected} meta={meta} indicators={status.indicators} />

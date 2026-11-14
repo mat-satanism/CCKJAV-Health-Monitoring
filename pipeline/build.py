@@ -35,10 +35,6 @@ def main() -> None:
         print(f"{name:<23} {len(table):>6} calendar days, {table['person_id'].nunique()} people; "
               f"{int(usable.sum())} days with tomorrow's target ({table.loc[usable, 'person_id'].nunique()} people)")
 
-    demo_rows = demo.demo_mission(daily)
-    demo_rows.to_csv(PROCESSED / "demo_mission.csv", index=False)
-    print(f"demo_mission.csv        {len(demo_rows):>6} rows ({demo.DEMO_PERSON}, from {demo.DEMO_START})")
-
     blood = inspiration4.load()
     blood.to_csv(PROCESSED / "inspiration4_blood.csv", index=False)
     print(f"inspiration4_blood.csv  {len(blood):>6} rows, {blood['analyte'].nunique()} analytes")
@@ -47,6 +43,11 @@ def main() -> None:
     ref.to_csv(PROCESSED / "nhanes_reference.csv", index=False)
     print(f"nhanes_reference.csv    {len(ref):>6} rows")
     print(ref[["indicator", "n", "p01", "p05", "p50", "p95", "p99"]].to_string(index=False))
+
+    demo_rows = demo.demo_mission(daily, nhanes_reference=ref)
+    demo_rows.to_csv(PROCESSED / "demo_mission.csv", index=False)
+    print(f"demo_mission.csv        {len(demo_rows):>6} rows ({demo.DEMO_PERSON}, from {demo.DEMO_START}; "
+          f"{int((demo_rows['source'] == 'synthetic').sum())} synthetic)")
 
     # Synthetic crew mission, calibrated on daily.csv (PMData) and the NHANES reference above.
     cal = simulation.calibrate(daily, ref)
