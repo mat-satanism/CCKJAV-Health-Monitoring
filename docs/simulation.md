@@ -112,3 +112,34 @@ link between them on normal days; the events add that link on purpose.
 `days.csv` (one row per astronaut per mission day: the 8 indicators, symptoms, active events, `event_free`,
 `label_<event>_48h`), `events.csv` (type, hazard, who, early-sign start, onset, end).
 Code: `pipeline/simulation.py`; tests: `pipeline/tests/test_simulation.py`.
+
+## Stage 2: risk model (2026-11-14)
+
+`python -m pipeline.model` (needs `scikit-learn`, training only). One logistic regression per event on 33
+features: for each of the 8 indicators the z-score vs the personal norm and the 3-day mean deviation, the
+whole-crew deviation of sleep, mood and pulse, and whether a norm exists yet. Trained on 400 simulated
+missions (seed 7), saved as plain JSON in `models/risk_model.json` (3 KB), so the app can compute risks
+without scikit-learn. Demo predictions with the signs behind them: `data/processed/sim/predictions.csv`.
+
+**Test on 100 new simulated missions** (seed 1234, never used in training). AUC: 0.5 = guessing, 1 = perfect.
+The rule is "the biggest |z| of any indicator today". "Top 5%" = alerts on the 5% riskiest astronaut-days.
+
+| Event | Share of days | AUC model | AUC rule | Caught with top-5% alerts | Precision of those alerts |
+|---|---|---|---|---|---|
+| Sleep disruption | 3.0% | 0.818 | 0.680 | 23.6% | 14.3% |
+| Infection | 2.0% | 0.894 | 0.810 | 43.2% | 17.1% |
+| Deconditioning | 1.9% | 0.912 | 0.650 | 54.1% | 20.9% |
+| Low mood | 1.8% | 0.853 | 0.678 | 30.4% | 11.1% |
+| CO2 build-up | 2.4% | 0.808 | 0.636 | 33.2% | 15.7% |
+
+**Real people (PMData, 16 people, 1517 days), target "tomorrow's mood is worse than usual":** the sim-trained
+`low_mood` risk scores AUC 0.530 and `sleep_disruption` 0.501, while "same as today" scores 0.644. So the model
+learned the simulator's early signs and does **not** transfer to real mood. This is the honest limit of training
+on synthetic data, and we say so in the pitch. Real early-warning skill needs real labelled data.
+
+**Demo mission:** John's infection risk peaks on day 16 (22%, two days before the fever; his days 1-15 are at
+most 2%), with the sign "Resting pulse +6.2 bpm vs usual". Lena's sleep-disruption risk rises to 11-14% on days
+19-20, before it starts on day 21. The CO2 day is caught late: 4% the day before, 11% on the day itself.
+
+Risks are calibrated probabilities, so they look small (events happen on 2-3% of days). The UI should show them
+next to the usual level ("10 times the usual risk") rather than as a bare percentage.

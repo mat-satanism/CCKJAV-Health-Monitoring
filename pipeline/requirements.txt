@@ -1,5 +1,6 @@
 pandas>=2.2
 numpy>=1.26
+scikit-learn>=1.4   # training only (python -m pipeline.model); the app reads the saved JSON model
 
 # dev
 pytest>=8
