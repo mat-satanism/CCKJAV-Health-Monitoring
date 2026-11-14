@@ -151,3 +151,25 @@ def test_crew_has_hrv_and_reaction_time():
     hist = client.get("/mission/astronaut/lena/history").json()["reaction_ms"]
     calm = sorted(r["value"] for r in hist[:15])[7]
     assert types["reaction_ms"]["value"] > calm      # slower than her usual while sleep is disrupted
+
+
+def test_cmo_quick_screen_puts_the_sick_first():
+    now = client.get("/mission/now", params={"day": 19}).json()
+    assert now[0]["name"] == "John" and now[0]["level"] == "red" and "fever" in now[0]["what"]
+    assert len(now) == 5 and all(n["do"] for n in now)
+
+
+def test_alarm_log_grows_with_the_mission_and_records_the_moved_eva():
+    early = client.get("/mission/alarms", params={"day": 10}).json()
+    late = client.get("/mission/alarms", params={"day": 27}).json()
+    assert len(late) > len(early)
+    assert any(e["kind"] == "task" and e["day"] == 19 and "Stefan" in e["what"] for e in late)
+    assert any(e["kind"] == "alert" and e["day"] == 27 for e in late)          # solar flare
+
+
+def test_weekly_report_covers_seven_days_and_lists_medicine_given():
+    r = client.get("/mission/report", params={"day": 21, "period": "week"}).json()
+    assert (r["from_day"], r["to_day"]) == (15, 21)
+    john = next(c for c in r["crew"] if c["name"] == "John")
+    assert any("Paracetamol" in m for m in john["medication_given"]) and "fever" in john["symptoms"]
+    assert client.get("/mission/report", params={"period": "month"}).status_code == 422

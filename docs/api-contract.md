@@ -66,6 +66,9 @@ One rule for every view (`backend/app/status.py`), personal norm first:
 | GET | /mission/tasks | today's tasks: `status` planned / reassigned / postponed / needs decision, `reassigned_to`, `reason`, `warning` |
 | GET | /mission/alerts | crew-wide alerts (solar flare, same symptoms in 3+ people) |
 | GET | /mission/doctor?role=cmo\|ground | anomalies, risks above 3x usual, symptoms, alerts; `ground` adds the 20 min data delay |
+| GET | /mission/now?day=N | CMO quick screen: one line per crew member (`level`, `what`, `do`), most urgent first |
+| GET | /mission/alarms?day=N | alarm log from day 1 to N: red values, high risks, crew alerts, moved tasks, each with the `action` |
+| GET | /mission/report?day=N&period=day\|week | report for the flight surgeon, made overnight: per person status, days off usual, symptoms, risks, medicine given, not-ready days; plus the alarms of the period |
 | GET | /mission/astronaut/{id}?day=N | one crew member's card for day N (default: current day): indicators (with `entered`), body `systems`, risks, synthetic `anamnesis`, `medication_today`, `readiness` |
 | GET | /mission/astronaut/{id}/history | every mission day per indicator: value, status, personal `norm`, `low`/`high` = norm ± 3 spreads, `entered` |
 | POST | /mission/astronaut/{id}/entries?day=N | `{"values": {"temp": 39.2}, "symptoms": ["fever"]}` replaces that day's simulated values; statuses and tasks follow, risks stay the model's. Saved to `data/local/mission_entries.json`, removed by `/demo/reset` |

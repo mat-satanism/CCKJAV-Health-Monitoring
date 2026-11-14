@@ -73,6 +73,19 @@ export interface MissionTask {
 export interface TimelineDay {
   day: number; status: Status; high_risks: number; alerts: string[]; changed_tasks: number
 }
+export interface NowLine {
+  astronaut_id: string; name: string; role: string; level: Status; what: string; do: string; symptoms: string[]
+}
+export interface Alarm { day: number; who: string; level: Status; kind: 'value' | 'risk' | 'alert' | 'task'; what: string; action: string }
+export interface ReportCrew {
+  astronaut_id: string; name: string; role: string; status: Status; fit_for_high_demand: boolean
+  days_yellow: number; days_red: number; off_today: string[]; symptoms: string[]; top_risks: string[]
+  medication_given: string[]; not_ready_days: number[]
+}
+export interface Report {
+  day: number; period: 'day' | 'week'; from_day: number; to_day: number; made: string
+  crew: ReportCrew[]; alarms: Alarm[]; tasks_changed: number; source: 'synthetic'; note: string
+}
 export interface CrewAlert { kind: string; level: Status; who: string; message: string }
 export interface DoctorView {
   role: 'cmo' | 'ground'; title: string; data_delay_min: number; reply_round_trip_min: number; guidance: string

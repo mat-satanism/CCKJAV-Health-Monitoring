@@ -228,6 +228,36 @@ def mission_astronaut_readiness(aid: str, r: Readiness, day: int | None = None):
     return m.set_readiness(aid, day, r.ready, r.note)
 
 
+def _mission_day(day: int | None):
+    m = _mission()
+    if day is not None and not 1 <= day <= m.days_total:
+        raise HTTPException(422, f"day must be between 1 and {m.days_total}")
+    return m, day or m.day
+
+
+@app.get("/mission/now")
+def mission_now(day: int | None = None):
+    """CMO quick screen: one line per crew member, most urgent first."""
+    m, day = _mission_day(day)
+    return m.now(day)
+
+
+@app.get("/mission/alarms")
+def mission_alarms(day: int | None = None):
+    """Alarm log from day 1 up to this day."""
+    m, day = _mission_day(day)
+    return m.alarm_log(day)
+
+
+@app.get("/mission/report")
+def mission_report(day: int | None = None, period: str = "day"):
+    """Report for the flight surgeon on Earth: one day or the last 7 days."""
+    if period not in ("day", "week"):
+        raise HTTPException(422, "period must be 'day' or 'week'")
+    m, day = _mission_day(day)
+    return m.report(day, period)
+
+
 @app.get("/reference/blood")
 def reference_blood(crew: str = "C001"):
     """NASA Inspiration4 blood tests for one crew member. Reference only, not daily status."""

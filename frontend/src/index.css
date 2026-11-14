@@ -240,3 +240,28 @@ footer { margin-top: 28px; font-size: .8rem; color: var(--muted); }
 .history-card dd.warn { color: var(--yellow); font-weight: 600; }
 .history-card h3 { font-size: .9rem; margin: 10px 0 4px; }
 .history-card ul { margin: 0; padding-left: 18px; font-size: .86rem; }
+
+/* ---------- doctors: quick screen, crew chart, report ---------- */
+.now-row { display: grid; grid-template-columns: 14px 90px 1fr minmax(180px, 1fr); gap: 10px; align-items: baseline;
+  padding: .55rem 0; border-top: 1px solid var(--border); }
+.now-row:first-of-type { border-top: none; }
+.now-row .do { color: var(--text); font-weight: 500; }
+.now-row.status-green .do { color: var(--muted); font-weight: 400; }
+@media (max-width: 700px) { .now-row { grid-template-columns: 14px 1fr; } .now-row .what, .now-row .do { grid-column: 2; } }
+.chart-head, .report-head { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; justify-content: space-between; }
+.chart-head h2, .report-head h2 { margin: 0; }
+details.more > summary { cursor: pointer; list-style: none; }
+details.more > summary::-webkit-details-marker { display: none; }
+details.more > summary h2 { display: inline; }
+details.more > summary::before { content: '▸ '; color: var(--muted); }
+details.more[open] > summary::before { content: '▾ '; }
+details.more[open] > summary { margin-bottom: 12px; }
+.report h3 { font-size: .95rem; margin: 16px 0 6px; }
+
+@media print {
+  body { background: #fff; color: #000; }
+  .topbar, .strip, .role-switch, .guidance, .alerts, .crew-chart, details.more, footer, .no-print, .patients { display: none !important; }
+  .panel { border: none; background: #fff; padding: 0; }
+  .report, .report * { color: #000 !important; }
+  .doc-table td { border-top: 1px solid #ccc; }
+}

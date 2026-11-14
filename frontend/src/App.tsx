@@ -91,7 +91,7 @@ export default function App() {
         missionError || !mission ? <p className="err">{missionError ?? 'Loading mission…'}</p> : (
           <>
             {strip}
-            {tab === 'mission' ? <MissionView day={mission.day} onOpen={openPerson} /> : <DoctorView day={mission.day} />}
+            {tab === 'mission' ? <MissionView day={mission.day} onOpen={openPerson} /> : <DoctorView day={mission.day} mission={mission} meta={meta} />}
           </>
         )
       )}

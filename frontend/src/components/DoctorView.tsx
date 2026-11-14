@@ -1,18 +1,42 @@
 import { useEffect, useState } from 'react'
 import { api } from '../api'
-import type { DoctorView as View } from '../types'
+import type { Alarm, DoctorView as View, Meta, MissionInfo, NowLine } from '../types'
+import { CrewChart } from './CrewChart'
 import { AlertList } from './MissionView'
+import { AlarmLog, Report } from './Report'
 
 // One tab for both medical roles: the CMO onboard (live data, acts now) and the flight surgeon
 // on Earth (data and advice both travel ~20 minutes, so they work on trends and risks).
+// The CMO is busy with mission work, so the onboard view starts with one line per person and what to do;
+// the full tables are one click away. The ground gets the overnight report.
 
-export function DoctorView({ day }: { day: number }) {
+function NowList({ lines }: { lines: NowLine[] }) {
+  return (
+    <section className="panel now">
+      <h2>Right now</h2>
+      {lines.map((l) => (
+        <div key={l.astronaut_id} className={`now-row status-${l.level}`}>
+          <span className="dot" />
+          <strong>{l.name}</strong>
+          <span className="what">{l.what}{l.symptoms.length > 0 && <small className="muted"> ({l.symptoms.join(', ')})</small>}</span>
+          <span className="do">{l.do}</span>
+        </div>
+      ))}
+    </section>
+  )
+}
+
+export function DoctorView({ day, mission, meta }: { day: number; mission: MissionInfo; meta: Meta }) {
   const [role, setRole] = useState<'cmo' | 'ground'>('cmo')
   const [view, setView] = useState<View | null>(null)
+  const [now, setNow] = useState<NowLine[]>([])
+  const [alarms, setAlarms] = useState<Alarm[]>([])
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    api.missionDoctor(role).then((v) => { setView(v); setError(null) }).catch((e) => setError(String(e)))
+    Promise.all([api.missionDoctor(role), api.missionNow(day), api.missionAlarms(day)])
+      .then(([v, n, a]) => { setView(v); setNow(n); setAlarms(a); setError(null) })
+      .catch((e) => setError(String(e)))
   }, [role, day])
 
   if (error) return <p className="err">{error}</p>
@@ -39,6 +63,12 @@ export function DoctorView({ day }: { day: number }) {
 
       <AlertList alerts={view.alerts} />
 
+      {view.role === 'cmo' && <NowList lines={now} />}
+      {view.role === 'ground' && <Report day={day} />}
+      <CrewChart mission={mission} meta={meta} day={day} />
+
+      <details className="panel more" open={view.role === 'ground'}>
+      <summary><h2>Details: risks, anomalies, symptoms</h2></summary>
       <div className="doc-cols">
       <section className="panel">
         <h2>Risks in the next 48 hours</h2>
@@ -91,6 +121,14 @@ export function DoctorView({ day }: { day: number }) {
             <p key={s.astronaut_id}><strong>{s.name}</strong>: {s.symptoms.join(', ')}</p>
           ))}
         </section>
+      )}
+      </details>
+
+      {view.role === 'cmo' && (
+        <details className="panel more">
+          <summary><h2>Alarm log, days 1-{day} ({alarms.length})</h2></summary>
+          <AlarmLog alarms={alarms} />
+        </details>
       )}
     </div>
   )

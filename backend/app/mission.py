@@ -258,6 +258,94 @@ class Mission:
             })
         return out
 
+    # ---------- for the doctors: what to do now, alarm log, report ----------
+    def now(self, day: int | None = None) -> list[dict]:
+        """CMO quick screen: one line per crew member with the single most important thing and what to do."""
+        day = day or self.day
+        out = []
+        for aid in self.ids:
+            a = self.astronaut(aid, day)
+            red = [i for i in a["indicators"] if i["status"] == "red"]
+            yellow = [i for i in a["indicators"] if i["status"] == "yellow"]
+            high = [r for r in a["risks"] if r["level"] == "high"]
+            if a["unfit_reasons"]:
+                level, what, do = "red", "; ".join(a["unfit_reasons"]), "Examine now. Off EVA and heavy tasks today."
+            elif red:
+                level, what, do = "red", f"{red[0]['label']} {red[0]['value']:g} {red[0]['unit']}", "Re-measure now; examine if confirmed."
+            elif high:
+                r = high[0]
+                level, what, do = "yellow", f"{r['label']} risk {r['multiple']:g}x usual in 48 h", r["action"]
+            elif yellow:
+                i = yellow[0]
+                level, what, do = "yellow", f"{i['label']}: {i['message']}", "Re-measure later today before acting."
+            else:
+                level, what, do = "green", "As usual for this person", "Nothing to do."
+            out.append({"astronaut_id": aid, "name": a["name"], "role": a["role"], "level": level,
+                        "what": what, "do": do, "symptoms": a["symptoms"]})
+        return sorted(out, key=lambda x: -ORDER.index(x["level"]))
+
+    def alarm_log(self, upto: int | None = None) -> list[dict]:
+        """Every alarm from day 1 to `upto`: red values, symptoms that block tasks, high risks, crew alerts, moved tasks."""
+        upto = upto or self.day
+        log = []
+        for day in range(1, upto + 1):
+            for aid in self.ids:
+                a = self.astronaut(aid, day)
+                for i in a["indicators"]:
+                    if i["status"] == "red":
+                        log.append({"day": day, "who": a["name"], "level": "red", "kind": "value",
+                                    "what": f"{i['label']} {i['value']:g} {i['unit']}: outside safe limits",
+                                    "action": "Off heavy tasks until re-measured and examined"})
+                for r in a["risks"]:
+                    if r["level"] == "high":
+                        physical = r["event"] in PHYSICAL_EVENTS
+                        log.append({"day": day, "who": a["name"], "level": "yellow", "kind": "risk",
+                                    "what": f"{r['label']} risk {r['multiple']:g}x usual in 48 h",
+                                    "action": "CMO to confirm fitness for heavy tasks" if physical else "Watch; " + r["action"]})
+            for al in self.alerts(day):
+                log.append({"day": day, "who": "crew", "level": al["level"], "kind": "alert", "what": al["message"],
+                            "action": "Crew-wide response"})
+            for t in self.tasks_for(day):
+                if t["status"] != "planned":
+                    who = t["reassigned_to_name"]
+                    log.append({"day": day, "who": t["assignee_name"], "level": "yellow", "kind": "task",
+                                "what": f"{t['title']}: {t['status']}" + (f" to {who}" if who else ""),
+                                "action": t["reason"] or ""})
+        return log
+
+    def report(self, day: int | None = None, period: str = "day") -> dict:
+        """Summary for the flight surgeon on Earth, made overnight while the crew sleeps.
+
+        period "day": this mission day. period "week": the last 7 days up to this day.
+        """
+        day = day or self.day
+        first = day if period == "day" else max(1, day - 6)
+        days = range(first, day + 1)
+        crew = []
+        for aid in self.ids:
+            states = [self.astronaut(aid, d) for d in days]
+            today = states[-1]
+            hist = self.anamnesis[aid]
+            meds = [m for m in hist.get("medication_log", []) if first <= m["day"] <= day]
+            ready = [self.readiness.get(f"{aid}|{d}") for d in days]
+            crew.append({
+                "astronaut_id": aid, "name": today["name"], "role": today["role"], "status": today["status"],
+                "fit_for_high_demand": today["fit_for_high_demand"],
+                "days_yellow": sum(s["status"] == "yellow" for s in states),
+                "days_red": sum(s["status"] == "red" for s in states),
+                "off_today": [f"{i['label']}: {i['message']}" for i in today["indicators"] if i["status"] != "green"],
+                "symptoms": sorted({x for s in states for x in s["symptoms"]}),
+                "top_risks": [f"{r['label']} {r['multiple']:g}x usual" for r in today["risks"] if r["level"] != "normal"][:3],
+                "medication_given": [f"Day {m['day']}: {m['drug']} {m['dose']} ({m['reason']})" for m in meds],
+                "not_ready_days": [d for d, r in zip(days, ready) if r and not r["ready"]],
+            })
+        log = [e for e in self.alarm_log(day) if e["day"] >= first]
+        return {"day": day, "period": period, "from_day": first, "to_day": day,
+                "made": f"Made overnight after mission day {day}, while the crew sleeps.",
+                "crew": crew, "alarms": log,
+                "tasks_changed": sum(e["kind"] == "task" for e in log),
+                "source": "synthetic", "note": "Simulated crew data. Not medical advice."}
+
     def doctor(self, role: str, day: int | None = None) -> dict:
         day = day or self.day
         crew = [self.astronaut(aid, day) for aid in self.ids]
