@@ -10,10 +10,12 @@ Writes:
     demo_mission.csv        30 real days of one person in the backend's Measurement format
     inspiration4_blood.csv  one row per crew member, timepoint and analyte, with lab ranges
     nhanes_reference.csv    population percentiles for blood pressure, pulse and glucose (glucose: without diabetes)
+    sim/crew.csv, sim/days.csv, sim/events.csv
+                            SYNTHETIC demo crew mission calibrated on real data (docs/simulation.md)
 """
 import pandas as pd
 
-from . import demo, features, inspiration4, lifesnaps, mmash, nhanes, pmdata
+from . import demo, features, inspiration4, lifesnaps, mmash, nhanes, pmdata, simulation
 from .common import PROCESSED
 
 
@@ -45,6 +47,19 @@ def main() -> None:
     ref.to_csv(PROCESSED / "nhanes_reference.csv", index=False)
     print(f"nhanes_reference.csv    {len(ref):>6} rows")
     print(ref[["indicator", "n", "p01", "p05", "p50", "p95", "p99"]].to_string(index=False))
+
+    # Synthetic crew mission, calibrated on daily.csv (PMData) and the NHANES reference above.
+    cal = simulation.calibrate(daily, ref)
+    crew, days, events = simulation.demo_mission(cal)
+    out = PROCESSED / "sim"
+    out.mkdir(exist_ok=True)
+    crew.to_csv(out / "crew.csv", index=False)
+    days.to_csv(out / "days.csv", index=False)
+    events.to_csv(out / "events.csv", index=False)
+    print(f"sim/                    demo mission: {len(crew)} crew, {days['mission_day'].max()} days, {len(events)} events")
+    check, _ = simulation.training_missions(cal, 200, seed=7)
+    print("synthetic event-free days vs real PMData (median over people):")
+    print(simulation.compare_with_real(cal, daily, check).to_string(index=False))
 
 
 if __name__ == "__main__":
