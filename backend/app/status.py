@@ -29,8 +29,12 @@ def display_unit(ind: str) -> str:
     return DISPLAY_UNIT.get(unit, unit)
 
 
-def classify(ind: str, value: float, past: list[float]) -> dict:
-    """Status of today's value given earlier values (oldest first). Only the last NORM_DAYS of `past` are used."""
+def classify(ind: str, value: float, past: list[float], population_band: bool = True) -> dict:
+    """Status of today's value given earlier values (oldest first). Only the last NORM_DAYS of `past` are used.
+
+    population_band=False (crew mission): during the first NORM_MIN days only red can fire; the crew is
+    still calibrating, like a real mission's first week, so nobody turns yellow just for being an athlete.
+    """
     window = past[-NORM_DAYS:]
     t = THRESHOLDS.get(ind, {})
     unit = display_unit(ind)
@@ -41,10 +45,12 @@ def classify(ind: str, value: float, past: list[float]) -> dict:
         z = (value - norm) / spread
         if abs(z) >= Z_YELLOW:
             status, message = "yellow", f"{value - norm:+.1f} {unit} vs this person's usual {norm:.1f}"
-    elif value < t.get("yellow_low", float("-inf")) or value > t.get("yellow_high", float("inf")):
+    elif population_band and (value < t.get("yellow_low", float("-inf")) or value > t.get("yellow_high", float("inf"))):
         status, message = "yellow", "Outside the normal range (no personal norm yet)"
-    else:
+    elif population_band:
         message = "Within the normal range (no personal norm yet)"
+    else:
+        message = f"Learning this person's norm ({len(window)} of {NORM_MIN} days)"
     red_low, red_high = t.get("red_low"), t.get("red_high")
     if (red_low is not None and value <= red_low) or (red_high is not None and value >= red_high):
         status, message = "red", "Outside safe limits"

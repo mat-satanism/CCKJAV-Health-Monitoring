@@ -77,3 +77,11 @@ def test_timeline_marks_the_story_days():
     assert days[16]["high_risks"] >= 1                 # John's early warning
     assert days[19]["changed_tasks"] >= 1              # EVA moved to Stefan
     assert "environment" in days[25]["alerts"] and "solar_flare" in days[27]["alerts"]
+
+
+def test_first_week_has_no_yellow_only_red_can_fire():
+    from app.mission import MISSION
+    for day in range(1, 8):
+        for aid in MISSION.ids:
+            for i in MISSION.astronaut(aid, day)["indicators"]:
+                assert i["status"] in ("green", "red"), (aid, day, i["type"])

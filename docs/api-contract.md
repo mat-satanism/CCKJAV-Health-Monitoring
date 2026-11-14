@@ -42,7 +42,7 @@ Body systems: `cardiovascular`, `musculoskeletal`, `behavioral`, `immune`, `meta
 One rule for every view (`backend/app/status.py`), personal norm first:
 1. Latest value outside the `red_*` limits in `data/thresholds.json` → red. A `null` red limit means that side never turns red (mood and exercise: one bad day shouldn't call the ground).
 2. Personal norm = median of the previous 14 values (needs at least 7). If the value is 3 or more spreads from it → yellow. The spread has a per-indicator floor from `models/risk_model.json`.
-3. Before a norm exists, the `yellow_*` band of `data/thresholds.json` decides yellow. After that the population band is not used, so a person's usual value (e.g. an athlete's low resting pulse) is not flagged.
+3. Before a norm exists, the `yellow_*` band of `data/thresholds.json` decides yellow. In the crew mission the first 7 days show only red (a calibration week, no yellow from the population band). After the norm exists the population band is not used, so a person's usual value (e.g. an athlete's low resting pulse) is not flagged.
 4. No data → grey. A system takes the worst status of its indicators.
 4. Escalation: any red → `ground`; 2+ yellow → `crew`; else `self`.
 

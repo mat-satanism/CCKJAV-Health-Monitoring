@@ -61,7 +61,7 @@ class Mission:
     def _indicator(self, aid: str, day: int, ind: str) -> dict:
         value = self.values[(aid, day)][ind]
         past = [self.values[(aid, d)][ind] for d in range(1, day)]
-        c = classify(ind, value, past)
+        c = classify(ind, value, past, population_band=False)
         return {"type": ind, "label": INDICATORS[ind]["label"], "unit": c["unit"], "value": value,
                 "norm": None if c["norm"] is None else round(c["norm"], 1),
                 "z": None if c["z"] is None else round(c["z"], 1), "status": c["status"], "message": c["message"]}
