@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 import { api } from './api'
+import { BloodReference } from './components/BloodReference'
 import { BodyMap } from './components/BodyMap'
 import { CheckIn } from './components/CheckIn'
 import { InsightsCard, TasksCard } from './components/Sidebar'
@@ -67,9 +68,15 @@ export default function App() {
         </section>
 
         <div className="detail">
+          <p className="muted demo-note">
+            Demo: heart rate, sleep, mood and exercise are real days of one PMData participant
+            (device or self-report). Blood pressure, glucose and temperature have no data for
+            this person, so they stay grey.
+          </p>
           {selected && (
             <SystemPanel key={`${selected}-${version}`} system={selected} meta={meta} indicators={status.indicators} />
           )}
+          {selected === 'metabolic' && <BloodReference />}
         </div>
 
         <aside className="side">

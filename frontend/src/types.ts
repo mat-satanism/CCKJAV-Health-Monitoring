@@ -21,8 +21,22 @@ export interface IndicatorStatus {
   baseline?: number | null
   deviation?: number | null
   trend?: 'up' | 'down' | 'flat' | null
+  source?: 'manual' | 'sensor' | 'synthetic' | null
   message: string
   actions: string[]
+}
+
+export interface BloodRow {
+  panel: 'cmp' | 'cbc'
+  analyte: string
+  unit: string
+  timepoint: string
+  days_from_flight: number
+  value: number | null
+  ref_min: number | null
+  ref_max: number | null
+  flag: 'low' | 'normal' | 'high' | null
+  quality_note: string | null
 }
 
 export interface BodySystemStatus {

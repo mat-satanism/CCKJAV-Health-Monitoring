@@ -73,6 +73,20 @@ footer { margin-top: 24px; font-size: .8rem; text-align: center; }
 .progress { height: 6px; background: var(--grid); border-radius: 3px; margin-bottom: .5rem; overflow: hidden; }
 .progress div { height: 100%; background: var(--green); transition: width .3s; }
 
+/* data source tags */
+.source { font-size: .7rem; padding: .05rem .4rem; border-radius: 999px; border: 1px solid var(--border); color: var(--muted); }
+.source-synthetic { border-style: dashed; color: var(--yellow); border-color: var(--yellow); }
+
+/* blood reference (NASA Inspiration4) */
+.blood-table { width: 100%; border-collapse: collapse; font-size: .8rem; font-variant-numeric: tabular-nums; }
+.blood-table th, .blood-table td { padding: .3rem .4rem; border-bottom: 1px solid var(--border); text-align: right; white-space: nowrap; }
+.blood-table th:first-child, .blood-table td:first-child { text-align: left; }
+.blood-table td.high { color: var(--red); }
+.blood-table td.low { color: var(--yellow); }
+.blood-table td.noted { opacity: .55; text-decoration: underline dotted; }
+.blood-note { font-size: .8rem; margin: .5rem 0 0; }
+.demo-note { font-size: .85rem; margin: 0 0 12px; }
+
 /* check-in */
 .checkin .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
 .checkin label { display: grid; gap: 4px; font-size: .8rem; color: var(--muted); }

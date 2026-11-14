@@ -1,5 +1,5 @@
 import type {
-  Insights, Measurement, Meta, MissionContext, StatusResponse, Task,
+  BloodRow, Insights, Measurement, Meta, MissionContext, StatusResponse, Task,
 } from './types'
 
 const BASE = import.meta.env.VITE_API_URL ?? 'http://127.0.0.1:8000'
@@ -27,4 +27,5 @@ export const api = {
   setContext: (ctx: MissionContext) =>
     req<MissionContext>('/context', { method: 'PUT', body: JSON.stringify(ctx) }),
   resetDemo: () => req<{ ok: boolean }>('/demo/reset', { method: 'POST' }),
+  bloodReference: (crew: string) => req<BloodRow[]>(`/reference/blood?crew=${encodeURIComponent(crew)}`),
 }

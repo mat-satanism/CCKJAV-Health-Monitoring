@@ -61,3 +61,20 @@ def test_forecast_stays_in_range():
 
 def test_complete_task():
     assert client.post("/tasks/bp/complete").json()["done"] is True
+
+
+def test_demo_is_real_where_data_exists_and_grey_elsewhere():
+    status = {i["type"]: i for i in client.get("/status").json()["indicators"]}
+    assert status["heart_rate"]["source"] == "sensor"
+    assert status["mood"]["source"] == "manual"
+    assert status["bp_sys"]["status"] == "grey"
+    assert status["glucose"]["status"] == "grey"
+    assert status["temp"]["status"] == "grey"
+
+
+def test_blood_reference_keeps_flagged_samples_with_a_note():
+    rows = client.get("/reference/blood", params={"crew": "C003"}).json()
+    r45 = [r for r in rows if r["analyte"] == "glucose" and r["timepoint"] == "R+45"]
+    assert r45 and r45[0]["value"] == 36.0
+    assert "delayed" in r45[0]["quality_note"]
+    assert client.get("/reference/blood", params={"crew": "C009"}).status_code == 404

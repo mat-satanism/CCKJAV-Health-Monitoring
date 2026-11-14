@@ -1,6 +1,6 @@
 """FastAPI app. Endpoints follow docs/api-contract.md.
 
-Storage is in-memory and seeded with a synthetic demo mission on start.
+Storage is in-memory and seeded with the demo mission on start (see demo.py).
 """
 from datetime import datetime
 
@@ -9,7 +9,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from . import analytics, rules
 from .config import BOUNDS, ENVIRONMENTS, INDICATORS, SYSTEMS
-from .demo import demo_mission
+from .demo import blood_reference, demo_mission
 from .models import Measurement, MissionContext, Task
 
 app = FastAPI(title="CCKJAV Health Monitoring API")
@@ -90,6 +90,14 @@ def _indicator_statuses():
 def status():
     inds = _indicator_statuses()
     return {"indicators": list(inds.values()), "systems": rules.system_statuses(inds)}
+
+
+@app.get("/reference/blood")
+def reference_blood(crew: str = "C001"):
+    """NASA Inspiration4 blood tests for one crew member. Reference only, not daily status."""
+    if crew not in {"C001", "C002", "C003", "C004"}:
+        raise HTTPException(404, "Unknown crew member")
+    return blood_reference(crew)
 
 
 @app.get("/insights")

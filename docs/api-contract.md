@@ -12,7 +12,13 @@ Live docs: http://127.0.0.1:8000/docs
 // IndicatorStatus
 { "type": "heart_rate", "latest": 72, "status": "green|yellow|red|grey",
   "baseline": 65, "deviation": 1.4, "trend": "up|down|flat",
+  "source": "manual|sensor|synthetic",
   "message": "Within normal range", "actions": ["..."] }
+
+// BloodRow (reference only, from GET /reference/blood)
+{ "panel": "cmp", "analyte": "glucose", "unit": "milligram_per_deciliter", "timepoint": "R+45",
+  "days_from_flight": 45, "value": 36.0, "ref_min": 65.0, "ref_max": 99.0,
+  "flag": "low", "quality_note": "likely delayed sample processing (...)" }
 
 // BodySystemStatus
 { "system": "cardiovascular", "status": "yellow", "indicators": ["heart_rate","bp_sys","bp_dia"] }
@@ -51,6 +57,7 @@ Body systems: `cardiovascular`, `musculoskeletal`, `behavioral`, `immune`, `meta
 | GET | /forecast/{indicator}?days=7 | `{type, values: number[]}` |
 | GET | /tasks | Task[] |
 | POST | /tasks/{id}/complete | Task |
-| POST | /demo/reset | reload synthetic demo mission |
+| GET | /reference/blood?crew=C001 | BloodRow[]: NASA Inspiration4 blood tests, reference only, not daily status |
+| POST | /demo/reset | reload the demo mission (real PMData days where they exist, grey elsewhere; see demo.py) |
 
 Todo: `/report` (summary for ground flight surgeon), persistent storage.

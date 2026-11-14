@@ -3,6 +3,10 @@ import { TrendChart } from './TrendChart'
 
 const ARROW = { up: '↑', down: '↓', flat: '→' } as const
 
+// Where the value comes from. Shown on every indicator so the demo never passes
+// synthetic or self-reported numbers off as device readings.
+const SOURCE_LABEL = { sensor: 'device', manual: 'self-report', synthetic: 'synthetic' } as const
+
 interface Props {
   system: SystemId
   meta: Meta
@@ -22,6 +26,7 @@ export function SystemPanel({ system, meta, indicators }: Props) {
             <header>
               <span className="dot" />
               <strong>{m.label}</strong>
+              {i.source && <span className={`source source-${i.source}`}>{SOURCE_LABEL[i.source]}</span>}
               <span className="value">
                 {i.latest ?? '—'} <small>{m.unit}</small> {i.trend ? ARROW[i.trend] : ''}
               </span>

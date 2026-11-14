@@ -35,7 +35,8 @@ def indicator_status(ind: str, series: list[Measurement]) -> IndicatorStatus:
     if not series:
         return IndicatorStatus(type=ind, latest=None, status="grey",
                                message="No data yet", actions=[f"Measure {INDICATORS[ind]['label'].lower()}"])
-    values = [m.value for m in sorted(series, key=lambda m: m.ts)]
+    ordered = sorted(series, key=lambda m: m.ts)
+    values = [m.value for m in ordered]
     latest = values[-1]
     status = _threshold_status(ind, latest)
     message = {"green": "Within normal range", "yellow": "Outside normal range",
@@ -46,6 +47,7 @@ def indicator_status(ind: str, series: list[Measurement]) -> IndicatorStatus:
     return IndicatorStatus(
         type=ind, latest=latest, status=status,
         baseline=analytics.baseline(values), deviation=dev, trend=analytics.trend(values),
+        source=ordered[-1].source,
         message=message, actions=[ACTIONS[ind]] if status != "green" else [],
     )
 

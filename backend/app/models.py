@@ -32,6 +32,7 @@ class IndicatorStatus(BaseModel):
     baseline: float | None = None
     deviation: float | None = None
     trend: Literal["up", "down", "flat"] | None = None
+    source: Literal["manual", "sensor", "synthetic"] | None = None  # where the latest value came from
     message: str = ""
     actions: list[str] = []
 
