@@ -79,6 +79,34 @@ DEMO_EVENTS = [("infection", "john", 18, 4), ("sleep_disruption", "lena", 21, 6)
                ("co2_buildup", "crew", 25, 2), ("solar_flare", "crew", 27, 1)]
 
 
+# Task kinds: (demand, skill needed). High-demand tasks need a fit astronaut.
+TASK_KINDS = {
+    "eva": ("high", "eva"), "robotics": ("high", "robotics"), "maintenance": ("normal", "maintenance"),
+    "science": ("normal", "science"), "medical": ("normal", "medical"), "command": ("normal", "command"),
+}
+
+
+def demo_tasks(days: int = MISSION_DAYS) -> pd.DataFrame:
+    """The demo mission's task plan. John's EVA on day 19 falls on his fever; Stefan's EVA on day 27 on the flare."""
+    plan = []
+    for day in range(1, days + 1):
+        plan += [(day, "Daily mission planning", "command", "kenji"),
+                 (day, "Experiment run", "science", "lena"),
+                 (day, "Systems maintenance", "maintenance", "stefan" if day % 2 else "john")]
+        if day % 3 == 0:
+            plan.append((day, "Crew health check", "medical", "amara"))
+    plan += [(12, "EVA: solar panel inspection", "eva", "john"),
+             (19, "EVA: antenna repair", "eva", "john"),
+             (19, "Robotic arm: cargo transfer", "robotics", "kenji"),
+             (27, "EVA: sensor replacement", "eva", "stefan")]
+    rows = []
+    for i, (day, title, kind, who) in enumerate(sorted(plan, key=lambda p: (p[0], p[1]))):
+        demand, skill = TASK_KINDS[kind]
+        rows.append({"task_id": f"t{i:03d}", "mission_day": day, "title": title, "kind": kind,
+                     "demand": demand, "skill": skill, "assignee": who})
+    return pd.DataFrame(rows)
+
+
 @dataclass
 class Person:
     source: str

@@ -143,3 +143,21 @@ most 2%), with the sign "Resting pulse +6.2 bpm vs usual". Lena's sleep-disrupti
 
 Risks are calibrated probabilities, so they look small (events happen on 2-3% of days). The UI should show them
 next to the usual level ("10 times the usual risk") rather than as a bare percentage.
+
+## Stage 3: API and frontend (2026-11-14)
+
+Backend: `backend/app/mission.py` reads `data/processed/sim/` and `models/risk_model.json`; endpoints `/mission*`
+in `docs/api-contract.md`. Frontend: tabs **Crew mission** (mission clock, crew cards, tasks with reassignment)
+and **Doctors** (role switch CMO / flight surgeon), plus the earlier single-astronaut view as **My check-in**.
+
+Rules, chosen with the data:
+- Yellow = 3 or more spreads from the person's own norm. With 8 indicators a 2-spread rule marks someone yellow
+  on 54% of calm simulated astronaut-days, 2.5 spreads on 30%, 3 spreads on 13% (1-3% per indicator).
+- Only measured facts take someone off a high-demand task (a red indicator, fever, dizziness when standing). A high
+  model risk (5x the usual level or more) only shows "CMO to confirm fitness": on day 19 the model raises a false
+  alarm for Kenji (infection 5.6x usual), and an automatic swap would be wrong.
+- Doctors see risks from 3x the usual level.
+
+Demo walk-through: day 16 John's infection risk is 10.8x usual (pulse +6.2 bpm vs his norm); day 18 fever 38.3 °C,
+not fit; day 19 his EVA goes to Stefan ("John is not fit: Symptom: fever"); day 25 same symptoms in all 5 → check the
+air (CO2); day 27 solar flare → EVA postponed. Tested in `backend/tests/test_mission.py`.

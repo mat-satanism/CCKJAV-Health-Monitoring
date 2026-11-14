@@ -10,6 +10,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from . import analytics, rules
 from .config import BOUNDS, ENVIRONMENTS, INDICATORS, SYSTEMS
 from .demo import blood_reference, demo_mission
+from .mission import MISSION
 from .models import Measurement, MissionContext, Task
 
 app = FastAPI(title="CCKJAV Health Monitoring API")
@@ -35,6 +36,14 @@ def reset() -> None:
     MEASUREMENTS.clear()
     MEASUREMENTS.extend(demo_mission())
     TASKS[:] = _default_tasks()
+    if MISSION:
+        MISSION.day = 15
+
+
+def _mission():
+    if MISSION is None:
+        raise HTTPException(503, "Simulated mission not built. Run: python -m pipeline.build && python -m pipeline.model")
+    return MISSION
 
 
 reset()
@@ -90,6 +99,46 @@ def _indicator_statuses():
 def status():
     inds = _indicator_statuses()
     return {"indicators": list(inds.values()), "systems": rules.system_statuses(inds)}
+
+
+# ---------- simulated crew mission (synthetic data, see docs/simulation.md) ----------
+@app.get("/mission")
+def mission_info():
+    m = _mission()
+    return {"day": m.day, "days_total": m.days_total, "crew": m.crew, "source": "synthetic",
+            "note": "Simulated mission calibrated on real data. Not real astronauts."}
+
+
+@app.put("/mission/day")
+def mission_set_day(day: int):
+    m = _mission()
+    if not 1 <= day <= m.days_total:
+        raise HTTPException(422, f"day must be between 1 and {m.days_total}")
+    m.day = day
+    return {"day": m.day}
+
+
+@app.get("/mission/crew")
+def mission_crew():
+    m = _mission()
+    return [m.astronaut(aid) for aid in m.ids]
+
+
+@app.get("/mission/tasks")
+def mission_tasks():
+    return _mission().tasks_for()
+
+
+@app.get("/mission/alerts")
+def mission_alerts():
+    return _mission().alerts()
+
+
+@app.get("/mission/doctor")
+def mission_doctor(role: str = "cmo"):
+    if role not in ("cmo", "ground"):
+        raise HTTPException(422, "role must be 'cmo' or 'ground'")
+    return _mission().doctor(role)
 
 
 @app.get("/reference/blood")

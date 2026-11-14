@@ -26,6 +26,43 @@ export interface IndicatorStatus {
   actions: string[]
 }
 
+// ---------- simulated crew mission (synthetic, docs/simulation.md) ----------
+export interface CrewMember {
+  astronaut_id: string; name: string; role: string; skills: string; calibrated_from: string
+}
+export interface MissionInfo {
+  day: number; days_total: number; crew: CrewMember[]; source: 'synthetic'; note: string
+}
+export interface MissionIndicator {
+  type: string; label: string; unit: string; value: number
+  norm: number | null; z: number | null; status: Status; message: string
+}
+export interface EventRisk {
+  event: string; label: string; risk: number; multiple: number
+  level: 'high' | 'watch' | 'normal'; signs: string[]; action: string
+}
+export interface AstronautState {
+  astronaut_id: string; name: string; role: string; skills: string[]; calibrated_from: string; day: number
+  status: Status; indicators: MissionIndicator[]; symptoms: string[]; risks: EventRisk[]
+  fit_for_high_demand: boolean; unfit_reasons: string[]; cautions: string[]; source: 'synthetic'
+}
+export interface MissionTask {
+  task_id: string; mission_day: number; title: string; kind: string; demand: 'high' | 'normal'; skill: string
+  assignee: string; assignee_name: string
+  status: 'planned' | 'reassigned' | 'postponed' | 'needs decision'
+  reassigned_to: string | null; reassigned_to_name: string | null; reason: string | null; warning: string | null
+}
+export interface CrewAlert { kind: string; level: Status; who: string; message: string }
+export interface DoctorView {
+  role: 'cmo' | 'ground'; title: string; data_delay_min: number; reply_round_trip_min: number; guidance: string
+  day: number
+  anomalies: (MissionIndicator & { astronaut_id: string; name: string })[]
+  risks: (EventRisk & { astronaut_id: string; name: string })[]
+  symptoms: { astronaut_id: string; name: string; symptoms: string[] }[]
+  alerts: CrewAlert[]
+  source: 'synthetic'
+}
+
 export interface BloodRow {
   panel: 'cmp' | 'cbc'
   analyte: string

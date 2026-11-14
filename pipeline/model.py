@@ -89,7 +89,8 @@ def train(train_days: pd.DataFrame) -> dict:
     for event in sim.PREDICTED:
         y = d[f"label_{event}_48h"].to_numpy()
         lr = LogisticRegression(C=C, max_iter=2000).fit(Xs, y)
-        events[event] = {"coef": lr.coef_[0].round(6).tolist(), "intercept": float(lr.intercept_[0])}
+        events[event] = {"coef": lr.coef_[0].round(6).tolist(), "intercept": float(lr.intercept_[0]),
+                         "base_rate": round(float(y.mean()), 4)}   # share of days with this label: "usual" risk
     return {"features": feature_columns(), "mean": mean.round(6).tolist(), "scale": scale.round(6).tolist(),
             "floors": floors, "events": events,
             "trained_on": f"{TRAIN_MISSIONS} simulated missions, seed {TRAIN_SEED}",

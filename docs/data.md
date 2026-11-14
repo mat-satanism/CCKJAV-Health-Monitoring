@@ -8,7 +8,8 @@ From the repository root, with the same virtual env as the backend (see README):
 source backend/.venv/bin/activate
 pip install -r pipeline/requirements.txt
 python -m pipeline.get_data     # ~2.1 GB into data/raw/ (not in git); existing files are skipped
-python -m pipeline.build        # writes data/processed/ (in git, ~1 MB)
+python -m pipeline.build        # writes data/processed/ (in git) incl. the simulated mission in sim/
+python -m pipeline.model        # trains the risk model -> models/risk_model.json, sim/predictions.csv
 pytest pipeline/tests
 ```
 

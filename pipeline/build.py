@@ -56,6 +56,7 @@ def main() -> None:
     crew.to_csv(out / "crew.csv", index=False)
     days.to_csv(out / "days.csv", index=False)
     events.to_csv(out / "events.csv", index=False)
+    simulation.demo_tasks().to_csv(out / "tasks.csv", index=False)
     print(f"sim/                    demo mission: {len(crew)} crew, {days['mission_day'].max()} days, {len(events)} events")
     check, _ = simulation.training_missions(cal, 200, seed=7)
     print("synthetic event-free days vs real PMData (median over people):")
