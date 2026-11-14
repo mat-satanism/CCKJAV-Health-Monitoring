@@ -44,6 +44,7 @@ One row per person per day. Self-reports and device values are separate columns 
 | `exercise_min` | moderately + very active minutes | minutes, device | PMData, LifeSnaps |
 | `steps` | steps per day | device | all |
 | `temp_skin` | nightly **skin** temperature (not body temperature, about 34 deg C) | deg C, device | LifeSnaps |
+| `hrv_ms` | heart rate variability during sleep (RMSSD); calibrates the simulated crew's HRV | ms, device | LifeSnaps |
 | `emo_alert`, `emo_happy`, `emo_neutral`, `emo_relaxed`, `emo_sad`, `emo_tense`, `emo_tired` | short mood survey: 1 = the person ticked this feeling that day, 0 = did not. Filled on 2290 of 7410 LifeSnaps days, 63 people | 0 / 1, self-report | LifeSnaps |
 
 Cleaning rules:

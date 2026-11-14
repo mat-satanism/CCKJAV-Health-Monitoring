@@ -43,7 +43,7 @@ backend/app/
   rules.py       status per indicator/system, advice, escalation level
   mission.py     simulated crew mission: crew, tasks, alerts, doctors' view
   analytics.py   baseline / deviation / trend / forecast  <- plug ML models in here
-  demo.py        My check-in demo: 30 real PMData days + synthetic BP, glucose, temp
+  demo.py        Check-in real-data demo: 30 real PMData days + synthetic BP, glucose, temp
 backend/tests/   pytest
 frontend/        React + Vite + TypeScript UI (see frontend/README.md)
 data/            thresholds.json (demo values)
