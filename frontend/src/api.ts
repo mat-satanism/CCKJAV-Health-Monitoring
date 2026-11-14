@@ -1,6 +1,6 @@
 import type {
   AstronautState, BloodRow, CrewAlert, DoctorView, Insights, Measurement, Meta, MissionContext, MissionInfo,
-  MissionTask, StatusResponse, Task,
+  MissionTask, StatusResponse, Task, TimelineDay,
 } from './types'
 
 const BASE = import.meta.env.VITE_API_URL ?? 'http://127.0.0.1:8000'
@@ -32,6 +32,7 @@ export const api = {
   // simulated crew mission
   mission: () => req<MissionInfo>('/mission'),
   setMissionDay: (day: number) => req<{ day: number }>(`/mission/day?day=${day}`, { method: 'PUT' }),
+  missionTimeline: () => req<TimelineDay[]>('/mission/timeline'),
   missionCrew: () => req<AstronautState[]>('/mission/crew'),
   missionTasks: () => req<MissionTask[]>('/mission/tasks'),
   missionAlerts: () => req<CrewAlert[]>('/mission/alerts'),

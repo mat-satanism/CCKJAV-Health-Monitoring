@@ -164,6 +164,21 @@ class Mission:
             out.append(item)
         return out
 
+    def timeline(self) -> list[dict]:
+        """One entry per mission day: the crew's worst status, risks above usual, alerts and moved tasks."""
+        out = []
+        for day in range(1, self.days_total + 1):
+            crew = [self.astronaut(aid, day) for aid in self.ids]
+            tasks = self.tasks_for(day)
+            out.append({
+                "day": day,
+                "status": max((a["status"] for a in crew), key=ORDER.index),
+                "high_risks": sum(r["level"] == "high" for a in crew for r in a["risks"]),
+                "alerts": [a["kind"] for a in self.alerts(day)],
+                "changed_tasks": sum(t["status"] != "planned" for t in tasks),
+            })
+        return out
+
     def doctor(self, role: str, day: int | None = None) -> dict:
         day = day or self.day
         crew = [self.astronaut(aid, day) for aid in self.ids]

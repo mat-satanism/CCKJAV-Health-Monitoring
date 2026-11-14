@@ -52,6 +52,9 @@ export interface MissionTask {
   status: 'planned' | 'reassigned' | 'postponed' | 'needs decision'
   reassigned_to: string | null; reassigned_to_name: string | null; reason: string | null; warning: string | null
 }
+export interface TimelineDay {
+  day: number; status: Status; high_risks: number; alerts: string[]; changed_tasks: number
+}
 export interface CrewAlert { kind: string; level: Status; who: string; message: string }
 export interface DoctorView {
   role: 'cmo' | 'ground'; title: string; data_delay_min: number; reply_round_trip_min: number; guidance: string

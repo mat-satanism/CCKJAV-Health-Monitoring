@@ -69,3 +69,11 @@ def test_ground_view_knows_about_the_delay():
     ground = client.get("/mission/doctor", params={"role": "ground"}).json()
     assert ground["data_delay_min"] == 20 and ground["reply_round_trip_min"] == 40
     assert client.get("/mission/doctor", params={"role": "nurse"}).status_code == 422
+
+
+def test_timeline_marks_the_story_days():
+    days = {d["day"]: d for d in client.get("/mission/timeline").json()}
+    assert len(days) == 30
+    assert days[16]["high_risks"] >= 1                 # John's early warning
+    assert days[19]["changed_tasks"] >= 1              # EVA moved to Stefan
+    assert "environment" in days[25]["alerts"] and "solar_flare" in days[27]["alerts"]

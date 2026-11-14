@@ -59,6 +59,7 @@ Body systems: `cardiovascular`, `musculoskeletal`, `behavioral`, `immune`, `meta
 | POST | /tasks/{id}/complete | Task |
 | GET | /mission | simulated crew mission: `{day, days_total, crew[], source: "synthetic", note}` |
 | PUT | /mission/day?day=N | move the mission clock (1..days_total) |
+| GET | /mission/timeline | per day: `{day, status, high_risks, alerts[], changed_tasks}` for the mission strip |
 | GET | /mission/crew | per astronaut: indicators vs personal norm, symptoms, risks for 48 h with signs, `fit_for_high_demand`, `unfit_reasons`, `cautions` |
 | GET | /mission/tasks | today's tasks: `status` planned / reassigned / postponed / needs decision, `reassigned_to`, `reason`, `warning` |
 | GET | /mission/alerts | crew-wide alerts (solar flare, same symptoms in 3+ people) |

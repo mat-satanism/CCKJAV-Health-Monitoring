@@ -4,6 +4,7 @@ import { BloodReference } from './components/BloodReference'
 import { BodyMap } from './components/BodyMap'
 import { CheckIn } from './components/CheckIn'
 import { DoctorView } from './components/DoctorView'
+import { MissionStrip } from './components/MissionStrip'
 import { MissionView } from './components/MissionView'
 import { InsightsCard, TasksCard } from './components/Sidebar'
 import { SystemPanel } from './components/SystemPanel'
@@ -71,29 +72,27 @@ export default function App() {
               onClick={() => setTab(t.id)}>{t.label}</button>
           ))}
         </nav>
-        <select value={ctx.environment} onChange={(e) => changeEnv(e.target.value as EnvironmentId)}>
-          {Object.entries(meta.environments).map(([id, env]) => (
-            <option key={id} value={id}>{env.label}</option>
-          ))}
-        </select>
-        <span className="muted">
-          {ctx.gravity_g ?? 0} g · comms delay {ctx.comm_delay_s && ctx.comm_delay_s >= 60
-            ? `${Math.round(ctx.comm_delay_s / 60)} min` : `${ctx.comm_delay_s ?? 0} s`}
-        </span>
-        <button onClick={() => api.resetDemo().then(refresh)}>Reset demo</button>
+        <div className="context">
+          <select value={ctx.environment} onChange={(e) => changeEnv(e.target.value as EnvironmentId)}
+            aria-label="Mission environment">
+            {Object.entries(meta.environments).map(([id, env]) => (
+              <option key={id} value={id}>{env.label}</option>
+            ))}
+          </select>
+          <span>{ctx.gravity_g ?? 0} g</span>
+          <span>
+            {ctx.comm_delay_s && ctx.comm_delay_s >= 60
+              ? `${Math.round(ctx.comm_delay_s / 60)} min` : `${ctx.comm_delay_s ?? 0} s`} signal delay
+          </span>
+          <button onClick={() => api.resetDemo().then(refresh)}>Reset demo</button>
+        </div>
       </header>
 
       {tab !== 'astronaut' && (
         missionError || !mission ? <p className="err">{missionError ?? 'Loading mission…'}</p> : (
           <>
-            <div className="clock panel">
-              <button onClick={() => changeDay(mission.day - 1)} disabled={mission.day <= 1} aria-label="Previous day">◀</button>
-              <strong>Mission day {mission.day} / {mission.days_total}</strong>
-              <button onClick={() => changeDay(mission.day + 1)} disabled={mission.day >= mission.days_total} aria-label="Next day">▶</button>
-              <input type="range" min={1} max={mission.days_total} value={mission.day}
-                onChange={(e) => changeDay(Number(e.target.value))} aria-label="Mission day" />
-              <span className="badge-synthetic">{mission.note}</span>
-            </div>
+            <MissionStrip day={mission.day} total={mission.days_total} note={mission.note}
+              onDay={changeDay} reloadKey={version} />
             {tab === 'mission' ? <MissionView day={mission.day} /> : <DoctorView day={mission.day} />}
           </>
         )

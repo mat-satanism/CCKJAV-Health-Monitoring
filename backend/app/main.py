@@ -118,6 +118,11 @@ def mission_set_day(day: int):
     return {"day": m.day}
 
 
+@app.get("/mission/timeline")
+def mission_timeline():
+    return _mission().timeline()
+
+
 @app.get("/mission/crew")
 def mission_crew():
     m = _mission()

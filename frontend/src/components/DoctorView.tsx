@@ -39,23 +39,24 @@ export function DoctorView({ day }: { day: number }) {
 
       <AlertList alerts={view.alerts} />
 
+      <div className="doc-cols">
       <section className="panel">
         <h2>Risks in the next 48 hours</h2>
         {view.risks.length === 0 ? <p className="muted">Nobody above the usual level.</p> : (
-          <table className="doc-table">
+          <div className="table-wrap"><table className="doc-table">
             <thead><tr><th>Who</th><th>What</th><th>vs usual</th><th>Signs</th><th>Suggested action</th></tr></thead>
             <tbody>
               {view.risks.map((r) => (
-                <tr key={`${r.astronaut_id}-${r.event}`} className={`risk-${r.level}`}>
-                  <td>{r.name}</td>
+                <tr key={`${r.astronaut_id}-${r.event}`} className={`lvl-${r.level}`}>
+                  <td><strong>{r.name}</strong></td>
                   <td>{r.label}</td>
-                  <td>×{r.multiple} <small className="muted">({Math.round(r.risk * 100)}%)</small></td>
+                  <td className={`num risk-${r.level}`}>×{r.multiple} <small className="muted">({Math.round(r.risk * 100)}%)</small></td>
                   <td className="small">{r.signs.join('; ') || '—'}</td>
-                  <td className="small">{r.action}</td>
+                  <td className="small muted">{r.action}</td>
                 </tr>
               ))}
             </tbody>
-          </table>
+          </table></div>
         )}
         <p className="muted small">
           Model trained on simulated missions; it has not been validated on real astronauts. Placeholder advice, not medical guidance.
@@ -65,23 +66,23 @@ export function DoctorView({ day }: { day: number }) {
       <section className="panel">
         <h2>Anomalies today</h2>
         {view.anomalies.length === 0 ? <p className="muted">All values as usual for each person.</p> : (
-          <table className="doc-table">
-            <thead><tr><th>Who</th><th>Indicator</th><th>Value</th><th>Usual</th><th>Status</th><th>Why</th></tr></thead>
+          <div className="table-wrap"><table className="doc-table">
+            <thead><tr><th>Who</th><th>Indicator</th><th>Value</th><th>Usual</th><th>Why</th></tr></thead>
             <tbody>
               {view.anomalies.map((a) => (
                 <tr key={`${a.astronaut_id}-${a.type}`} className={`status-${a.status}`}>
-                  <td>{a.name}</td>
-                  <td>{a.label}</td>
-                  <td>{a.value} <small className="muted">{a.unit}</small></td>
-                  <td>{a.norm ?? '—'}</td>
-                  <td><span className="dot" /> {a.status}</td>
+                  <td><strong>{a.name}</strong></td>
+                  <td><span className="dot" /> {a.label}</td>
+                  <td className="num">{a.value} <small className="muted">{a.unit}</small></td>
+                  <td className="num muted">{a.norm ?? '—'}</td>
                   <td className="small">{a.message}</td>
                 </tr>
               ))}
             </tbody>
-          </table>
+          </table></div>
         )}
       </section>
+      </div>
 
       {view.symptoms.length > 0 && (
         <section className="panel">
