@@ -61,7 +61,8 @@ export interface AstronautCard extends AstronautState {
   readiness: Readiness | null
 }
 export interface HistoryPoint {
-  day: number; value: number; status: Status; norm: number | null; low: number | null; high: number | null; entered: boolean
+  day: number; value: number; status: Status; norm: number | null; low: number | null; high: number | null
+  z: number | null; entered: boolean
 }
 export type AstronautHistory = Record<string, HistoryPoint[]>
 export interface MissionTask {

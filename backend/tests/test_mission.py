@@ -81,7 +81,7 @@ def test_timeline_marks_the_story_days():
 
 def test_first_week_has_no_yellow_only_red_can_fire():
     from app.mission import MISSION
-    for day in range(1, 8):
+    for day in range(1, 7):            # 6 days of calibration
         for aid in MISSION.ids:
             for i in MISSION.astronaut(aid, day)["indicators"]:
                 assert i["status"] in ("green", "red"), (aid, day, i["type"])

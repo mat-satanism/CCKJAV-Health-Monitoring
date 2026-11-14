@@ -217,7 +217,7 @@ export function PersonView({ aid, day, meta, onDay, onChanged }: Props) {
                 <HistoryChart points={hist[i.type]} day={card.day} onDay={onDay} />
               </article>
             ))}
-            <p className="small muted">Shaded: this person's usual range (norm ± 3 spreads). Big dots: values entered in the app.</p>
+            <p className="small muted">Shaded: where 95% of this person's values should fall (Bayesian norm, learned from the last 14 days on top of what is typical for people). Big dots: values entered in the app.</p>
           </section>
         )}
       </div>

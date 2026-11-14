@@ -11,7 +11,7 @@ On long-duration missions (Moon, Mars) astronauts must spot health changes in th
 Working now:
 - **Body Map**: clickable astronaut figure, each body system colored by status.
 - **Daily Check-in**: heart rate, blood pressure, glucose, temperature, sleep, exercise, mood, heart rate variability, reaction time (3-minute PVT). Each indicator says how often and how to measure it; weekly and occasional measures (body mass, bone, blood, urine, saliva) are listed with sources.
-- **Personal baseline**: status is computed against the astronaut's own 14-day norm (yellow at 3+ spreads) plus absolute safe limits, the same rule in every tab.
+- **Personal baseline**: status is computed against the astronaut's own norm, learned the Bayesian way (start from what is typical for people, update with the person's last 14 days; yellow outside their 99% band or outside 95% two days in a row) plus absolute safe limits, the same rule in every tab. See `docs/personal-norm.md` and `docs/limits-and-assumptions.md`.
 - **Trends**: charts with the personal baseline line and a 7-day forecast.
 - **Assistant**: rule-based advice with escalation levels (self / crew / ground) and a comms-delay note.
 - **Daily tasks** with points.

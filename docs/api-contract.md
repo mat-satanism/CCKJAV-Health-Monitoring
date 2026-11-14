@@ -41,8 +41,8 @@ Body systems: `cardiovascular`, `musculoskeletal`, `behavioral`, `immune`, `meta
 ## Status logic
 One rule for every view (`backend/app/status.py`), personal norm first:
 1. Latest value outside the `red_*` limits in `data/thresholds.json` → red. A `null` red limit means that side never turns red (mood and exercise: one bad day shouldn't call the ground).
-2. Personal norm = median of the previous 14 values (needs at least 7). If the value is 3 or more spreads from it → yellow. The spread has a per-indicator floor from `models/risk_model.json`.
-3. Before a norm exists, the `yellow_*` band of `data/thresholds.json` decides yellow. In the crew mission the first 7 days show only red (a calibration week, no yellow from the population band). After the norm exists the population band is not used, so a person's usual value (e.g. an athlete's low resting pulse) is not flagged.
+2. Personal norm = Bayesian prediction from a population prior (`models/norm_priors.json`) updated with the previous 14 values (needs at least 6). Outside the person's 99% band, or outside the 95% band two days in a row → yellow. Details: `docs/personal-norm.md`.
+3. Before a norm exists, the `yellow_*` band of `data/thresholds.json` decides yellow. In the crew mission the first 6 days show only red (a calibration week, no yellow from the population band). After the norm exists the population band is not used, so a person's usual value (e.g. an athlete's low resting pulse) is not flagged.
 4. No data → grey. A system takes the worst status of its indicators.
 4. Escalation: any red → `ground`; 2+ yellow → `crew`; else `self`.
 
@@ -70,7 +70,7 @@ One rule for every view (`backend/app/status.py`), personal norm first:
 | GET | /mission/alarms?day=N | alarm log from day 1 to N: red values, high risks, crew alerts, moved tasks, each with the `action` |
 | GET | /mission/report?day=N&period=day\|week | report for the flight surgeon, made overnight: per person status, days off usual, symptoms, risks, medicine given, not-ready days; plus the alarms of the period |
 | GET | /mission/astronaut/{id}?day=N | one crew member's card for day N (default: current day): indicators (with `entered`), body `systems`, risks, synthetic `anamnesis`, `medication_today`, `readiness` |
-| GET | /mission/astronaut/{id}/history | every mission day per indicator: value, status, personal `norm`, `low`/`high` = norm ± 3 spreads, `entered` |
+| GET | /mission/astronaut/{id}/history | every mission day per indicator: value, status, personal `norm`, `low`/`high` = 95% prediction band, `z` = distance from the norm in prediction scales, `entered` |
 | POST | /mission/astronaut/{id}/entries?day=N | `{"values": {"temp": 39.2}, "symptoms": ["fever"]}` replaces that day's simulated values; statuses and tasks follow, risks stay the model's. Saved to `data/local/mission_entries.json`, removed by `/demo/reset` |
 | POST | /mission/astronaut/{id}/readiness?day=N | `{"ready": true, "note": ""}` morning readiness check; returns a short `reply` |
 | GET | /reference/blood?crew=C001 | BloodRow[]: NASA Inspiration4 blood tests, reference only, not daily status |

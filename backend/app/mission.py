@@ -15,7 +15,7 @@ import os
 from pathlib import Path
 
 from .config import DATA_DIR, ENVIRONMENTS, INDICATORS, SYSTEMS
-from .status import MODEL_PATH, Z_YELLOW, classify
+from .status import MODEL_PATH, classify
 
 SIM_DIR = DATA_DIR / "processed" / "sim"
 ANAMNESIS_PATH = DATA_DIR / "synthetic" / "anamnesis.json"
@@ -181,18 +181,18 @@ class Mission:
         return out
 
     def history(self, aid: str) -> dict:
-        """Every mission day for one crew member: value, personal norm, the yellow band around it, status."""
+        """Every mission day for one crew member: value, personal norm, its 95% prediction band, status."""
         out = {}
         for ind in INDICATORS:
             rows = []
             for day in range(1, self.days_total + 1):
                 value = self.values[(aid, day)][ind]
                 c = classify(ind, value, [self.values[(aid, d)][ind] for d in range(1, day)], population_band=False)
-                band = None if c["norm"] is None else Z_YELLOW * c["spread"]
                 rows.append({"day": day, "value": value, "status": c["status"],
                              "norm": None if c["norm"] is None else round(c["norm"], 2),
-                             "low": None if band is None else round(c["norm"] - band, 2),
-                             "high": None if band is None else round(c["norm"] + band, 2),
+                             "low": None if c["low"] is None else round(c["low"], 2),
+                             "high": None if c["high"] is None else round(c["high"], 2),
+                             "z": None if c["z"] is None else round(c["z"], 2),
                              "entered": ind in self.entries.get(f"{aid}|{day}", {}).get("values", {})})
             out[ind] = rows
         return out

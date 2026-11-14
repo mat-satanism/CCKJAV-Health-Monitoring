@@ -5,8 +5,8 @@ import {
 import { api } from '../api'
 import type { AstronautHistory, MissionInfo, Meta } from '../types'
 
-// The whole crew on one chart: each person's distance from their OWN norm, in spreads.
-// 0 = as usual; the shaded band (±3) is "usual"; outside it the value turns yellow.
+// The whole crew on one chart: each person's distance from their OWN norm (Bayesian prediction),
+// in prediction scales. 0 = as expected; the shaded band (about ±2) is the 95% "usual" range.
 const COLORS = ['#7cc4e0', '#f0b429', '#b48ead', '#5bb98c', '#e88c6a']
 
 export function CrewChart({ mission, meta, day }: { mission: MissionInfo; meta: Meta; day: number }) {
@@ -24,8 +24,7 @@ export function CrewChart({ mission, meta, day }: { mission: MissionInfo; meta: 
     const row: Record<string, number | null> = { day: i + 1 }
     for (const c of mission.crew) {
       const p = hist[c.astronaut_id][ind][i]
-      row[c.name] = p.norm != null && p.high != null && p.high > p.norm
-        ? Math.round(((p.value - p.norm) / ((p.high - p.norm) / 3)) * 10) / 10 : null
+      row[c.name] = p.z
     }
     return row
   })
@@ -38,11 +37,11 @@ export function CrewChart({ mission, meta, day }: { mission: MissionInfo; meta: 
           {Object.entries(meta.indicators).map(([id, m]) => <option key={id} value={id}>{m.label}</option>)}
         </select>
       </div>
-      <p className="small muted">Distance from each person's own norm, in spreads. Shaded = usual; from the first week on.</p>
+      <p className="small muted">Distance from each person's own expected value. Shaded = their usual range (95%). Starts after 6 days of calibration.</p>
       <ResponsiveContainer width="100%" height={220}>
         <LineChart data={data} margin={{ top: 8, right: 12, bottom: 0, left: -20 }}>
           <CartesianGrid stroke="var(--grid)" vertical={false} />
-          <ReferenceArea y1={-3} y2={3} fill="var(--accent)" fillOpacity={0.08} />
+          <ReferenceArea y1={-2} y2={2} fill="var(--accent)" fillOpacity={0.08} />
           <XAxis dataKey="day" tick={{ fontSize: 10, fill: 'var(--muted)' }} interval={4} />
           <YAxis tick={{ fontSize: 10, fill: 'var(--muted)' }} domain={[-8, 8]} allowDataOverflow />
           <Tooltip contentStyle={{ background: 'var(--surface)', border: '1px solid var(--border)' }}
