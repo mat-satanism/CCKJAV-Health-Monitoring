@@ -1,0 +1,54 @@
+import { useState } from 'react'
+import { api } from '../api'
+import type { Meta } from '../types'
+
+// Indicators asked in the daily check-in. Add how-to-measure hints later.
+const FIELDS = ['heart_rate', 'bp_sys', 'bp_dia', 'glucose', 'temp', 'sleep_hours', 'exercise_min']
+const MOODS = ['😞', '🙁', '😐', '🙂', '😄']
+
+export function CheckIn({ meta, onSaved }: { meta: Meta; onSaved: () => void }) {
+  const [values, setValues] = useState<Record<string, string>>({})
+  const [mood, setMood] = useState<number | null>(null)
+  const [state, setState] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle')
+
+  const submit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    const ts = new Date().toISOString()
+    const items = Object.entries(values)
+      .filter(([, v]) => v.trim() !== '')
+      .map(([type, v]) => ({ ts, type, value: Number(v), unit: meta.indicators[type].unit, source: 'manual' as const }))
+    if (mood) items.push({ ts, type: 'mood', value: mood, unit: '1-5', source: 'manual' })
+    if (!items.length) return
+    setState('saving')
+    try {
+      await api.addMeasurements(items)
+      setValues({}); setMood(null); setState('saved'); onSaved()
+    } catch {
+      setState('error')
+    }
+  }
+
+  return (
+    <form className="panel checkin" onSubmit={submit}>
+      <h2>Daily check-in</h2>
+      <div className="grid">
+        {FIELDS.map((f) => (
+          <label key={f}>
+            <span>{meta.indicators[f].label} <small>{meta.indicators[f].unit}</small></span>
+            <input type="number" step="any" inputMode="decimal" value={values[f] ?? ''}
+              onChange={(e) => setValues({ ...values, [f]: e.target.value })} />
+          </label>
+        ))}
+      </div>
+      <div className="moods" role="radiogroup" aria-label="Mood">
+        {MOODS.map((m, i) => (
+          <button type="button" key={m} role="radio" aria-checked={mood === i + 1}
+            className={mood === i + 1 ? 'on' : ''} onClick={() => setMood(i + 1)}>{m}</button>
+        ))}
+      </div>
+      <button className="primary" disabled={state === 'saving'}>Save</button>
+      {state === 'saved' && <span className="muted"> Saved</span>}
+      {state === 'error' && <span className="err"> Could not save</span>}
+    </form>
+  )
+}

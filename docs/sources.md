@@ -11,7 +11,16 @@ For every threshold or claim used in the app: link + one line on what we took fr
 - Monitoring Radiation for Astronaut Health: TODO link
 - Why Do We Conduct Science Experiments in Space?: TODO link
 
+## Datasets
+Details and licenses: [data.md](data.md).
+- NASA OSDR OSD-575 and OSD-569 (Inspiration4 blood tests): https://osdr.nasa.gov/bio/repo/data/studies/OSD-575 — lab reference ranges and before/after-flight values.
+- NHANES 2021-2023, CDC: https://wwwn.cdc.gov/nchs/nhanes/ — population percentiles for blood pressure, pulse, fasting glucose (`data/processed/nhanes_reference.csv`).
+- PMData (Simula): https://datasets.simula.no/pmdata — daily wearable + self-report data for models.
+- LifeSnaps (Zenodo 7229547): https://zenodo.org/records/7229547 — daily wearable data for models, skin temperature.
+- MMASH (PhysioNet): https://physionet.org/content/mmash/1.0.0/ — sleep and steps.
+
 ## Thresholds used
 | Indicator | Range used | Source |
 |---|---|---|
 | heart_rate | TODO | TODO |
+| glucose | yellow < 65 or > 114, red > 128 mg/dL (fasting) | High: NHANES 2021-2023 adults 20-60 without diabetes, 95th/99th percentile. Low: Inspiration4 lab reference minimum (OSD-575). See [data.md](data.md) |
