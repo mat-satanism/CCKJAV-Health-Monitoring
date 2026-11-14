@@ -105,8 +105,17 @@ export interface MissionContext {
   comm_delay_s?: number | null
 }
 
+export interface Source { title: string; publisher: string; year: number | null; url: string }
+export interface IndicatorContent { why: string; how_to_measure: string; advice: string[]; sources: string[] }
+export interface SystemContent { what: string; in_space: string; hazards: string[]; sources: string[] }
+
 export interface Meta {
   indicators: Record<string, { label: string; unit: string; system: SystemId }>
   systems: Record<SystemId, { label: string }>
   environments: Record<EnvironmentId, { label: string; gravity_g: number; comm_delay_s: number }>
+  content: {
+    indicators: Record<string, IndicatorContent>
+    systems: Record<SystemId, SystemContent>
+    sources: Record<string, Source>
+  }
 }

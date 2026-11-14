@@ -8,7 +8,7 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 
 from . import analytics, rules
-from .config import BOUNDS, ENVIRONMENTS, INDICATORS, SYSTEMS
+from .config import BOUNDS, CONTENT, ENVIRONMENTS, INDICATORS, SYSTEMS
 from .demo import blood_reference, demo_mission
 from .mission import MISSION
 from .models import Measurement, MissionContext, Task
@@ -56,8 +56,8 @@ def health():
 
 @app.get("/meta")
 def meta():
-    """Labels/units for indicators, systems and environments (for the UI)."""
-    return {"indicators": INDICATORS, "systems": SYSTEMS, "environments": ENVIRONMENTS}
+    """Labels/units for indicators, systems and environments, plus explanations with sources (for the UI)."""
+    return {"indicators": INDICATORS, "systems": SYSTEMS, "environments": ENVIRONMENTS, "content": CONTENT}
 
 
 @app.get("/context", response_model=MissionContext)

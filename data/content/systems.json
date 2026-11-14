@@ -1,0 +1,39 @@
+{
+  "_note": "Plain-language descriptions for the body map. Paraphrased from the cited sources (see sources.json). Not medical advice.",
+  "cardiovascular": {
+    "what": "The heart and blood vessels move oxygen and fluid around the body and keep blood pressure steady when you change position.",
+    "in_space": "Without gravity, body fluid shifts towards the head and chest. Within about two days the body adapts by reducing the fluid in the blood vessels by around 15%. That is fine in orbit, but on return to gravity blood pools in the legs, and standing up can cause light-headedness or fainting (orthostatic intolerance).",
+    "hazards": ["Gravity fields"],
+    "sources": ["ochmo-tb-019", "nasa-hazards"]
+  },
+  "musculoskeletal": {
+    "what": "Bones and muscles carry the body's weight and let you move and work.",
+    "in_space": "Weightlessness removes the everyday load on bones and muscles, so they weaken from disuse. Bone loses density, and missions longer than about 90 to 100 days add to the loss; spongy (trabecular) bone may not fully recover afterwards. Daily aerobic and resistance exercise is the main countermeasure: NASA aims to keep at least 95% of pre-flight hip and spine bone and 80% of muscle strength.",
+    "hazards": ["Gravity fields"],
+    "sources": ["ochmo-mtb-013", "ochmo-tb-031", "nasa-hazards"]
+  },
+  "behavioral": {
+    "what": "Mood, motivation and how well a person copes, thinks and works with the crew.",
+    "in_space": "Living for months in a small space, far from family, with a heavy workload, puts strain on mood and teamwork. NASA selects, trains and supports crews so they can work together for months or years.",
+    "hazards": ["Isolation and confinement", "Distance from Earth"],
+    "sources": ["nasa-hazards", "hrp-sleep-2016"]
+  },
+  "immune": {
+    "what": "The immune system fights infections and keeps dormant viruses in check.",
+    "in_space": "Studies of astronauts found reduced immune function in some crew members and reactivation of dormant herpes viruses, together with higher stress hormones. One study also found that resting body temperature slowly rises by about 1 °C over months in orbit.",
+    "hazards": ["Hostile/closed environments"],
+    "sources": ["hrp-immune-2009", "stahn-2017", "nasa-hazards"]
+  },
+  "metabolic": {
+    "what": "Metabolism turns food into energy; blood glucose shows how well the body is handling it.",
+    "in_space": "On the space station, astronauts' bodies burned relatively more carbohydrate and less fat at rest, mostly following changes in their diet. Gene studies also point to changes in insulin signalling. The evidence is still limited, so glucose is best compared with your own usual values.",
+    "hazards": ["Gravity fields", "Hostile/closed environments"],
+    "sources": ["energy-2024", "insulin-2023"]
+  },
+  "sleep": {
+    "what": "Sleep restores the body and the mind; its timing is set by the body clock.",
+    "in_space": "Astronauts consistently sleep less in space than on the ground. Schedules that are not 24 hours long, sudden shift changes and too little or badly timed light throw the body clock out of step, and that is linked to more mistakes and lower performance.",
+    "hazards": ["Isolation and confinement", "Hostile/closed environments"],
+    "sources": ["hrp-sleep-2016"]
+  }
+}

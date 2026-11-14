@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { api } from '../api'
 import type { Meta } from '../types'
 
-// Indicators asked in the daily check-in. Add how-to-measure hints later.
+// Indicators asked in the daily check-in; each field shows how to measure it (data/content/indicators.json).
 const FIELDS = ['heart_rate', 'bp_sys', 'bp_dia', 'glucose', 'temp', 'sleep_hours', 'exercise_min']
 const MOODS = ['😞', '🙁', '😐', '🙂', '😄']
 
@@ -36,7 +36,9 @@ export function CheckIn({ meta, onSaved }: { meta: Meta; onSaved: () => void }) 
           <label key={f}>
             <span>{meta.indicators[f].label} <small>{meta.indicators[f].unit}</small></span>
             <input type="number" step="any" inputMode="decimal" value={values[f] ?? ''}
+              aria-describedby={`how-${f}`}
               onChange={(e) => setValues({ ...values, [f]: e.target.value })} />
+            <small id={`how-${f}`} className="how">{meta.content.indicators[f]?.how_to_measure}</small>
           </label>
         ))}
       </div>

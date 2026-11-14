@@ -78,3 +78,16 @@ def test_blood_reference_keeps_flagged_samples_with_a_note():
     assert r45 and r45[0]["value"] == 36.0
     assert "delayed" in r45[0]["quality_note"]
     assert client.get("/reference/blood", params={"crew": "C009"}).status_code == 404
+
+
+def test_every_indicator_and_system_has_sourced_content():
+    content = client.get("/meta").json()["content"]
+    sources = content["sources"]
+    for group in ("indicators", "systems"):
+        names = client.get("/meta").json()[group]
+        for name in names:
+            item = content[group][name]
+            assert item["sources"], f"{group}/{name} has no source"
+            assert all(s in sources and sources[s]["url"].startswith("https://") for s in item["sources"])
+    for ind, item in content["indicators"].items():
+        assert item["why"] and item["how_to_measure"] and item["advice"]

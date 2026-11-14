@@ -48,3 +48,12 @@ def load_thresholds() -> dict[str, dict]:
 
 
 THRESHOLDS = load_thresholds()
+
+
+def _load_content(name: str) -> dict[str, dict]:
+    raw = json.loads((DATA_DIR / "content" / f"{name}.json").read_text(encoding="utf-8"))
+    return {k: v for k, v in raw.items() if not k.startswith("_")}
+
+
+# Plain-language explanations and advice with sources (data/content/*.json).
+CONTENT: dict[str, dict] = {name: _load_content(name) for name in ("indicators", "systems", "sources")}

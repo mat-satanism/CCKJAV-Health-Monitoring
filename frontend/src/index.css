@@ -205,3 +205,14 @@ footer { margin-top: 28px; font-size: .8rem; color: var(--muted); }
 .blood-table td.low { color: var(--yellow); }
 .blood-table td.noted { opacity: .55; text-decoration: underline dotted; }
 .blood-note { font-size: .8rem; margin: .5rem 0 0; }
+
+/* explanations with sources */
+.about p { margin: 0 0 .5rem; max-width: 72ch; }
+.sources { color: var(--muted); margin: .3rem 0 0; }
+.sources a { color: var(--accent); }
+.learn { margin-top: .4rem; font-size: .92rem; }
+.learn summary { cursor: pointer; color: var(--accent); width: fit-content; }
+.learn[open] summary { margin-bottom: .4rem; }
+.learn p, .learn ul { margin: .3rem 0; max-width: 72ch; }
+.learn ul { padding-left: 1.1rem; }
+.checkin .how { font-size: .72rem; color: var(--muted); line-height: 1.3; }
