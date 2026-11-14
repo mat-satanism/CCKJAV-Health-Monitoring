@@ -113,33 +113,41 @@ link between them on normal days; the events add that link on purpose.
 `label_<event>_48h`), `events.csv` (type, hazard, who, early-sign start, onset, end).
 Code: `pipeline/simulation.py`; tests: `pipeline/tests/test_simulation.py`.
 
-## Stage 2: risk model (2026-11-14)
+## Stage 2: risk model (2026-11-14, switched to random forest the same day)
 
-`python -m pipeline.model` (needs `scikit-learn`, training only). One logistic regression per event on 33
-features: for each of the 8 indicators the z-score vs the personal norm and the 3-day mean deviation, the
-whole-crew deviation of sleep, mood and pulse, and whether a norm exists yet. Trained on 400 simulated
-missions (seed 7), saved as plain JSON in `models/risk_model.json` (3 KB), so the app can compute risks
-without scikit-learn. Demo predictions with the signs behind them: `data/processed/sim/predictions.csv`.
+`python -m pipeline.model` (needs `scikit-learn` and `shap`, training only). One **random forest** per event
+(300 trees, at least 20 days per leaf) on 33 features: for each of the 8 indicators the z-score vs the
+personal norm and the 3-day mean deviation, the whole-crew deviation of sleep, mood and pulse, and whether a
+norm exists yet. Trained on 400 simulated missions (seed 7). Each demo prediction is explained with **SHAP**:
+how many percentage points each sign added to the risk; signs adding at least 1 point are shown. The app
+reads the precomputed `data/processed/sim/predictions.csv` and the settings in `models/risk_model.json`
+(floors, usual risk per event), so it does not need scikit-learn.
+
+Why a random forest: see [model-comparison.md](model-comparison.md). Logistic regression, random forest and
+LightGBM were trained on the same data. On new simulated missions the forest and LightGBM tie and both beat
+logistic regression; on real people only the forest holds up.
 
 **Test on 100 new simulated missions** (seed 1234, never used in training). AUC: 0.5 = guessing, 1 = perfect.
 The rule is "the biggest |z| of any indicator today". "Top 5%" = alerts on the 5% riskiest astronaut-days.
 
 | Event | Share of days | AUC model | AUC rule | Caught with top-5% alerts | Precision of those alerts |
 |---|---|---|---|---|---|
-| Sleep disruption | 3.0% | 0.818 | 0.680 | 23.6% | 14.3% |
-| Infection | 2.0% | 0.894 | 0.810 | 43.2% | 17.1% |
-| Deconditioning | 1.9% | 0.912 | 0.650 | 54.1% | 20.9% |
-| Low mood | 1.8% | 0.853 | 0.678 | 30.4% | 11.1% |
-| CO2 build-up | 2.4% | 0.808 | 0.636 | 33.2% | 15.7% |
+| Sleep disruption | 3.0% | 0.820 | 0.680 | 23.4% | 14.1% |
+| Infection | 2.0% | 0.948 | 0.810 | 65.2% | 25.7% |
+| Deconditioning | 1.9% | 0.936 | 0.650 | 54.1% | 20.9% |
+| Low mood | 1.8% | 0.861 | 0.678 | 28.2% | 10.3% |
+| CO2 build-up | 2.4% | 0.806 | 0.636 | 27.3% | 12.9% |
 
 **Real people (PMData, 16 people, 1517 days), target "tomorrow's mood is worse than usual":** the sim-trained
-`low_mood` risk scores AUC 0.530 and `sleep_disruption` 0.501, while "same as today" scores 0.644. So the model
-learned the simulator's early signs and does **not** transfer to real mood. This is the honest limit of training
-on synthetic data, and we say so in the pitch. Real early-warning skill needs real labelled data.
+`low_mood` risk scores AUC 0.660 (95% interval over people 0.625-0.689) and `sleep_disruption` 0.595, while
+"same as today" scores 0.644. So the forest is on par with the simple reference on real mood, not better: the
+interval includes 0.644. The earlier logistic regression scored 0.530 here. Real early-warning skill still
+needs real labelled data, and we say so in the pitch.
 
-**Demo mission:** John's infection risk peaks on day 16 (22%, two days before the fever; his days 1-15 are at
-most 2%), with the sign "Resting pulse +6.2 bpm vs usual". Lena's sleep-disruption risk rises to 11-14% on days
-19-20, before it starts on day 21. The CO2 day is caught late: 4% the day before, 11% on the day itself.
+**Demo mission:** John's infection risk is 49% on day 16 (two days before the fever; his days 1-15 are at
+most 0.7%), with the sign "Resting pulse +6.2 bpm vs usual today". Lena's sleep-disruption risk is 16-18% on
+days 19-20, before it starts on day 21. The CO2 day is still caught late: at most 8% the day before, 9% on the
+day itself. The forest also gives false alarms the CMO has to check, e.g. Stefan's infection risk on day 26.
 
 Risks are calibrated probabilities, so they look small (events happen on 2-3% of days). The UI should show them
 next to the usual level ("10 times the usual risk") rather than as a bare percentage.
