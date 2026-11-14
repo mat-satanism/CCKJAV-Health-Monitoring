@@ -51,7 +51,7 @@ export function Report({ day }: { day: number }) {
               <td className="small">
                 {[...c.off_today, ...c.top_risks.map((x) => `Risk: ${x}`),
                   ...(c.symptoms.length ? [`Symptoms: ${c.symptoms.join(', ')}`] : []),
-                  ...c.medication_given,
+                  ...c.medication_given, ...c.worse_trends,
                   ...(c.not_ready_days.length ? [`Not ready on day ${c.not_ready_days.join(', ')}`] : []),
                 ].join('. ') || 'As usual'}
               </td>

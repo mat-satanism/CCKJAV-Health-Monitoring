@@ -14,8 +14,8 @@ export function AlertList({ alerts }: { alerts: CrewAlert[] }) {
   if (!alerts.length) return null
   return (
     <div className="alerts" role="status">
-      {alerts.map((a) => (
-        <p key={a.kind} className={`alert status-${a.level}`}><span className="dot" />{a.message}</p>
+      {alerts.map((a, n) => (
+        <p key={`${a.kind}-${n}`} className={`alert status-${a.level}`}><span className="dot" />{a.message}</p>
       ))}
     </div>
   )
@@ -40,7 +40,13 @@ function CrewRow({ a, onOpen }: { a: AstronautState; onOpen: (aid: string) => vo
         {top
           ? <p className={`risk risk-${top.level}`}>{top.label} risk {top.multiple}× usual in the next 48 h</p>
           : <p className="muted">{off.length ? off.map((i) => `${i.label}: ${i.message.toLowerCase()}`).join('; ') : 'As usual for this person'}</p>}
-        {a.symptoms.length > 0 && <p className="chips">{a.symptoms.map((s) => <span key={s} className="chip">{s}</span>)}</p>}
+        {(a.symptoms.length > 0 || a.isolated || a.contact_of.length > 0) && (
+          <p className="chips">
+            {a.isolated && <span className="chip chip-strong">isolated</span>}
+            {a.contact_of.length > 0 && <span className="chip chip-watch">contact of {a.contact_of.join(', ')}</span>}
+            {a.symptoms.map((s) => <span key={s} className="chip">{s}</span>)}
+          </p>
+        )}
       </div>
       <span className={`fit ${a.fit_for_high_demand ? 'ok' : 'no'}`}>
         {a.fit_for_high_demand ? 'Fit for EVA' : 'Not fit for EVA'}
@@ -83,6 +89,7 @@ export function MissionView({ day, onOpen }: { day: number; onOpen: (aid: string
                     {t.reassigned_to_name
                       ? <><s className="muted">{t.assignee_name}</s> to <strong>{t.reassigned_to_name}</strong></>
                       : t.assignee_name}
+                    {t.partner_name && <small className="muted"> with {t.partner_name}</small>}
                   </td>
                   <td><span className="pill">{t.status}</span></td>
                   <td className="why small">{t.reason ?? t.warning ?? ''}</td>

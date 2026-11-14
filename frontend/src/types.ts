@@ -45,6 +45,7 @@ export interface AstronautState {
   astronaut_id: string; name: string; role: string; skills: string[]; calibrated_from: string; day: number
   status: Status; indicators: MissionIndicator[]; symptoms: string[]; risks: EventRisk[]
   fit_for_high_demand: boolean; unfit_reasons: string[]; cautions: string[]; source: 'synthetic'
+  isolated: boolean; contact_of: string[]
 }
 // ---------- one crew member's card (synthetic) ----------
 export interface Medication { drug: string; dose: string; schedule?: string; reason: string; day?: number; given_by?: string }
@@ -59,7 +60,10 @@ export interface AstronautCard extends AstronautState {
   anamnesis: Anamnesis
   medication_today: Medication[]
   readiness: Readiness | null
+  trends: Trend[]
+  support: { level: 'good' | 'watch' | 'low'; message: string; nutrition: string[] }
 }
+export interface Trend { type: string; label: string; per_day: number; unit: string; worse: boolean; message: string }
 export interface HistoryPoint {
   day: number; value: number; status: Status; norm: number | null; low: number | null; high: number | null
   z: number | null; entered: boolean
@@ -67,7 +71,7 @@ export interface HistoryPoint {
 export type AstronautHistory = Record<string, HistoryPoint[]>
 export interface MissionTask {
   task_id: string; mission_day: number; title: string; kind: string; demand: 'high' | 'normal'; skill: string
-  assignee: string; assignee_name: string
+  assignee: string; assignee_name: string; partner: string | null; partner_name: string | null
   status: 'planned' | 'reassigned' | 'postponed' | 'needs decision'
   reassigned_to: string | null; reassigned_to_name: string | null; reason: string | null; warning: string | null
 }
@@ -81,7 +85,7 @@ export interface Alarm { day: number; who: string; level: Status; kind: 'value' 
 export interface ReportCrew {
   astronaut_id: string; name: string; role: string; status: Status; fit_for_high_demand: boolean
   days_yellow: number; days_red: number; off_today: string[]; symptoms: string[]; top_risks: string[]
-  medication_given: string[]; not_ready_days: number[]
+  medication_given: string[]; not_ready_days: number[]; worse_trends: string[]
 }
 export interface Report {
   day: number; period: 'day' | 'week'; from_day: number; to_day: number; made: string

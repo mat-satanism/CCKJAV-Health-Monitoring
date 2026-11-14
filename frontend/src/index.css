@@ -265,3 +265,13 @@ details.more[open] > summary { margin-bottom: 12px; }
   .report, .report * { color: #000 !important; }
   .doc-table td { border-top: 1px solid #ccc; }
 }
+
+/* ---------- isolation, trends, support ---------- */
+.chip-strong { background: var(--red); color: #fff; font-weight: 600; }
+.chip-watch { background: color-mix(in srgb, var(--yellow) 22%, var(--surface-2)); color: #f6dc9b; }
+.trends { list-style: none; padding: 0; margin: 0; display: grid; gap: 6px; }
+.trends li.worse { color: var(--yellow); }
+.trends li.better { color: var(--green); }
+.support { margin: 0 0 .75rem; padding: .5rem .7rem; border-radius: var(--radius); background: var(--surface-2); font-size: .9rem; }
+.support-low { border-left: 3px solid var(--accent); }
+.support-good { color: var(--green); }

@@ -155,7 +155,7 @@ def test_crew_has_hrv_and_reaction_time():
 
 def test_cmo_quick_screen_puts_the_sick_first():
     now = client.get("/mission/now", params={"day": 19}).json()
-    assert now[0]["name"] == "John" and now[0]["level"] == "red" and "fever" in now[0]["what"]
+    assert now[0]["name"] == "John" and now[0]["level"] == "red" and "fever" in now[0]["what"].lower()
     assert len(now) == 5 and all(n["do"] for n in now)
 
 
@@ -173,3 +173,30 @@ def test_weekly_report_covers_seven_days_and_lists_medicine_given():
     john = next(c for c in r["crew"] if c["name"] == "John")
     assert any("Paracetamol" in m for m in john["medication_given"]) and "fever" in john["symptoms"]
     assert client.get("/mission/report", params={"period": "month"}).status_code == 422
+
+
+def test_fever_isolates_john_and_flags_lena_who_worked_with_him():
+    _day(18)
+    alerts = client.get("/mission/alerts").json()
+    iso = next(a for a in alerts if a["kind"] == "isolation")
+    assert iso["who"] == "John" and "Lena" in iso["message"]
+    lena = client.get("/mission/astronaut/lena", params={"day": 18}).json()
+    assert lena["contact_of"] == ["John"] and not lena["isolated"]
+    maint = _task("Systems maintenance")               # John's own task goes to Stefan while he is isolated
+    assert maint["assignee"] == "john" and maint["reassigned_to_name"] == "Stefan"
+    now = client.get("/mission/now", params={"day": 18}).json()
+    assert now[0]["name"] == "John" and "isolate" in now[0]["do"].lower()
+
+
+def test_week_trend_shows_lenas_sleep_going_down_before_her_sleep_problem():
+    card = client.get("/mission/astronaut/lena", params={"day": 20}).json()
+    sleep = [t for t in card["trends"] if t["type"] == "sleep_hours"]
+    assert sleep and sleep[0]["worse"] and sleep[0]["per_day"] < 0
+
+
+def test_support_message_and_demo_nutrition_tips():
+    calm = client.get("/mission/astronaut/kenji", params={"day": 10}).json()["support"]
+    assert calm["nutrition"] and calm["message"]
+    john = client.get("/mission/astronaut/john", params={"day": 19}).json()["support"]
+    assert john["level"] == "low" and any("fluids" in t for t in john["nutrition"])
+    assert any("caffeine" in t for t in john["nutrition"])          # slow caffeine metabolism in his history

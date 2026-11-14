@@ -95,11 +95,15 @@ TASK_KINDS = {
 
 
 def demo_tasks(days: int = MISSION_DAYS) -> pd.DataFrame:
-    """The demo mission's task plan. John's EVA on day 19 falls on his fever; Stefan's EVA on day 27 on the flare."""
+    """The demo mission's task plan. John's EVA on day 19 falls on his fever; Stefan's EVA on day 27 on the flare.
+
+    The experiment is done in pairs (Lena + a rotating partner), so who worked closely with whom is known:
+    John works with Lena on day 17, the day before his fever starts.
+    """
     plan = []
     for day in range(1, days + 1):
         plan += [(day, "Daily mission planning", "command", "kenji"),
-                 (day, "Experiment run", "science", "lena"),
+                 (day, "Experiment run", "science", "lena", ["kenji", "amara", "john"][day % 3]),
                  (day, "Systems maintenance", "maintenance", "stefan" if day % 2 else "john")]
         if day % 3 == 0:
             plan.append((day, "Crew health check", "medical", "amara"))
@@ -108,10 +112,10 @@ def demo_tasks(days: int = MISSION_DAYS) -> pd.DataFrame:
              (19, "Robotic arm: cargo transfer", "robotics", "kenji"),
              (27, "EVA: sensor replacement", "eva", "stefan")]
     rows = []
-    for i, (day, title, kind, who) in enumerate(sorted(plan, key=lambda p: (p[0], p[1]))):
+    for i, (day, title, kind, who, *partner) in enumerate(sorted(plan, key=lambda p: (p[0], p[1]))):
         demand, skill = TASK_KINDS[kind]
         rows.append({"task_id": f"t{i:03d}", "mission_day": day, "title": title, "kind": kind,
-                     "demand": demand, "skill": skill, "assignee": who})
+                     "demand": demand, "skill": skill, "assignee": who, "partner": partner[0] if partner else ""})
     return pd.DataFrame(rows)
 
 

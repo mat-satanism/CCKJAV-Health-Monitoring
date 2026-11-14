@@ -52,6 +52,7 @@ function Readiness({ card, onDone }: { card: AstronautCard; onDone: () => void }
     <section className={`panel readiness ${r ? (r.ready ? 'status-green' : 'status-yellow') : ''}`}>
       <h2>Ready for day {card.day}?</h2>
       {r ? <p>{r.reply}</p> : <p className="muted">A quick morning check, one tap.</p>}
+      <p className={`support support-${card.support.level}`}>{card.support.message}</p>
       <div className="row-buttons">
         <button className={r?.ready ? 'primary' : ''} onClick={() => answer(true)}>I'm ready for the day</button>
         <button className={r && !r.ready ? 'primary' : ''} onClick={() => answer(false)}>Not quite</button>
@@ -177,7 +178,13 @@ export function PersonView({ aid, day, meta, onDay, onChanged }: Props) {
           </p>
         </div>
         <BodyMap systems={card.systems} selected={selected} onSelect={setSelected} />
-        {card.symptoms.length > 0 && <p className="chips">{card.symptoms.map((s) => <span key={s} className="chip">{s}</span>)}</p>}
+        {(card.symptoms.length > 0 || card.isolated || card.contact_of.length > 0) && (
+          <p className="chips">
+            {card.isolated && <span className="chip chip-strong">isolated</span>}
+            {card.contact_of.length > 0 && <span className="chip chip-watch">contact of {card.contact_of.join(', ')}</span>}
+            {card.symptoms.map((s) => <span key={s} className="chip">{s}</span>)}
+          </p>
+        )}
         <p className="small muted">Tap a body part, then a day on any chart.</p>
       </section>
 
@@ -192,6 +199,19 @@ export function PersonView({ aid, day, meta, onDay, onChanged }: Props) {
               </div>
             ))}
             <p className="small muted">Model trained on simulated missions; the reasons come from SHAP.</p>
+          </section>
+        )}
+        {card.trends.length > 0 && (
+          <section className="panel">
+            <h2>This week</h2>
+            <ul className="trends">
+              {card.trends.map((t) => (
+                <li key={t.type} className={t.worse ? 'worse' : 'better'}>
+                  <span aria-hidden="true">{t.per_day > 0 ? '↗' : '↘'}</span> {t.message}
+                  <small className="muted"> {t.worse ? 'worth watching' : 'a good direction'}</small>
+                </li>
+              ))}
+            </ul>
           </section>
         )}
         {selected && (
@@ -226,6 +246,11 @@ export function PersonView({ aid, day, meta, onDay, onChanged }: Props) {
         <Readiness card={card} onDone={reload} />
         <CheckInFor key={`${aid}-${card.day}`} card={card} meta={meta} onSaved={reload} />
         <MedicalHistory card={card} />
+        <section className="panel">
+          <h2>Food tips <span className="badge-synthetic">demo</span></h2>
+          <ul className="small">{card.support.nutrition.map((n) => <li key={n}>{n}</li>)}</ul>
+          <p className="small muted">Placeholder tips for the demo, not dietary advice.</p>
+        </section>
         <MeasurementPlan meta={meta} />
       </aside>
     </main>

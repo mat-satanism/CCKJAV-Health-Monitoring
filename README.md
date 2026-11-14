@@ -20,6 +20,8 @@ Working now:
 - **Demo data (Check-in, real-data demo)**: 30 real days of one PMData participant for heart rate, sleep, mood and exercise; blood pressure, glucose and temperature are synthetic (typical NHANES level + simulated daily changes) and labelled as such.
 - **Crew mission (simulation)**: 5 astronauts over 30 days, synthetic data calibrated on real people. Mission clock, crew status, risks for the next 48 h, and tasks that move to a fit crew member with the reason (e.g. John's EVA goes to Stefan because of fever).
 - **Doctors' tab**: crew medical officer onboard (live) or flight surgeon on Earth (20 min delay). The CMO is busy, so the onboard view starts with "Right now": one line per person and what to do; the full tables (anomalies, risks with their signs, symptoms) and the alarm log are one click away. A chart shows the whole crew's distance from their own norm over the mission. The ground gets a daily or weekly report made overnight, saved as PDF from the browser's print dialog.
+- **Isolation of close contacts**: a fever isolates the person (their tasks move to someone else), and whoever shared a task with them in the last 2 days is asked to check temperature twice a day (John's fever on day 18: Lena worked with him on day 17).
+- **Week trends and support**: each card shows what has been going one way for a week (e.g. Lena's sleep going down before her sleep problem), a kind message (take it easier / you're doing well) and demo food tips.
 - **Risk model**: one random forest per event, trained on simulated missions, with SHAP explanations (which signs pushed the risk up). Chosen over logistic regression and LightGBM, see `docs/model-comparison.md`.
 
 Planned:

@@ -14,8 +14,8 @@ import json
 import os
 from pathlib import Path
 
-from .config import DATA_DIR, ENVIRONMENTS, INDICATORS, SYSTEMS
-from .status import MODEL_PATH, classify
+from .config import DATA_DIR, ENVIRONMENTS, INDICATORS, SYSTEMS, THRESHOLDS
+from .status import MODEL_PATH, PRIORS, classify, display_unit
 
 SIM_DIR = DATA_DIR / "processed" / "sim"
 ANAMNESIS_PATH = DATA_DIR / "synthetic" / "anamnesis.json"
@@ -25,6 +25,30 @@ HIGH_MULTIPLE = 5.0       # at 5 times the usual level a physical-event risk ask
 PHYSICAL_EVENTS = {"infection", "deconditioning"}
 BLOCKING_SYMPTOMS = {"fever", "dizziness when standing"}
 ORDER = ["grey", "green", "yellow", "red"]
+CONTACT_DAYS = 2          # close contact = a shared task on the day of the fever or the 2 days before
+TREND_DAYS = 7
+TREND_MIN_R = 0.7         # the week must go clearly one way (correlation with time)
+TREND_MIN_SPREADS = 2.0   # and the change over the week must be at least 2 of the person's usual day-to-day spreads
+WORSE_WHEN = {"heart_rate": 1, "bp_sys": 1, "bp_dia": 1, "glucose": 1, "temp": 1, "sleep_hours": -1, "mood": -1,
+              "exercise_min": -1, "hrv_ms": -1, "reaction_ms": 1}    # +1: going up is worse, -1: going down is worse
+# Placeholder advice (no clinical source yet), shown as such in the app.
+ISOLATION_ACTION = "isolate in own quarters and stop shared tasks"
+CONTACT_ACTION = "check temperature twice a day for 3 days and report symptoms"
+SUPPORT = {
+    "low": "Take it easier today: swap hard training for light movement, keep your sleep window, and talk to the CMO "
+           "or someone you trust if you want to. You don't have to push through alone.",
+    "watch": "Some numbers are a bit off your usual. Nothing urgent: they are checked every day, and the CMO will "
+             "look at them with you.",
+    "good": "You're doing well. Everything is as usual for you.",
+}
+# Demo nutrition tips (placeholders, not dietary advice). Key: when the tip applies.
+NUTRITION = {
+    "always": "Calcium and vitamin D sources every day: bones lose density in low gravity.",
+    "fever": "Drink more fluids while you have a fever.",
+    "sleep": "No caffeine after midday while your sleep is short.",
+    "slow_caffeine": "Slow caffeine metabolism in your history: keep coffee to the morning.",
+    "exercise": "Enough protein after training to keep muscle while training is reduced.",
+}
 
 EVENT_LABELS = {
     "sleep_disruption": "Sleep disruption", "infection": "Infection", "deconditioning": "Deconditioning",
@@ -157,13 +181,16 @@ class Mission:
         # Measured facts take someone off a high-demand task; a prediction alone only asks the CMO to confirm.
         reasons = [f"{i['label']} {i['value']:g} {i['unit']}: outside safe limits" for i in indicators if i["status"] == "red"]
         reasons += [f"Symptom: {s}" for s in symptoms if s in BLOCKING_SYMPTOMS]
+        iso = self.isolation(day)
+        isolated = any(x["astronaut_id"] == aid for x in iso)
+        contact_of = [x["name"] for x in iso for c in x["contacts"] if c["astronaut_id"] == aid]
         cautions = [f"{r['label']} risk {r['multiple']:g}x usual in the next 48 h ({'; '.join(r['signs']) or 'no single sign'})"
                     for r in risks if r["event"] in PHYSICAL_EVENTS and r["level"] == "high"]
         out = {**member, "skills": member["skills"].split(";"), "day": day,
                "status": max((i["status"] for i in indicators), key=ORDER.index),
                "indicators": indicators, "symptoms": symptoms, "risks": risks,
                "fit_for_high_demand": not reasons, "unfit_reasons": reasons, "cautions": cautions,
-               "source": "synthetic"}
+               "isolated": isolated, "contact_of": contact_of, "source": "synthetic"}
         if with_card:
             entered = self.entries.get(f"{aid}|{day}", {}).get("values", {})
             for i in indicators:
@@ -178,6 +205,8 @@ class Mission:
                                   if m["schedule"].startswith("daily")]
                                  + [m for m in history.get("medication_log", []) if m["day"] == day],
                 readiness=self.readiness_reply(aid, day))
+            out["trends"] = self.trends(aid, day)
+            out["support"] = self.support(aid, day, out, out["trends"])
         return out
 
     def history(self, aid: str) -> dict:
@@ -205,6 +234,12 @@ class Mission:
             if e["type"] == "solar_flare" and int(e["onset_day"]) <= day <= int(e["end_day"]):
                 out.append({"kind": "solar_flare", "level": "red", "who": "crew",
                             "message": "Solar flare: radiation alarm. Crew to the shelter, EVA postponed."})
+        for x in self.isolation(day):
+            who = ", ".join(c["name"] for c in x["contacts"])
+            out.append({"kind": "isolation", "level": "red", "who": x["name"],
+                        "message": f"{x['name']} has a fever: {x['action']}."
+                                   + (f" Close contacts in the last {CONTACT_DAYS} days: {who}: {CONTACT_ACTION}." if who else "")
+                                   + " (Placeholder protocol.)"})
         headache = [c["name"] for c in self.crew if "headache" in self.values[(c["astronaut_id"], day)]["symptoms"]]
         if len(headache) >= 3:
             out.append({"kind": "environment", "level": "yellow", "who": "crew",
@@ -217,19 +252,24 @@ class Mission:
         flare = any(a["kind"] == "solar_flare" for a in self.alerts(day))
         states = {aid: self.astronaut(aid, day) for aid in self.ids}
         names = {c["astronaut_id"]: c["name"] for c in self.crew}
+        isolated = {aid for aid, s in states.items() if s["isolated"]}
         today = [t for t in self.tasks if int(t["mission_day"]) == day]
         busy = {t["assignee"] for t in today if t["demand"] == "high"}
         out = []
         for t in today:
+            partner = t.get("partner") or None
             item = {**t, "mission_day": day, "assignee_name": names[t["assignee"]], "status": "planned",
+                    "partner": partner, "partner_name": names.get(partner) if partner else None,
                     "reassigned_to": None, "reassigned_to_name": None, "reason": None, "warning": None}
+            off = t["assignee"] in isolated or (t["demand"] == "high" and not states[t["assignee"]]["fit_for_high_demand"])
             if t["kind"] == "eva" and flare:
                 item.update(status="postponed", reason="Solar flare: no EVA until the radiation alarm is over.")
-            elif t["demand"] == "high" and not states[t["assignee"]]["fit_for_high_demand"]:
-                why = "; ".join(states[t["assignee"]]["unfit_reasons"])
+            elif off:
+                why = "isolated with a fever" if t["assignee"] in isolated else "; ".join(states[t["assignee"]]["unfit_reasons"])
                 for aid in self.ids:
                     s = states[aid]
-                    if aid != t["assignee"] and t["skill"] in s["skills"] and s["fit_for_high_demand"] and aid not in busy:
+                    if (aid != t["assignee"] and t["skill"] in s["skills"] and aid not in isolated
+                            and (s["fit_for_high_demand"] or t["demand"] != "high") and aid not in busy):
                         busy.add(aid)
                         item.update(status="reassigned", reassigned_to=aid, reassigned_to_name=names[aid],
                                     reason=f"{names[t['assignee']]} is not fit: {why}")
@@ -237,6 +277,8 @@ class Mission:
                 else:
                     item.update(status="needs decision", reason=f"{names[t['assignee']]} is not fit ({why}) "
                                                                "and no fit crew member with this skill is free.")
+            if partner in isolated and item["status"] == "planned":
+                item["warning"] = f"{names[partner]} is isolated: do it alone or with another crew member."
             if t["demand"] == "high" and item["status"] == "planned" and states[t["assignee"]]["cautions"]:
                 item["warning"] = (f"CMO to confirm {names[t['assignee']]} is fit: "
                                    + "; ".join(states[t["assignee"]]["cautions"]))
@@ -258,6 +300,77 @@ class Mission:
             })
         return out
 
+    # ---------- isolation of close contacts ----------
+    def _feverish(self, aid: str, day: int) -> bool:
+        red_high = THRESHOLDS.get("temp", {}).get("red_high")
+        v = self.values[(aid, day)]
+        return "fever" in v["symptoms"] or (red_high is not None and v["temp"] >= red_high)
+
+    def isolation(self, day: int | None = None) -> list[dict]:
+        """Who has a fever today, and who worked closely with them (a shared task) in the last CONTACT_DAYS days."""
+        day = day or self.day
+        names = {c["astronaut_id"]: c["name"] for c in self.crew}
+        sick = [aid for aid in self.ids if self._feverish(aid, day)]
+        out = []
+        for aid in sick:
+            contacts = set()
+            for t in self.tasks:
+                if day - CONTACT_DAYS <= int(t["mission_day"]) <= day and t.get("partner"):
+                    if t["assignee"] == aid:
+                        contacts.add(t["partner"])
+                    elif t["partner"] == aid:
+                        contacts.add(t["assignee"])
+            contacts -= set(sick)
+            out.append({"astronaut_id": aid, "name": names[aid], "action": ISOLATION_ACTION,
+                        "contacts": [{"astronaut_id": c, "name": names[c], "action": CONTACT_ACTION}
+                                     for c in sorted(contacts)]})
+        return out
+
+    # ---------- trends over the last week ----------
+    def trends(self, aid: str, day: int) -> list[dict]:
+        if day < TREND_DAYS:
+            return []
+        out = []
+        days = list(range(day - TREND_DAYS + 1, day + 1))
+        for ind in INDICATORS:
+            ys = [self.values[(aid, d)][ind] for d in days]
+            n = len(ys)
+            xm, ym = (n - 1) / 2, sum(ys) / n
+            sxx = sum((i - xm) ** 2 for i in range(n))
+            sxy = sum((i - xm) * (y - ym) for i, y in enumerate(ys))
+            syy = sum((y - ym) ** 2 for y in ys)
+            if syy == 0:
+                continue
+            slope, r = sxy / sxx, sxy / (sxx * syy) ** 0.5
+            before = [self.values[(aid, d)][ind] for d in range(1, days[0])]
+            spread = classify(ind, ys[0], before, population_band=False)["spread"] or PRIORS.get(ind, {}).get("sigma")
+            if not spread or abs(r) < TREND_MIN_R or abs(slope * (n - 1)) < TREND_MIN_SPREADS * spread:
+                continue
+            worse = (slope > 0) == (WORSE_WHEN[ind] > 0)
+            out.append({"type": ind, "label": INDICATORS[ind]["label"], "per_day": round(slope, 2),
+                        "unit": display_unit(ind), "worse": worse,
+                        "message": f"{INDICATORS[ind]['label']} has gone {'up' if slope > 0 else 'down'} for a week "
+                                   f"({slope:+.1f} {display_unit(ind)} a day)"})
+        return out
+
+    def support(self, aid: str, day: int, state: dict, trends: list[dict]) -> dict:
+        """A kind, plain message for the astronaut, and demo nutrition tips."""
+        r = self.readiness.get(f"{aid}|{day}")
+        stress = [i for i in state["indicators"] if i["status"] != "green" and i["type"] in ("mood", "hrv_ms", "reaction_ms", "sleep_hours")]
+        stress_trend = [t for t in trends if t["worse"] and t["type"] in ("mood", "sleep_hours", "hrv_ms")]
+        off = [i for i in state["indicators"] if i["status"] != "green"]
+        level = "low" if stress or stress_trend or (r and not r["ready"]) else "watch" if off else "good"
+        tips = [NUTRITION["always"]]
+        if "fever" in state["symptoms"]:
+            tips.append(NUTRITION["fever"])
+        if any(i["type"] == "sleep_hours" for i in stress) or any(t["type"] == "sleep_hours" for t in stress_trend):
+            tips.append(NUTRITION["sleep"])
+        if any("caffeine" in g.lower() for g in self.anamnesis[aid].get("genetic", [])):
+            tips.append(NUTRITION["slow_caffeine"])
+        if any(t["type"] == "exercise_min" and t["worse"] for t in trends):
+            tips.append(NUTRITION["exercise"])
+        return {"level": level, "message": SUPPORT[level], "nutrition": tips}
+
     # ---------- for the doctors: what to do now, alarm log, report ----------
     def now(self, day: int | None = None) -> list[dict]:
         """CMO quick screen: one line per crew member with the single most important thing and what to do."""
@@ -268,13 +381,17 @@ class Mission:
             red = [i for i in a["indicators"] if i["status"] == "red"]
             yellow = [i for i in a["indicators"] if i["status"] == "yellow"]
             high = [r for r in a["risks"] if r["level"] == "high"]
-            if a["unfit_reasons"]:
+            if a["isolated"]:
+                level, what, do = "red", "Fever: isolated", "Examine now. Isolate in own quarters; no tasks today."
+            elif a["unfit_reasons"]:
                 level, what, do = "red", "; ".join(a["unfit_reasons"]), "Examine now. Off EVA and heavy tasks today."
             elif red:
                 level, what, do = "red", f"{red[0]['label']} {red[0]['value']:g} {red[0]['unit']}", "Re-measure now; examine if confirmed."
             elif high:
                 r = high[0]
                 level, what, do = "yellow", f"{r['label']} risk {r['multiple']:g}x usual in 48 h", r["action"]
+            elif a["contact_of"]:
+                level, what, do = "yellow", f"Close contact of {', '.join(a['contact_of'])}", CONTACT_ACTION.capitalize() + "."
             elif yellow:
                 i = yellow[0]
                 level, what, do = "yellow", f"{i['label']}: {i['message']}", "Re-measure later today before acting."
@@ -338,6 +455,7 @@ class Mission:
                 "top_risks": [f"{r['label']} {r['multiple']:g}x usual" for r in today["risks"] if r["level"] != "normal"][:3],
                 "medication_given": [f"Day {m['day']}: {m['drug']} {m['dose']} ({m['reason']})" for m in meds],
                 "not_ready_days": [d for d, r in zip(days, ready) if r and not r["ready"]],
+                "worse_trends": [t["message"] for t in self.trends(aid, day) if t["worse"]],
             })
         log = [e for e in self.alarm_log(day) if e["day"] >= first]
         return {"day": day, "period": period, "from_day": first, "to_day": day,
