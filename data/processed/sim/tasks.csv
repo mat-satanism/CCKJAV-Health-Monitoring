@@ -1,105 +1,126 @@
-task_id,mission_day,title,kind,demand,skill,assignee
-t000,1,Daily mission planning,command,normal,command,kenji
-t001,1,Experiment run,science,normal,science,lena
-t002,1,Systems maintenance,maintenance,normal,maintenance,stefan
-t003,2,Daily mission planning,command,normal,command,kenji
-t004,2,Experiment run,science,normal,science,lena
-t005,2,Systems maintenance,maintenance,normal,maintenance,john
-t006,3,Crew health check,medical,normal,medical,amara
-t007,3,Daily mission planning,command,normal,command,kenji
-t008,3,Experiment run,science,normal,science,lena
-t009,3,Systems maintenance,maintenance,normal,maintenance,stefan
-t010,4,Daily mission planning,command,normal,command,kenji
-t011,4,Experiment run,science,normal,science,lena
-t012,4,Systems maintenance,maintenance,normal,maintenance,john
-t013,5,Daily mission planning,command,normal,command,kenji
-t014,5,Experiment run,science,normal,science,lena
-t015,5,Systems maintenance,maintenance,normal,maintenance,stefan
-t016,6,Crew health check,medical,normal,medical,amara
-t017,6,Daily mission planning,command,normal,command,kenji
-t018,6,Experiment run,science,normal,science,lena
-t019,6,Systems maintenance,maintenance,normal,maintenance,john
-t020,7,Daily mission planning,command,normal,command,kenji
-t021,7,Experiment run,science,normal,science,lena
-t022,7,Systems maintenance,maintenance,normal,maintenance,stefan
-t023,8,Daily mission planning,command,normal,command,kenji
-t024,8,Experiment run,science,normal,science,lena
-t025,8,Systems maintenance,maintenance,normal,maintenance,john
-t026,9,Crew health check,medical,normal,medical,amara
-t027,9,Daily mission planning,command,normal,command,kenji
-t028,9,Experiment run,science,normal,science,lena
-t029,9,Systems maintenance,maintenance,normal,maintenance,stefan
-t030,10,Daily mission planning,command,normal,command,kenji
-t031,10,Experiment run,science,normal,science,lena
-t032,10,Systems maintenance,maintenance,normal,maintenance,john
-t033,11,Daily mission planning,command,normal,command,kenji
-t034,11,Experiment run,science,normal,science,lena
-t035,11,Systems maintenance,maintenance,normal,maintenance,stefan
-t036,12,Crew health check,medical,normal,medical,amara
-t037,12,Daily mission planning,command,normal,command,kenji
-t038,12,EVA: solar panel inspection,eva,high,eva,john
-t039,12,Experiment run,science,normal,science,lena
-t040,12,Systems maintenance,maintenance,normal,maintenance,john
-t041,13,Daily mission planning,command,normal,command,kenji
-t042,13,Experiment run,science,normal,science,lena
-t043,13,Systems maintenance,maintenance,normal,maintenance,stefan
-t044,14,Daily mission planning,command,normal,command,kenji
-t045,14,Experiment run,science,normal,science,lena
-t046,14,Systems maintenance,maintenance,normal,maintenance,john
-t047,15,Crew health check,medical,normal,medical,amara
-t048,15,Daily mission planning,command,normal,command,kenji
-t049,15,Experiment run,science,normal,science,lena
-t050,15,Systems maintenance,maintenance,normal,maintenance,stefan
-t051,16,Daily mission planning,command,normal,command,kenji
-t052,16,Experiment run,science,normal,science,lena
-t053,16,Systems maintenance,maintenance,normal,maintenance,john
-t054,17,Daily mission planning,command,normal,command,kenji
-t055,17,Experiment run,science,normal,science,lena
-t056,17,Systems maintenance,maintenance,normal,maintenance,stefan
-t057,18,Crew health check,medical,normal,medical,amara
-t058,18,Daily mission planning,command,normal,command,kenji
-t059,18,Experiment run,science,normal,science,lena
-t060,18,Systems maintenance,maintenance,normal,maintenance,john
-t061,19,Daily mission planning,command,normal,command,kenji
-t062,19,EVA: antenna repair,eva,high,eva,john
-t063,19,Experiment run,science,normal,science,lena
-t064,19,Robotic arm: cargo transfer,robotics,high,robotics,kenji
-t065,19,Systems maintenance,maintenance,normal,maintenance,stefan
-t066,20,Daily mission planning,command,normal,command,kenji
-t067,20,Experiment run,science,normal,science,lena
-t068,20,Systems maintenance,maintenance,normal,maintenance,john
-t069,21,Crew health check,medical,normal,medical,amara
-t070,21,Daily mission planning,command,normal,command,kenji
-t071,21,Experiment run,science,normal,science,lena
-t072,21,Systems maintenance,maintenance,normal,maintenance,stefan
-t073,22,Daily mission planning,command,normal,command,kenji
-t074,22,Experiment run,science,normal,science,lena
-t075,22,Systems maintenance,maintenance,normal,maintenance,john
-t076,23,Daily mission planning,command,normal,command,kenji
-t077,23,Experiment run,science,normal,science,lena
-t078,23,Systems maintenance,maintenance,normal,maintenance,stefan
-t079,24,Crew health check,medical,normal,medical,amara
-t080,24,Daily mission planning,command,normal,command,kenji
-t081,24,Experiment run,science,normal,science,lena
-t082,24,Systems maintenance,maintenance,normal,maintenance,john
-t083,25,Daily mission planning,command,normal,command,kenji
-t084,25,Experiment run,science,normal,science,lena
-t085,25,Systems maintenance,maintenance,normal,maintenance,stefan
-t086,26,Daily mission planning,command,normal,command,kenji
-t087,26,Experiment run,science,normal,science,lena
-t088,26,Systems maintenance,maintenance,normal,maintenance,john
-t089,27,Crew health check,medical,normal,medical,amara
-t090,27,Daily mission planning,command,normal,command,kenji
-t091,27,EVA: sensor replacement,eva,high,eva,stefan
-t092,27,Experiment run,science,normal,science,lena
-t093,27,Systems maintenance,maintenance,normal,maintenance,stefan
-t094,28,Daily mission planning,command,normal,command,kenji
-t095,28,Experiment run,science,normal,science,lena
-t096,28,Systems maintenance,maintenance,normal,maintenance,john
-t097,29,Daily mission planning,command,normal,command,kenji
-t098,29,Experiment run,science,normal,science,lena
-t099,29,Systems maintenance,maintenance,normal,maintenance,stefan
-t100,30,Crew health check,medical,normal,medical,amara
-t101,30,Daily mission planning,command,normal,command,kenji
-t102,30,Experiment run,science,normal,science,lena
-t103,30,Systems maintenance,maintenance,normal,maintenance,john
+task_id,mission_day,title,kind,demand,skill,assignee,partner
+t000,1,Daily mission planning,command,normal,command,kenji,
+t001,1,Experiment run,science,normal,science,maria,amara
+t002,1,Systems maintenance,maintenance,normal,maintenance,stefan,
+t003,2,Daily mission planning,command,normal,command,kenji,
+t004,2,Experiment run,science,normal,science,maria,john
+t005,2,"Private medical conference (flight surgeon, 15 min)",pmc,normal,pmc,kenji,
+t006,2,Systems maintenance,maintenance,normal,maintenance,john,
+t007,3,Crew health check,medical,normal,medical,amara,
+t008,3,Daily mission planning,command,normal,command,kenji,
+t009,3,Experiment run,science,normal,science,maria,kenji
+t010,3,"Private medical conference (flight surgeon, 15 min)",pmc,normal,pmc,john,
+t011,3,Systems maintenance,maintenance,normal,maintenance,stefan,
+t012,4,Daily mission planning,command,normal,command,kenji,
+t013,4,Experiment run,science,normal,science,maria,amara
+t014,4,"Private medical conference (flight surgeon, 15 min)",pmc,normal,pmc,stefan,
+t015,4,Systems maintenance,maintenance,normal,maintenance,john,
+t016,5,Daily mission planning,command,normal,command,kenji,
+t017,5,Experiment run,science,normal,science,maria,john
+t018,5,"Private medical conference (flight surgeon, 15 min)",pmc,normal,pmc,amara,
+t019,5,Systems maintenance,maintenance,normal,maintenance,stefan,
+t020,6,Crew health check,medical,normal,medical,amara,
+t021,6,Daily mission planning,command,normal,command,kenji,
+t022,6,Experiment run,science,normal,science,maria,kenji
+t023,6,"Private medical conference (flight surgeon, 15 min)",pmc,normal,pmc,maria,
+t024,6,Systems maintenance,maintenance,normal,maintenance,john,
+t025,7,Daily mission planning,command,normal,command,kenji,
+t026,7,Experiment run,science,normal,science,maria,amara
+t027,7,Systems maintenance,maintenance,normal,maintenance,stefan,
+t028,8,Daily mission planning,command,normal,command,kenji,
+t029,8,Experiment run,science,normal,science,maria,john
+t030,8,Systems maintenance,maintenance,normal,maintenance,john,
+t031,9,Crew health check,medical,normal,medical,amara,
+t032,9,Daily mission planning,command,normal,command,kenji,
+t033,9,Experiment run,science,normal,science,maria,kenji
+t034,9,"Private medical conference (flight surgeon, 15 min)",pmc,normal,pmc,kenji,
+t035,9,Systems maintenance,maintenance,normal,maintenance,stefan,
+t036,10,Daily mission planning,command,normal,command,kenji,
+t037,10,Experiment run,science,normal,science,maria,amara
+t038,10,"Private medical conference (flight surgeon, 15 min)",pmc,normal,pmc,john,
+t039,10,Systems maintenance,maintenance,normal,maintenance,john,
+t040,11,Daily mission planning,command,normal,command,kenji,
+t041,11,Experiment run,science,normal,science,maria,john
+t042,11,"Private medical conference (flight surgeon, 15 min)",pmc,normal,pmc,stefan,
+t043,11,Systems maintenance,maintenance,normal,maintenance,stefan,
+t044,12,Crew health check,medical,normal,medical,amara,
+t045,12,Daily mission planning,command,normal,command,kenji,
+t046,12,EVA: solar panel inspection,eva,high,eva,john,
+t047,12,Experiment run,science,normal,science,maria,kenji
+t048,12,"Private medical conference (flight surgeon, 15 min)",pmc,normal,pmc,amara,
+t049,12,Systems maintenance,maintenance,normal,maintenance,john,
+t050,13,Daily mission planning,command,normal,command,kenji,
+t051,13,Experiment run,science,normal,science,maria,amara
+t052,13,"Private medical conference (flight surgeon, 15 min)",pmc,normal,pmc,maria,
+t053,13,Systems maintenance,maintenance,normal,maintenance,stefan,
+t054,14,Daily mission planning,command,normal,command,kenji,
+t055,14,Experiment run,science,normal,science,maria,john
+t056,14,Systems maintenance,maintenance,normal,maintenance,john,
+t057,15,Crew health check,medical,normal,medical,amara,
+t058,15,Daily mission planning,command,normal,command,kenji,
+t059,15,Experiment run,science,normal,science,maria,kenji
+t060,15,Systems maintenance,maintenance,normal,maintenance,stefan,
+t061,16,Daily mission planning,command,normal,command,kenji,
+t062,16,Experiment run,science,normal,science,maria,amara
+t063,16,"Private medical conference (flight surgeon, 15 min)",pmc,normal,pmc,kenji,
+t064,16,Systems maintenance,maintenance,normal,maintenance,john,
+t065,17,Daily mission planning,command,normal,command,kenji,
+t066,17,Experiment run,science,normal,science,maria,john
+t067,17,"Private medical conference (flight surgeon, 15 min)",pmc,normal,pmc,john,
+t068,17,Systems maintenance,maintenance,normal,maintenance,stefan,
+t069,18,Crew health check,medical,normal,medical,amara,
+t070,18,Daily mission planning,command,normal,command,kenji,
+t071,18,Experiment run,science,normal,science,maria,kenji
+t072,18,"Private medical conference (flight surgeon, 15 min)",pmc,normal,pmc,stefan,
+t073,18,Systems maintenance,maintenance,normal,maintenance,john,
+t074,19,Daily mission planning,command,normal,command,kenji,
+t075,19,EVA: antenna repair,eva,high,eva,john,
+t076,19,Experiment run,science,normal,science,maria,amara
+t077,19,"Private medical conference (flight surgeon, 15 min)",pmc,normal,pmc,amara,
+t078,19,Robotic arm: cargo transfer,robotics,high,robotics,kenji,
+t079,19,Systems maintenance,maintenance,normal,maintenance,stefan,
+t080,20,Daily mission planning,command,normal,command,kenji,
+t081,20,Experiment run,science,normal,science,maria,john
+t082,20,"Private medical conference (flight surgeon, 15 min)",pmc,normal,pmc,maria,
+t083,20,Systems maintenance,maintenance,normal,maintenance,john,
+t084,21,Crew health check,medical,normal,medical,amara,
+t085,21,Daily mission planning,command,normal,command,kenji,
+t086,21,Experiment run,science,normal,science,maria,kenji
+t087,21,Systems maintenance,maintenance,normal,maintenance,stefan,
+t088,22,Daily mission planning,command,normal,command,kenji,
+t089,22,Experiment run,science,normal,science,maria,amara
+t090,22,Systems maintenance,maintenance,normal,maintenance,john,
+t091,23,Daily mission planning,command,normal,command,kenji,
+t092,23,Experiment run,science,normal,science,maria,john
+t093,23,"Private medical conference (flight surgeon, 15 min)",pmc,normal,pmc,kenji,
+t094,23,Systems maintenance,maintenance,normal,maintenance,stefan,
+t095,24,Crew health check,medical,normal,medical,amara,
+t096,24,Daily mission planning,command,normal,command,kenji,
+t097,24,Experiment run,science,normal,science,maria,kenji
+t098,24,"Private medical conference (flight surgeon, 15 min)",pmc,normal,pmc,john,
+t099,24,Systems maintenance,maintenance,normal,maintenance,john,
+t100,25,Daily mission planning,command,normal,command,kenji,
+t101,25,Experiment run,science,normal,science,maria,amara
+t102,25,"Private medical conference (flight surgeon, 15 min)",pmc,normal,pmc,stefan,
+t103,25,Systems maintenance,maintenance,normal,maintenance,stefan,
+t104,26,Daily mission planning,command,normal,command,kenji,
+t105,26,Experiment run,science,normal,science,maria,john
+t106,26,"Private medical conference (flight surgeon, 15 min)",pmc,normal,pmc,amara,
+t107,26,Systems maintenance,maintenance,normal,maintenance,john,
+t108,27,Crew health check,medical,normal,medical,amara,
+t109,27,Daily mission planning,command,normal,command,kenji,
+t110,27,EVA: sensor replacement,eva,high,eva,stefan,
+t111,27,Experiment run,science,normal,science,maria,kenji
+t112,27,"Private medical conference (flight surgeon, 15 min)",pmc,normal,pmc,maria,
+t113,27,Systems maintenance,maintenance,normal,maintenance,stefan,
+t114,28,Daily mission planning,command,normal,command,kenji,
+t115,28,Experiment run,science,normal,science,maria,amara
+t116,28,Systems maintenance,maintenance,normal,maintenance,john,
+t117,29,Daily mission planning,command,normal,command,kenji,
+t118,29,Experiment run,science,normal,science,maria,john
+t119,29,Systems maintenance,maintenance,normal,maintenance,stefan,
+t120,30,Crew health check,medical,normal,medical,amara,
+t121,30,Daily mission planning,command,normal,command,kenji,
+t122,30,Experiment run,science,normal,science,maria,kenji
+t123,30,"Private medical conference (flight surgeon, 15 min)",pmc,normal,pmc,kenji,
+t124,30,Systems maintenance,maintenance,normal,maintenance,john,

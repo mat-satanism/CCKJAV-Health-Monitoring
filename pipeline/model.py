@@ -3,15 +3,18 @@
     python -m pipeline.model
 
 Trained on simulated missions (pipeline/simulation.py), tested on missions with other seeds and, for the one
-target real data has, on real PMData people. One logistic regression per event: small, works offline, and
-every prediction can be explained as "which signs pushed the risk up". The fitted numbers are saved as plain
-JSON (models/risk_model.json), so the app can use them without scikit-learn.
+target real data has, on real PMData people. One random forest per event, chosen over logistic regression and
+LightGBM in pipeline/compare_models.py (see docs/model-comparison.md): as good as LightGBM on new simulated
+missions and the only one that holds up on real people. Each prediction is explained with SHAP: how much each
+sign added to or took away from the risk. The app reads the precomputed demo predictions (sim/predictions.csv)
+and the settings in models/risk_model.json (floors, usual risk per event), so it does not need scikit-learn.
 """
 import json
 
 import numpy as np
 import pandas as pd
-from sklearn.linear_model import LogisticRegression
+import shap
+from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import average_precision_score, roc_auc_score
 
 from . import features as F
@@ -22,8 +25,9 @@ MODEL_PATH = ROOT / "models" / "risk_model.json"
 TRAIN_MISSIONS, TRAIN_SEED = 400, 7
 TEST_MISSIONS, TEST_SEED = 100, 1234
 ALERT_SHARE = 0.05          # "top 5% riskiest astronaut-days raise an alert" for the recall/precision numbers
-C = 0.5                     # regularisation of the logistic regression
-MIN_SIGN = 0.25             # a sign is shown only if it adds at least this much to the log-odds
+FOREST = {"n_estimators": 300, "min_samples_leaf": 20, "random_state": 42}   # leaves of 20+ days: no memorising
+C = 0.5                     # regularisation of the logistic regression (compare_models only)
+MIN_SIGN = 0.01             # a sign is shown only if SHAP says it adds at least 1 percentage point of risk
 KEY = ["mission_id", "astronaut_id"]
 CREW_SIGNALS = ["sleep_hours", "mood", "heart_rate"]
 
@@ -31,6 +35,7 @@ LABELS = {
     "heart_rate": ("Resting pulse", "bpm"), "bp_sys": ("Systolic pressure", "mmHg"),
     "bp_dia": ("Diastolic pressure", "mmHg"), "glucose": ("Glucose", "mg/dL"), "temp": ("Temperature", "°C"),
     "sleep_hours": ("Sleep", "h"), "mood": ("Mood", "points"), "exercise_min": ("Exercise", "min"),
+    "hrv_ms": ("Heart rate variability", "ms"), "reaction_ms": ("Reaction time", "ms"),
 }
 
 
@@ -79,32 +84,30 @@ def matrix(d: pd.DataFrame) -> np.ndarray:
     return d.reindex(columns=feature_columns()).fillna(0.0).to_numpy(dtype=float)  # no norm yet = no deviation
 
 
-def train(train_days: pd.DataFrame) -> dict:
+def train(train_days: pd.DataFrame) -> tuple[dict, dict[str, RandomForestClassifier]]:
+    """Returns (settings saved as JSON, one fitted forest per event)."""
     d, floors = sim_features(train_days)
     X = matrix(d)
-    mean, scale = X.mean(axis=0), X.std(axis=0)
-    scale[scale == 0] = 1.0
-    Xs = (X - mean) / scale
-    events = {}
+    forests, events = {}, {}
     for event in sim.PREDICTED:
         y = d[f"label_{event}_48h"].to_numpy()
-        lr = LogisticRegression(C=C, max_iter=2000).fit(Xs, y)
-        events[event] = {"coef": lr.coef_[0].round(6).tolist(), "intercept": float(lr.intercept_[0]),
-                         "base_rate": round(float(y.mean()), 4)}   # share of days with this label: "usual" risk
-    return {"features": feature_columns(), "mean": mean.round(6).tolist(), "scale": scale.round(6).tolist(),
-            "floors": floors, "events": events,
-            "trained_on": f"{TRAIN_MISSIONS} simulated missions, seed {TRAIN_SEED}",
-            "note": "Synthetic training data calibrated on PMData and NHANES. Not a medical device."}
+        forests[event] = RandomForestClassifier(**FOREST, n_jobs=-1).fit(X, y)
+        events[event] = {"base_rate": round(float(y.mean()), 4)}   # share of days with this label: "usual" risk
+    settings = {"model": "random_forest", "params": FOREST, "explanations": "SHAP (TreeExplainer)",
+                "features": feature_columns(), "floors": floors, "events": events,
+                "trained_on": f"{TRAIN_MISSIONS} simulated missions, seed {TRAIN_SEED}",
+                "note": "Synthetic training data calibrated on PMData and NHANES. Not a medical device."}
+    return settings, forests
 
 
-def risk(model: dict, d: pd.DataFrame) -> tuple[pd.DataFrame, dict[str, np.ndarray]]:
-    """Probabilities per event and per-feature contributions (coefficient x standardised value)."""
-    Xs = (matrix(d) - np.array(model["mean"])) / np.array(model["scale"])
+def risk(forests: dict, d: pd.DataFrame, explain_signs: bool = True) -> tuple[pd.DataFrame, dict[str, np.ndarray]]:
+    """Probabilities per event and, if asked, SHAP contributions per feature (in probability units)."""
+    X = matrix(d)
     probs, contrib = {}, {}
-    for event, p in model["events"].items():
-        c = Xs * np.array(p["coef"])
-        contrib[event] = c
-        probs[f"risk_{event}"] = 1 / (1 + np.exp(-(c.sum(axis=1) + p["intercept"])))
+    for event, forest in forests.items():
+        probs[f"risk_{event}"] = forest.predict_proba(X)[:, 1]
+        if explain_signs:
+            contrib[event] = shap.TreeExplainer(forest).shap_values(X)[:, :, 1]
     return pd.DataFrame(probs, index=d.index), contrib
 
 
@@ -134,9 +137,9 @@ def explain(model: dict, d: pd.DataFrame, contrib: dict[str, np.ndarray], top: i
     return pd.DataFrame(out, index=d.index)
 
 
-def evaluate(model: dict, test_days: pd.DataFrame) -> pd.DataFrame:
-    d, _ = sim_features(test_days, model["floors"])
-    probs, _ = risk(model, d)
+def evaluate(settings: dict, forests: dict, test_days: pd.DataFrame) -> pd.DataFrame:
+    d, _ = sim_features(test_days, settings["floors"])
+    probs, _ = risk(forests, d, explain_signs=False)
     simple = d[[f"{ind}_z" for ind in sim.INDICATORS]].abs().max(axis=1).fillna(0)   # rule: biggest |z| today
     rows = []
     for event in sim.PREDICTED:
@@ -151,12 +154,12 @@ def evaluate(model: dict, test_days: pd.DataFrame) -> pd.DataFrame:
     return pd.DataFrame(rows)
 
 
-def real_check(model: dict) -> pd.DataFrame:
+def real_check(forests: dict) -> pd.DataFrame:
     """Score the sim-trained mood-related models on real PMData people against 'tomorrow's mood is worse than usual'."""
     f = pd.read_csv(PROCESSED / "features_pmdata.csv")
     f = f[f["target_worse_mood"].notna()].copy()
     f["has_norm"] = f["heart_rate_base"].notna().astype(float)
-    probs, _ = risk(model, f)          # missing indicators (pressure, glucose, temperature, crew) count as 0
+    probs, _ = risk(forests, f, explain_signs=False)   # missing indicators (pressure, glucose, temperature, crew) count as 0
     y = f["target_worse_mood"].to_numpy()
     rows = [{"score": f"risk_{e}", "auc": round(roc_auc_score(y, probs[f"risk_{e}"]), 3)}
             for e in ("low_mood", "sleep_disruption")]
@@ -168,10 +171,10 @@ def real_check(model: dict) -> pd.DataFrame:
     return out
 
 
-def predict_demo(model: dict, demo_days: pd.DataFrame) -> pd.DataFrame:
-    d, _ = sim_features(demo_days, model["floors"])
-    probs, contrib = risk(model, d)
-    out = pd.concat([d[["astronaut_id", "mission_day"]], probs.round(3), explain(model, d, contrib)], axis=1)
+def predict_demo(settings: dict, forests: dict, demo_days: pd.DataFrame) -> pd.DataFrame:
+    d, _ = sim_features(demo_days, settings["floors"])
+    probs, contrib = risk(forests, d)
+    out = pd.concat([d[["astronaut_id", "mission_day"]], probs.round(3), explain(settings, d, contrib)], axis=1)
     return out.sort_values(["mission_day", "astronaut_id"]).reset_index(drop=True)
 
 
@@ -179,16 +182,16 @@ def main() -> None:
     cal = sim.calibrate(pd.read_csv(PROCESSED / "daily.csv"), pd.read_csv(PROCESSED / "nhanes_reference.csv"))
     train_days, _ = sim.training_missions(cal, TRAIN_MISSIONS, TRAIN_SEED)
     test_days, _ = sim.training_missions(cal, TEST_MISSIONS, TEST_SEED)
-    model = train(train_days)
+    settings, forests = train(train_days)
     MODEL_PATH.parent.mkdir(exist_ok=True)
-    MODEL_PATH.write_text(json.dumps(model, indent=1))
+    MODEL_PATH.write_text(json.dumps(settings, indent=1))
     print(f"model -> {MODEL_PATH.relative_to(ROOT)}")
     print("\nTest: 100 new simulated missions (seed never used in training)")
-    print(evaluate(model, test_days).to_string(index=False))
+    print(evaluate(settings, forests, test_days).to_string(index=False))
     print("\nReal people (PMData), target: tomorrow's mood worse than usual")
-    print(real_check(model).to_string(index=False))
+    print(real_check(forests).to_string(index=False))
     _, demo_days, _ = sim.demo_mission(cal)
-    pred = predict_demo(model, demo_days)
+    pred = predict_demo(settings, forests, demo_days)
     pred.to_csv(PROCESSED / "sim" / "predictions.csv", index=False)
     print(f"\nsim/predictions.csv -> {len(pred)} rows")
 

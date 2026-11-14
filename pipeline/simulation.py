@@ -4,6 +4,9 @@ Normal days copy real people: each astronaut takes the mean, day-to-day spread a
 PMData participant for pulse, sleep and mood, and draws exercise from that person's real days. Blood
 pressure and glucose levels come from NHANES percentiles. Temperature and every event effect are
 ASSUMPTIONS (no open source yet): they live in ASSUMED and EVENTS below so they are easy to replace.
+Heart rate variability (RMSSD) copies the median, spread and persistence of one LifeSnaps participant. Reaction
+time (3-minute PVT, part of NASA's Cognition battery) is an ASSUMPTION. Both use their own random stream,
+so adding them did not change the other simulated values.
 Everything this module makes is synthetic and is labelled `source = synthetic`.
 """
 from dataclasses import dataclass, field
@@ -15,7 +18,9 @@ MISSION_DAYS = 30
 EVENT_FREE_DAYS = 15        # days 1-15 never have events or early signs: they form the personal norm
 HORIZON_DAYS = 2            # label = event starts within the next 48 hours
 POOL_MIN_FULL_DAYS = 60     # PMData people with fewer complete days are not used for calibration
-INDICATORS = ["heart_rate", "bp_sys", "bp_dia", "glucose", "temp", "sleep_hours", "mood", "exercise_min"]
+INDICATORS = ["heart_rate", "bp_sys", "bp_dia", "glucose", "temp", "sleep_hours", "mood", "exercise_min",
+              "hrv_ms", "reaction_ms"]
+HRV_MIN_DAYS = 21           # LifeSnaps people with fewer HRV days are not used for calibration
 FROM_PMDATA = ["heart_rate", "sleep_hours", "mood", "exercise_min"]
 
 # ASSUMPTIONS: no open daily data for these. sd = day-to-day spread, phi = persistence from day to day.
@@ -24,6 +29,8 @@ ASSUMED = {
     "bp_dia": {"sd": 4.0, "phi": 0.3},
     "glucose": {"sd": 6.0, "phi": 0.2},
     "temp": {"mean": 36.6, "between_people_sd": 0.15, "sd": 0.15, "phi": 0.3},
+    # mean of a 3-minute PVT, ms; slower after a short night (ms per hour of sleep below the person's usual)
+    "reaction_ms": {"mean": 260.0, "between_people_sd": 20.0, "sd": 15.0, "phi": 0.3, "per_sleep_hour": -8.0},
 }
 HEALTHY_BAND = (0.05, 0.95)  # personal NHANES level is drawn between the 5th and 95th percentile
 
@@ -31,32 +38,33 @@ HEALTHY_BAND = (0.05, 0.95)  # personal NHANES level is drawn between the 5th an
 EVENTS = {
     "sleep_disruption": {
         "hazard": "isolation", "crew": False, "prodrome": 2, "episode": (5, 7), "rate": 0.5,
-        "prodrome_effect": {"sleep_hours": -1.0, "mood": -0.3},
-        "episode_effect": {"sleep_hours": -2.5, "mood": -1.0, "heart_rate": 3.0},
+        "prodrome_effect": {"sleep_hours": -1.0, "mood": -0.3, "hrv_ms": -3.0, "reaction_ms": 10.0},
+        "episode_effect": {"sleep_hours": -2.5, "mood": -1.0, "heart_rate": 3.0, "hrv_ms": -6.0, "reaction_ms": 30.0},
         "symptoms": ["trouble sleeping"],
     },
     "infection": {
         "hazard": "closed environment", "crew": False, "prodrome": 2, "episode": (3, 5), "rate": 0.3,
-        "prodrome_effect": {"heart_rate": 4.0, "temp": 0.3, "sleep_hours": -0.5},
-        "episode_effect": {"temp": 1.8, "heart_rate": 12.0, "mood": -1.0, "sleep_hours": -1.0, "exercise_factor": 0.3},
+        "prodrome_effect": {"heart_rate": 4.0, "temp": 0.3, "sleep_hours": -0.5, "hrv_ms": -5.0},
+        "episode_effect": {"temp": 1.8, "heart_rate": 12.0, "mood": -1.0, "sleep_hours": -1.0, "exercise_factor": 0.3,
+                           "hrv_ms": -12.0, "reaction_ms": 20.0},
         "symptoms": ["fever", "fatigue"],
     },
     "deconditioning": {
         "hazard": "gravity", "crew": False, "prodrome": 4, "episode": (3, 4), "rate": 0.3,
         "prodrome_effect": {"exercise_factor": 0.1},
-        "episode_effect": {"bp_sys": -8.0, "heart_rate": 6.0, "exercise_factor": 0.3},
+        "episode_effect": {"bp_sys": -8.0, "heart_rate": 6.0, "exercise_factor": 0.3, "hrv_ms": -4.0},
         "symptoms": ["dizziness when standing"],
     },
     "low_mood": {
         "hazard": "isolation", "crew": False, "prodrome": 4, "episode": (6, 8), "rate": 0.3,
         "prodrome_effect": {"mood": -0.5, "exercise_factor": 0.8},
-        "episode_effect": {"mood": -1.5, "sleep_hours": -0.7, "exercise_factor": 0.6},
+        "episode_effect": {"mood": -1.5, "sleep_hours": -0.7, "exercise_factor": 0.6, "hrv_ms": -3.0, "reaction_ms": 10.0},
         "symptoms": ["low mood"],
     },
     "co2_buildup": {
         "hazard": "closed environment", "crew": True, "prodrome": 1, "episode": (2, 3), "rate": 0.4,
-        "prodrome_effect": {"sleep_hours": -0.5, "mood": -0.3},
-        "episode_effect": {"mood": -1.0, "sleep_hours": -1.0, "heart_rate": 3.0},
+        "prodrome_effect": {"sleep_hours": -0.5, "mood": -0.3, "reaction_ms": 10.0},
+        "episode_effect": {"mood": -1.0, "sleep_hours": -1.0, "heart_rate": 3.0, "hrv_ms": -3.0, "reaction_ms": 25.0},
         "symptoms": ["headache", "fatigue"],
     },
     "solar_flare": {   # sudden: handled by a rule (shelter, postpone EVA), not predicted
@@ -72,10 +80,10 @@ DEMO_CREW = [
     {"astronaut_id": "john", "name": "John", "role": "Flight engineer", "skills": "eva;maintenance", "calibrated_from": "pm_p01"},
     {"astronaut_id": "stefan", "name": "Stefan", "role": "Flight engineer", "skills": "eva;maintenance;robotics", "calibrated_from": "pm_p06"},
     {"astronaut_id": "amara", "name": "Amara", "role": "Crew medical officer", "skills": "medical;science", "calibrated_from": "pm_p14"},
-    {"astronaut_id": "lena", "name": "Lena", "role": "Mission specialist", "skills": "science;medical", "calibrated_from": "pm_p11"},
+    {"astronaut_id": "maria", "name": "Maria", "role": "Mission specialist", "skills": "science;medical", "calibrated_from": "pm_p11"},
 ]
 # (event, who, onset day, episode length)
-DEMO_EVENTS = [("infection", "john", 18, 4), ("sleep_disruption", "lena", 21, 6),
+DEMO_EVENTS = [("infection", "john", 18, 4), ("sleep_disruption", "maria", 21, 6),
                ("co2_buildup", "crew", 25, 2), ("solar_flare", "crew", 27, 1)]
 
 
@@ -83,27 +91,38 @@ DEMO_EVENTS = [("infection", "john", 18, 4), ("sleep_disruption", "lena", 21, 6)
 TASK_KINDS = {
     "eva": ("high", "eva"), "robotics": ("high", "robotics"), "maintenance": ("normal", "maintenance"),
     "science": ("normal", "science"), "medical": ("normal", "medical"), "command": ("normal", "command"),
+    "pmc": ("normal", "pmc"),       # private medical conference: personal, never reassigned
 }
+# On the space station each crew member has a weekly private medical conference with the flight surgeon,
+# about 15 minutes (NASA podcast "Mission Control: Crew Health Consoles", 2025). One weekday per person here.
+PMC_TITLE = "Private medical conference (flight surgeon, 15 min)"
 
 
 def demo_tasks(days: int = MISSION_DAYS) -> pd.DataFrame:
-    """The demo mission's task plan. John's EVA on day 19 falls on his fever; Stefan's EVA on day 27 on the flare."""
+    """The demo mission's task plan. John's EVA on day 19 falls on his fever; Stefan's EVA on day 27 on the flare.
+
+    The experiment is done in pairs (Maria + a rotating partner), so who worked closely with whom is known:
+    John works with Maria on day 17, the day before his fever starts.
+    """
     plan = []
     for day in range(1, days + 1):
         plan += [(day, "Daily mission planning", "command", "kenji"),
-                 (day, "Experiment run", "science", "lena"),
+                 (day, "Experiment run", "science", "maria", ["kenji", "amara", "john"][day % 3]),
                  (day, "Systems maintenance", "maintenance", "stefan" if day % 2 else "john")]
         if day % 3 == 0:
             plan.append((day, "Crew health check", "medical", "amara"))
+        for i, member in enumerate(DEMO_CREW):
+            if (day - 1) % 7 == i + 1:
+                plan.append((day, PMC_TITLE, "pmc", member["astronaut_id"]))
     plan += [(12, "EVA: solar panel inspection", "eva", "john"),
              (19, "EVA: antenna repair", "eva", "john"),
              (19, "Robotic arm: cargo transfer", "robotics", "kenji"),
              (27, "EVA: sensor replacement", "eva", "stefan")]
     rows = []
-    for i, (day, title, kind, who) in enumerate(sorted(plan, key=lambda p: (p[0], p[1]))):
+    for i, (day, title, kind, who, *partner) in enumerate(sorted(plan, key=lambda p: (p[0], p[1]))):
         demand, skill = TASK_KINDS[kind]
         rows.append({"task_id": f"t{i:03d}", "mission_day": day, "title": title, "kind": kind,
-                     "demand": demand, "skill": skill, "assignee": who})
+                     "demand": demand, "skill": skill, "assignee": who, "partner": partner[0] if partner else ""})
     return pd.DataFrame(rows)
 
 
@@ -122,6 +141,7 @@ class Calibration:
     mood_per_sleep_hour: float       # within-person slope: next-day mood per hour of extra sleep
     hr_per_sleep_hour: float         # within-person slope: next-day resting pulse per hour of extra sleep
     nhanes: dict = field(default_factory=dict)   # indicator -> (percentiles, values)
+    hrv_pool: list = field(default_factory=list)  # LifeSnaps people: (median, spread, persistence) of RMSSD
 
 
 @dataclass
@@ -179,7 +199,16 @@ def calibrate(daily: pd.DataFrame, nhanes_reference: pd.DataFrame) -> Calibratio
     pcts = [0.01, 0.05, 0.50, 0.95, 0.99]
     nh = {r["indicator"]: (pcts, [r["p01"], r["p05"], r["p50"], r["p95"], r["p99"]])
           for _, r in nhanes_reference.iterrows()}
-    return Calibration(pool, num_m / den_m, num_h / den_h, nh)
+    hrv_pool = []
+    ls = daily[(daily["source_dataset"] == "lifesnaps")].copy()
+    if "hrv_ms" in ls.columns:
+        ls["date"] = pd.to_datetime(ls["date"])
+        for _, g in ls.groupby("person_id"):
+            x = g.set_index("date").sort_index()["hrv_ms"].astype(float).asfreq("D")
+            if x.notna().sum() >= HRV_MIN_DAYS:
+                r = x.autocorr(1)
+                hrv_pool.append((float(x.median()), float(x.std()), float(np.clip(r, 0.0, 0.9)) if pd.notna(r) else 0.3))
+    return Calibration(pool, num_m / den_m, num_h / den_h, nh, hrv_pool)
 
 
 def _ar1(rng: np.random.Generator, n: int, mu: float, sd: float, phi: float) -> np.ndarray:
@@ -214,6 +243,17 @@ def _normal_days(rng, person: Person, cal: Calibration, n: int) -> dict[str, np.
     return s
 
 
+def _newer_indicators(rng, cal: Calibration, s: dict[str, np.ndarray], usual_sleep: float) -> None:
+    """HRV and reaction time, from their own random stream (rng) so the older indicators stay the same."""
+    n = len(s["mood"])
+    med, sd, phi = cal.hrv_pool[int(rng.integers(len(cal.hrv_pool)))] if cal.hrv_pool else (40.0, 8.0, 0.3)
+    s["hrv_ms"] = _ar1(rng, n, med, sd, phi)
+    r = ASSUMED["reaction_ms"]
+    short_night = np.r_[0.0, s["sleep_hours"][:-1] - usual_sleep]
+    s["reaction_ms"] = (_ar1(rng, n, r["mean"] + rng.normal(0, r["between_people_sd"]), r["sd"], r["phi"])
+                        + r["per_sleep_hour"] * short_night)
+
+
 def _apply(s: dict[str, np.ndarray], effect: dict, days: range) -> None:
     for day in days:
         i = day - 1
@@ -234,16 +274,21 @@ def _finish(s: dict[str, np.ndarray]) -> dict[str, np.ndarray]:
         "sleep_hours": np.round(np.clip(s["sleep_hours"], 1.0, 13.0), 1),
         "mood": np.clip(np.round(s["mood"]), 1, 5),
         "exercise_min": np.round(np.clip(s["exercise_min"], 0, None)),
+        "hrv_ms": np.round(np.clip(s["hrv_ms"], 5.0, None), 1),
+        "reaction_ms": np.round(np.clip(s["reaction_ms"], 150.0, None)),
     }
 
 
 def simulate_mission(mission_id: str, seed: int, crew: list[dict], cal: Calibration,
                      events: list[Event], days: int = MISSION_DAYS) -> tuple[pd.DataFrame, pd.DataFrame]:
     rng = np.random.default_rng(seed)
+    rng_new = np.random.default_rng([seed, 1])      # own stream for HRV and reaction time
     rows = []
     for member in crew:
         aid = member["astronaut_id"]
-        s = _normal_days(rng, cal.pool[member["calibrated_from"]], cal, days)
+        person = cal.pool[member["calibrated_from"]]
+        s = _normal_days(rng, person, cal, days)
+        _newer_indicators(rng_new, cal, s, person.mean["sleep_hours"])
         mine = [e for e in events if e.affects(aid)]
         for e in mine:
             spec = EVENTS[e.type]

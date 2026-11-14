@@ -1,4 +1,6 @@
 """Tests for the crew simulator. Uses the committed data/processed tables for calibration."""
+from itertools import pairwise
+
 import pandas as pd
 import pytest
 
@@ -76,3 +78,11 @@ def test_synthetic_normal_days_look_like_real_people(cal):
     for ind in sim.FROM_PMDATA:
         assert cmp.loc[ind, "sim_mean"] == pytest.approx(cmp.loc[ind, "real_mean"], rel=0.1)
         assert cmp.loc[ind, "sim_spread"] == pytest.approx(cmp.loc[ind, "real_spread"], rel=0.35)
+
+
+def test_every_crew_member_has_a_weekly_private_medical_conference():
+    tasks = sim.demo_tasks()
+    pmc = tasks[tasks["kind"] == "pmc"]
+    for member in sim.DEMO_CREW:
+        days = pmc.loc[pmc["assignee"] == member["astronaut_id"], "mission_day"].tolist()
+        assert days and all(b - a == 7 for a, b in pairwise(days))

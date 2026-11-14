@@ -39,8 +39,23 @@ def _post(type_, value, unit):
 def test_skipped_workout_is_not_a_ground_emergency():
     _post("exercise_min", 0, "min")
     status = {i["type"]: i["status"] for i in client.get("/status").json()["indicators"]}
-    assert status["exercise_min"] == "yellow"
+    assert status["exercise_min"] != "red"     # the demo person often has days without exercise
     assert client.get("/insights").json()["level"] != "ground"
+
+
+def _status(ind):
+    return next(i for i in client.get("/status").json()["indicators"] if i["type"] == ind)
+
+
+def test_athletes_usual_low_pulse_is_not_flagged():
+    hr = _status("heart_rate")                  # demo person's resting pulse is about 49, below the population band
+    assert hr["status"] == "green" and "usual" in hr["message"]
+
+
+def test_a_big_change_from_the_personal_norm_is_yellow():
+    _post("heart_rate", 70, "bpm")              # about +20 bpm vs this person's norm, still inside population limits
+    hr = _status("heart_rate")
+    assert hr["status"] == "yellow" and "vs this person's usual" in hr["message"]
 
 
 def test_lowest_mood_is_yellow_not_red():
@@ -78,3 +93,55 @@ def test_blood_reference_keeps_flagged_samples_with_a_note():
     assert r45 and r45[0]["value"] == 36.0
     assert "delayed" in r45[0]["quality_note"]
     assert client.get("/reference/blood", params={"crew": "C009"}).status_code == 404
+
+
+def test_every_indicator_and_system_has_sourced_content():
+    content = client.get("/meta").json()["content"]
+    sources = content["sources"]
+    for group in ("indicators", "systems"):
+        names = client.get("/meta").json()[group]
+        for name in names:
+            item = content[group][name]
+            assert item["sources"], f"{group}/{name} has no source"
+            assert all(s in sources and sources[s]["url"].startswith("https://") for s in item["sources"])
+    for item in content["indicators"].values():
+        assert item["why"] and item["how_to_measure"] and item["advice"]
+
+
+def test_a_check_in_from_today_is_the_newest_value():
+    from datetime import UTC, datetime
+    now = datetime.now(UTC).replace(hour=0, minute=5).isoformat()   # early morning: before the demo's 08:00
+    client.post("/measurements", json=[{"ts": now, "type": "heart_rate", "value": 55, "unit": "bpm"}])
+    assert _status("heart_rate")["latest"] == 55
+
+
+def test_saved_check_ins_survive_a_backend_restart_but_not_reset():
+    from app import main
+    _post("sleep_hours", 6.5, "h")
+    main.load()                                 # what happens when the server starts again
+    assert _status("sleep_hours")["latest"] == 6.5
+    client.post("/demo/reset")
+    assert _status("sleep_hours")["latest"] != 6.5
+
+
+def test_measurement_plan_items_cite_known_sources():
+    content = client.get("/meta").json()["content"]
+    items = content["measurement_plan"]["items"]
+    assert any(i["what"] == "Bone density" for i in items)
+    assert all(i["sources"] and all(s in content["sources"] for s in i["sources"]) for i in items)
+
+
+def test_new_indicators_have_a_frequency_and_use_only_the_personal_norm():
+    meta = client.get("/meta").json()
+    for ind in ("hrv_ms", "reaction_ms"):
+        assert ind in meta["indicators"] and meta["content"]["indicators"][ind]["frequency"]
+    assert _status("hrv_ms")["status"] == "grey"     # the real-data demo person has no HRV
+
+
+def test_exposures_and_indicator_tests_cite_known_sources():
+    content = client.get("/meta").json()["content"]
+    for e in content["exposures"].values():
+        assert e["risk"] and e["sources"] and all(s in content["sources"] for s in e["sources"])
+        assert e["monitoring"] or e["our_plan"]
+    for ind in content["indicators"].values():
+        assert ind["tests"] and all(s in content["sources"] for s in ind["sources"])

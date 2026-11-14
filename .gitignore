@@ -18,3 +18,4 @@ dist/
 .vscode/
 .pytest_cache/
 data/raw/
+data/local/

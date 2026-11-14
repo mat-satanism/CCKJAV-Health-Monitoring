@@ -1,0 +1,173 @@
+{
+ "_note": "Per indicator: why it matters in space, how to measure (general practice), and advice. Paraphrased from the cited sources (sources.json); 'how_to_measure' is general practice and cites no source. Not medical advice.",
+ "heart_rate": {
+  "why": "Resting heart rate shows how the heart and circulation are coping. On return to gravity the heart can race when standing up, because there is less fluid in the blood vessels after weeks in orbit.",
+  "how_to_measure": "Measure at rest, at the same time each day (for example after waking), with the same device.",
+  "advice": [
+   "Rest, then measure again before acting on a single high value.",
+   "Keep up daily aerobic exercise: it counters heart and muscle deconditioning."
+  ],
+  "sources": [
+   "ochmo-tb-019",
+   "ochmo-tb-031",
+   "hrp-48033"
+  ],
+  "frequency": "every morning at rest (wearable gives it automatically)",
+  "tests": [
+   "Stand test: pulse and blood pressure lying down and after standing up"
+  ]
+ },
+ "bp_sys": {
+  "why": "Blood pressure shows whether the circulation can keep blood flowing to the brain. In space fluid volume drops, and on return to gravity pressure can fall when standing up.",
+  "how_to_measure": "Sit quietly for a few minutes, arm supported at heart level, and take the reading with the same cuff each time.",
+  "advice": [
+   "Re-measure after resting before raising an alarm about one odd reading.",
+   "Before a return to gravity, follow the fluid and salt loading plan and keep exercising: both protect blood pressure."
+  ],
+  "sources": [
+   "ochmo-tb-019",
+   "hrp-48033"
+  ],
+  "frequency": "every morning, seated, same cuff",
+  "tests": [
+   "Repeat seated readings in the morning, same cuff",
+   "Stand test: pressure lying down and after standing up"
+  ]
+ },
+ "bp_dia": {
+  "why": "The lower number of blood pressure; read it together with the upper one.",
+  "how_to_measure": "Taken in the same reading as systolic pressure.",
+  "advice": [
+   "Re-measure after resting before raising an alarm about one odd reading."
+  ],
+  "sources": [
+   "ochmo-tb-019",
+   "hrp-48033"
+  ],
+  "frequency": "every morning, with systolic",
+  "tests": [
+   "Repeat seated readings in the morning, same cuff",
+   "Stand test: pressure lying down and after standing up"
+  ]
+ },
+ "glucose": {
+  "why": "Blood glucose shows how the body is handling energy. Spaceflight shifts which fuel the body burns, mostly through diet, and may change insulin signalling.",
+  "how_to_measure": "Measure fasting, before breakfast, so readings are comparable from day to day.",
+  "advice": [
+   "Re-measure, and note when and what you last ate.",
+   "Keep meals regular and log them; diet explained most of the change in fuel use on the station."
+  ],
+  "sources": [
+   "energy-2024",
+   "insulin-2023",
+   "hrp-48033",
+   "nasa-standard-measures"
+  ],
+  "frequency": "every morning, fasting",
+  "tests": [
+   "Blood sample for biochemical markers"
+  ]
+ },
+ "temp": {
+  "why": "A rise in body temperature can be a sign of infection. In orbit it also rises more during exercise, and resting temperature can creep up by about 1 °C over months, so your own usual value matters more than the textbook one.",
+  "how_to_measure": "Measure at rest, not straight after exercise, with the same thermometer.",
+  "advice": [
+   "Re-measure at rest; exercise raises body temperature more in space than on Earth.",
+   "If it keeps rising, tell the crew medical officer: immune function can be reduced in flight."
+  ],
+  "sources": [
+   "stahn-2017",
+   "hrp-immune-2009",
+   "hrp-48033",
+   "nasa-standard-measures"
+  ],
+  "frequency": "every morning; not continuous (no reliable all-day sensor)",
+  "tests": [
+   "Blood and saliva samples: blood counts, stress hormones, reactivation of dormant viruses"
+  ]
+ },
+ "sleep_hours": {
+  "why": "Astronauts sleep less in space than on the ground, and short sleep is linked to more mistakes and slower decisions.",
+  "how_to_measure": "Log the hours you actually slept, right after waking.",
+  "advice": [
+   "Keep a fixed sleep window and protect the time for it.",
+   "Get light at the right times of day and avoid bright light before sleep.",
+   "Log real work hours so planners can leave enough downtime."
+  ],
+  "sources": [
+   "hrp-sleep-2016",
+   "nasa-standard-measures"
+  ],
+  "frequency": "every morning, right after waking",
+  "tests": [
+   "Wrist monitor for activity and light (actigraphy)",
+   "Sleep quality questionnaire after waking"
+  ]
+ },
+ "mood": {
+  "why": "Isolation, confinement and workload strain mood and teamwork over long missions.",
+  "how_to_measure": "Rate how you feel today from 1 (very low) to 5 (very good), at the same time each day.",
+  "advice": [
+   "Talk to a crewmate or the crew medical officer.",
+   "Use the crew support the mission provides."
+  ],
+  "sources": [
+   "nasa-hazards",
+   "hrp-sleep-2016",
+   "nasa-standard-measures",
+   "nasa-pmc-podcast"
+  ],
+  "frequency": "every morning and evening (short check-in)",
+  "tests": [
+   "Mood and team questionnaire before sleep",
+   "Private medical conference with the flight surgeon: weekly, about 15 minutes, or on request"
+  ]
+ },
+ "exercise_min": {
+  "why": "Exercise is the main protection against bone and muscle loss in weightlessness, and it also helps the heart, blood pressure on return to gravity, and kidney-stone risk.",
+  "how_to_measure": "Log the minutes of aerobic and resistance exercise you did today.",
+  "advice": [
+   "On long missions NASA plans aerobic exercise 6 to 7 days a week (about 30 minutes) plus resistance training (30 to 60 minutes).",
+   "Make up a missed session soon: several days without exercise speeds up deconditioning."
+  ],
+  "sources": [
+   "ochmo-tb-031",
+   "ochmo-mtb-013",
+   "nasa-bone-lab"
+  ],
+  "frequency": "every day, logged after training",
+  "tests": [
+   "Bone scan (DXA) before and after the mission"
+  ]
+ },
+ "hrv_ms": {
+  "why": "Heart rate variability is how much the time between heartbeats changes. Higher than your usual usually means rested and recovered; a drop below your usual can come with stress, poor sleep or the start of an illness. In a study of 7 astronauts on the space station, the body's own heart-rhythm control changed in space and returned to normal back on Earth.",
+  "how_to_measure": "Measured automatically by the wearable during sleep (RMSSD). Compare with your own usual, not with other people: healthy values differ a lot between people.",
+  "advice": [
+   "If it stays below your usual for several days, plan lighter work and protect sleep, and tell the CMO if you also feel unwell."
+  ],
+  "frequency": "every night, automatically (wearable)",
+  "sources": [
+   "otsuka-2015"
+  ],
+  "tests": [
+   "24-hour ECG recording (Holter), as used in the space station heart-rhythm study"
+  ]
+ },
+ "reaction_ms": {
+  "why": "A short reaction test shows how alert you are. NASA's Cognition battery, done by every astronaut on the space station, includes a 3-minute version of this test. It is the standard way to see the effect of short sleep and a shifted body clock.",
+  "how_to_measure": "3-minute test in the morning: press as soon as the counter appears. Same time of day, same device, before coffee if you can.",
+  "advice": [
+   "If you are much slower than usual, avoid safety-critical tasks until you have rested, and re-test later."
+  ],
+  "frequency": "every morning, 3 minutes",
+  "sources": [
+   "upenn-cognition",
+   "basner-2011",
+   "nasa-standard-measures"
+  ],
+  "tests": [
+   "Full Cognition battery: 10 short tests, about 16 minutes on the station"
+  ]
+ }
+}

@@ -75,9 +75,9 @@ Label: `label_<event>_48h` = 1 if that event starts on day t+1 or t+2 for this a
 
 ## Demo mission (seed 2026)
 
-Crew: Kenji (commander), John and Stefan (flight engineers, EVA), Amara (CMO), Lena (mission specialist).
+Crew: Kenji (commander), John and Stefan (flight engineers, EVA), Amara (CMO), Maria (mission specialist).
 Each is calibrated on one real PMData participant (`calibrated_from`). Guaranteed events: John's infection
-starts on day 18 (an EVA is planned for him on day 19, so it should go to Stefan), Lena's sleep disruption on
+starts on day 18 (an EVA is planned for him on day 19, so it should go to Stefan), Maria's sleep disruption on
 day 21, CO2 build-up on day 25, solar flare on day 27.
 
 ## Stages
@@ -113,33 +113,43 @@ link between them on normal days; the events add that link on purpose.
 `label_<event>_48h`), `events.csv` (type, hazard, who, early-sign start, onset, end).
 Code: `pipeline/simulation.py`; tests: `pipeline/tests/test_simulation.py`.
 
-## Stage 2: risk model (2026-11-14)
+## Stage 2: risk model (2026-11-14, switched to random forest the same day)
 
-`python -m pipeline.model` (needs `scikit-learn`, training only). One logistic regression per event on 33
-features: for each of the 8 indicators the z-score vs the personal norm and the 3-day mean deviation, the
-whole-crew deviation of sleep, mood and pulse, and whether a norm exists yet. Trained on 400 simulated
-missions (seed 7), saved as plain JSON in `models/risk_model.json` (3 KB), so the app can compute risks
-without scikit-learn. Demo predictions with the signs behind them: `data/processed/sim/predictions.csv`.
+`python -m pipeline.model` (needs `scikit-learn` and `shap`, training only). One **random forest** per event
+(300 trees, at least 20 days per leaf) on 41 features: for each of the 10 indicators the z-score vs the
+personal norm and the 3-day mean deviation, the whole-crew deviation of sleep, mood and pulse, and whether a
+norm exists yet. Trained on 400 simulated missions (seed 7). Each demo prediction is explained with **SHAP**:
+how many percentage points each sign added to the risk; signs adding at least 1 point are shown. The app
+reads the precomputed `data/processed/sim/predictions.csv` and the settings in `models/risk_model.json`
+(floors, usual risk per event), so it does not need scikit-learn.
+
+Why a random forest: see [model-comparison.md](model-comparison.md). Logistic regression, random forest and
+LightGBM were trained on the same data. On new simulated missions the forest and LightGBM tie and both beat
+logistic regression; on real people only the forest holds up.
 
 **Test on 100 new simulated missions** (seed 1234, never used in training). AUC: 0.5 = guessing, 1 = perfect.
 The rule is "the biggest |z| of any indicator today". "Top 5%" = alerts on the 5% riskiest astronaut-days.
 
 | Event | Share of days | AUC model | AUC rule | Caught with top-5% alerts | Precision of those alerts |
 |---|---|---|---|---|---|
-| Sleep disruption | 3.0% | 0.818 | 0.680 | 23.6% | 14.3% |
-| Infection | 2.0% | 0.894 | 0.810 | 43.2% | 17.1% |
-| Deconditioning | 1.9% | 0.912 | 0.650 | 54.1% | 20.9% |
-| Low mood | 1.8% | 0.853 | 0.678 | 30.4% | 11.1% |
-| CO2 build-up | 2.4% | 0.808 | 0.636 | 33.2% | 15.7% |
+| Sleep disruption | 3.0% | 0.830 | 0.679 | 24.3% | 14.7% |
+| Infection | 2.0% | 0.948 | 0.801 | 66.9% | 26.4% |
+| Deconditioning | 1.9% | 0.930 | 0.648 | 53.8% | 20.8% |
+| Low mood | 1.8% | 0.859 | 0.674 | 29.3% | 10.7% |
+| CO2 build-up | 2.4% | 0.809 | 0.644 | 29.3% | 13.9% |
 
 **Real people (PMData, 16 people, 1517 days), target "tomorrow's mood is worse than usual":** the sim-trained
-`low_mood` risk scores AUC 0.530 and `sleep_disruption` 0.501, while "same as today" scores 0.644. So the model
-learned the simulator's early signs and does **not** transfer to real mood. This is the honest limit of training
-on synthetic data, and we say so in the pitch. Real early-warning skill needs real labelled data.
+`low_mood` risk scores AUC 0.632 and `sleep_disruption` 0.609 (before HRV and reaction time were added: 0.660,
+95% interval over people 0.625-0.689, and 0.595), while
+"same as today" scores 0.644. So the forest is on par with the simple reference on real mood, not better: the
+interval includes 0.644. The earlier logistic regression scored 0.530 here. Real early-warning skill still
+needs real labelled data, and we say so in the pitch.
 
-**Demo mission:** John's infection risk peaks on day 16 (22%, two days before the fever; his days 1-15 are at
-most 2%), with the sign "Resting pulse +6.2 bpm vs usual". Lena's sleep-disruption risk rises to 11-14% on days
-19-20, before it starts on day 21. The CO2 day is caught late: 4% the day before, 11% on the day itself.
+**Demo mission:** John's infection risk is 42% on day 16 (two days before the fever; his days 1-15 are at
+most 0.8%), with the sign "Resting pulse +6.2 bpm vs usual today". Maria's sleep-disruption risk is 22% on day
+19 and 16% on day 20, before it starts on day 21. The CO2 day is still caught late: at most 8% the day before,
+10% on the day itself. The forest also gives false alarms the CMO has to check, e.g. Stefan's infection risk of
+21% on day 26.
 
 Risks are calibrated probabilities, so they look small (events happen on 2-3% of days). The UI should show them
 next to the usual level ("10 times the usual risk") rather than as a bare percentage.
@@ -151,7 +161,7 @@ in `docs/api-contract.md`. Frontend: tabs **Crew mission** (mission clock, crew 
 and **Doctors** (role switch CMO / flight surgeon), plus the earlier single-astronaut view as **My check-in**.
 
 Rules, chosen with the data:
-- Yellow = 3 or more spreads from the person's own norm. With 8 indicators a 2-spread rule marks someone yellow
+- (Replaced later the same day by the Bayesian personal norm, see `docs/personal-norm.md`.) Yellow = 3 or more spreads from the person's own norm. With 8 indicators a 2-spread rule marks someone yellow
   on 54% of calm simulated astronaut-days, 2.5 spreads on 30%, 3 spreads on 13% (1-3% per indicator).
 - Only measured facts take someone off a high-demand task (a red indicator, fever, dizziness when standing). A high
   model risk (5x the usual level or more) only shows "CMO to confirm fitness": on day 19 the model raises a false
@@ -161,3 +171,19 @@ Rules, chosen with the data:
 Demo walk-through: day 16 John's infection risk is 10.8x usual (pulse +6.2 bpm vs his norm); day 18 fever 38.3 °C,
 not fit; day 19 his EVA goes to Stefan ("John is not fit: Symptom: fever"); day 25 same symptoms in all 5 → check the
 air (CO2); day 27 solar flare → EVA postponed. Tested in `backend/tests/test_mission.py`.
+
+
+## Stage 4: heart rate variability and reaction time (2026-11-14)
+
+Two new daily indicators, chosen from what NASA measures on the space station (docs/sources.md):
+- `hrv_ms`, heart rate variability during sleep (RMSSD, wearable). Calibrated on real people: each astronaut
+  copies the median, spread and persistence of one LifeSnaps participant with at least 21 HRV days (39 people,
+  medians 19-100 ms). No population limits: only the personal norm decides.
+- `reaction_ms`, mean reaction time of the 3-minute PVT (part of NASA's Cognition battery). ASSUMPTION: per-person
+  mean 260 ms (between people ±20), daily spread 15 ms, 8 ms slower per hour of sleep below the person's usual.
+  Before a personal norm exists, slower than 355 ms is yellow (the PVT-B lapse threshold, Basner & Rubinstein 2011).
+
+Event effects on both are ASSUMPTIONS (in `EVENTS`): e.g. infection lowers HRV by 12 ms, sleep disruption makes
+reaction 30 ms slower. They use their own random stream, so all earlier simulated values stayed the same.
+Weekly or occasional measures (body mass, bone scans, blood, urine, saliva, the full cognition battery) are not
+simulated; the app lists them with sources in "Also measured, not daily" (`data/content/measurement_plan.json`).

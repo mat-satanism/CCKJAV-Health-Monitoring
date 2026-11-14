@@ -45,12 +45,62 @@ export interface AstronautState {
   astronaut_id: string; name: string; role: string; skills: string[]; calibrated_from: string; day: number
   status: Status; indicators: MissionIndicator[]; symptoms: string[]; risks: EventRisk[]
   fit_for_high_demand: boolean; unfit_reasons: string[]; cautions: string[]; source: 'synthetic'
+  isolated: boolean; contact_of: string[]
 }
+// ---------- one crew member's card (synthetic) ----------
+export interface Medication { drug: string; dose: string; schedule?: string; reason: string; day?: number; given_by?: string }
+export interface Anamnesis {
+  age: number; sex: string; conditions: string[]; allergies: string[]; medications: Medication[]
+  family_history: string[]; genetic: string[]; notes: string
+}
+export interface Readiness { ready: boolean; note: string; reply: string }
+export interface AstronautCard extends AstronautState {
+  indicators: (MissionIndicator & { entered: boolean })[]
+  systems: BodySystemStatus[]
+  anamnesis: Anamnesis
+  medication_today: Medication[]
+  readiness: Readiness | null
+  trends: Trend[]
+  support: { level: 'good' | 'watch' | 'low'; message: string; nutrition: string[] }
+}
+export interface PatientFile {
+  astronaut_id: string; name: string; role: string; day: number; source: 'synthetic'
+  biography: { background: string; previous_jobs: string[]; hobbies: string[]; flights: number; long_duration_flights: number }
+  anamnesis: Anamnesis
+  exposures: (Exposure & { id: string })[]
+  mission_so_far: {
+    days_yellow: number; days_red: number; symptoms: string[]; medication_given: Medication[]
+    not_ready_days: number[]; worse_trends: string[]
+  }
+}
+export interface Brief { day: number; lines: string[]; all_clear: boolean }
+export interface Trend { type: string; label: string; per_day: number; unit: string; worse: boolean; message: string }
+export interface HistoryPoint {
+  day: number; value: number; status: Status; norm: number | null; low: number | null; high: number | null
+  z: number | null; entered: boolean
+}
+export type AstronautHistory = Record<string, HistoryPoint[]>
 export interface MissionTask {
   task_id: string; mission_day: number; title: string; kind: string; demand: 'high' | 'normal'; skill: string
-  assignee: string; assignee_name: string
+  assignee: string; assignee_name: string; partner: string | null; partner_name: string | null
   status: 'planned' | 'reassigned' | 'postponed' | 'needs decision'
   reassigned_to: string | null; reassigned_to_name: string | null; reason: string | null; warning: string | null
+}
+export interface TimelineDay {
+  day: number; status: Status; high_risks: number; alerts: string[]; changed_tasks: number
+}
+export interface NowLine {
+  astronaut_id: string; name: string; role: string; level: Status; what: string; do: string; symptoms: string[]
+}
+export interface Alarm { day: number; who: string; level: Status; kind: 'value' | 'risk' | 'alert' | 'task'; what: string; action: string }
+export interface ReportCrew {
+  astronaut_id: string; name: string; role: string; status: Status; fit_for_high_demand: boolean
+  days_yellow: number; days_red: number; off_today: string[]; symptoms: string[]; top_risks: string[]
+  medication_given: string[]; not_ready_days: number[]; worse_trends: string[]
+}
+export interface Report {
+  day: number; period: 'day' | 'week'; from_day: number; to_day: number; made: string
+  crew: ReportCrew[]; alarms: Alarm[]; tasks_changed: number; source: 'synthetic'; note: string
 }
 export interface CrewAlert { kind: string; level: Status; who: string; message: string }
 export interface DoctorView {
@@ -102,8 +152,21 @@ export interface MissionContext {
   comm_delay_s?: number | null
 }
 
+export interface Source { title: string; publisher: string; year: number | null; url: string }
+export interface IndicatorContent { why: string; how_to_measure: string; advice: string[]; sources: string[]; frequency: string; tests: string[] }
+export interface Exposure { id?: string; label: string; risk: string; monitoring: string[]; our_plan: string[]; sources: string[] }
+export interface PlanItem { what: string; how: string; how_often: string; why: string; sources: string[] }
+export interface SystemContent { what: string; in_space: string; hazards: string[]; sources: string[] }
+
 export interface Meta {
   indicators: Record<string, { label: string; unit: string; system: SystemId }>
   systems: Record<SystemId, { label: string }>
   environments: Record<EnvironmentId, { label: string; gravity_g: number; comm_delay_s: number }>
+  content: {
+    indicators: Record<string, IndicatorContent>
+    systems: Record<SystemId, SystemContent>
+    sources: Record<string, Source>
+    measurement_plan: { items: PlanItem[] }
+    exposures: Record<string, Exposure>
+  }
 }

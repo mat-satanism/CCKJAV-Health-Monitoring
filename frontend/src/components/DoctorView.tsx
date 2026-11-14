@@ -1,18 +1,43 @@
 import { useEffect, useState } from 'react'
 import { api } from '../api'
-import type { DoctorView as View } from '../types'
+import type { Alarm, Brief, DoctorView as View, Meta, MissionInfo, NowLine } from '../types'
+import { CrewChart } from './CrewChart'
 import { AlertList } from './MissionView'
+import { AlarmLog, Report } from './Report'
 
 // One tab for both medical roles: the CMO onboard (live data, acts now) and the flight surgeon
 // on Earth (data and advice both travel ~20 minutes, so they work on trends and risks).
+// The CMO is busy with mission work, so the onboard view starts with one line per person and what to do;
+// the full tables are one click away. The ground gets the overnight report.
 
-export function DoctorView({ day }: { day: number }) {
+function NowList({ lines }: { lines: NowLine[] }) {
+  return (
+    <section className="panel now">
+      <h2>Right now</h2>
+      {lines.map((l) => (
+        <div key={l.astronaut_id} className={`now-row status-${l.level}`}>
+          <span className="dot" />
+          <strong>{l.name}</strong>
+          <span className="what">{l.what}{l.symptoms.length > 0 && <small className="muted"> ({l.symptoms.join(', ')})</small>}</span>
+          <span className="do">{l.do}</span>
+        </div>
+      ))}
+    </section>
+  )
+}
+
+export function DoctorView({ day, mission, meta }: { day: number; mission: MissionInfo; meta: Meta }) {
   const [role, setRole] = useState<'cmo' | 'ground'>('cmo')
   const [view, setView] = useState<View | null>(null)
+  const [now, setNow] = useState<NowLine[]>([])
+  const [alarms, setAlarms] = useState<Alarm[]>([])
+  const [brief, setBrief] = useState<Brief | null>(null)
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    api.missionDoctor(role).then((v) => { setView(v); setError(null) }).catch((e) => setError(String(e)))
+    Promise.all([api.missionDoctor(role), api.missionNow(day), api.missionAlarms(day), api.missionBrief(day)])
+      .then(([v, n, a, b]) => { setView(v); setNow(n); setAlarms(a); setBrief(b); setError(null) })
+      .catch((e) => setError(String(e)))
   }, [role, day])
 
   if (error) return <p className="err">{error}</p>
@@ -39,23 +64,37 @@ export function DoctorView({ day }: { day: number }) {
 
       <AlertList alerts={view.alerts} />
 
+      {brief && (
+        <section className={`panel brief ${brief.all_clear ? 'status-green' : ''}`}>
+          <h2>Today in brief</h2>
+          <ul>{brief.lines.map((l) => <li key={l} className={l.startsWith('Crew-wide') ? 'crew-wide' : ''}>{l}</li>)}</ul>
+          <p className="small muted">Written from the data by fixed rules, no AI text: every line can be traced to a number.</p>
+        </section>
+      )}
+      {view.role === 'cmo' && <NowList lines={now} />}
+      {view.role === 'ground' && <Report day={day} />}
+      <CrewChart mission={mission} meta={meta} day={day} />
+
+      <details className="panel more" open={view.role === 'ground'}>
+      <summary><h2>Details: risks, anomalies, symptoms</h2></summary>
+      <div className="doc-cols">
       <section className="panel">
         <h2>Risks in the next 48 hours</h2>
         {view.risks.length === 0 ? <p className="muted">Nobody above the usual level.</p> : (
-          <table className="doc-table">
+          <div className="table-wrap"><table className="doc-table">
             <thead><tr><th>Who</th><th>What</th><th>vs usual</th><th>Signs</th><th>Suggested action</th></tr></thead>
             <tbody>
               {view.risks.map((r) => (
-                <tr key={`${r.astronaut_id}-${r.event}`} className={`risk-${r.level}`}>
-                  <td>{r.name}</td>
+                <tr key={`${r.astronaut_id}-${r.event}`} className={`lvl-${r.level}`}>
+                  <td><strong>{r.name}</strong></td>
                   <td>{r.label}</td>
-                  <td>×{r.multiple} <small className="muted">({Math.round(r.risk * 100)}%)</small></td>
+                  <td className={`num risk-${r.level}`}>×{r.multiple} <small className="muted">({Math.round(r.risk * 100)}%)</small></td>
                   <td className="small">{r.signs.join('; ') || '—'}</td>
-                  <td className="small">{r.action}</td>
+                  <td className="small muted">{r.action}</td>
                 </tr>
               ))}
             </tbody>
-          </table>
+          </table></div>
         )}
         <p className="muted small">
           Model trained on simulated missions; it has not been validated on real astronauts. Placeholder advice, not medical guidance.
@@ -65,23 +104,23 @@ export function DoctorView({ day }: { day: number }) {
       <section className="panel">
         <h2>Anomalies today</h2>
         {view.anomalies.length === 0 ? <p className="muted">All values as usual for each person.</p> : (
-          <table className="doc-table">
-            <thead><tr><th>Who</th><th>Indicator</th><th>Value</th><th>Usual</th><th>Status</th><th>Why</th></tr></thead>
+          <div className="table-wrap"><table className="doc-table">
+            <thead><tr><th>Who</th><th>Indicator</th><th>Value</th><th>Usual</th><th>Why</th></tr></thead>
             <tbody>
               {view.anomalies.map((a) => (
                 <tr key={`${a.astronaut_id}-${a.type}`} className={`status-${a.status}`}>
-                  <td>{a.name}</td>
-                  <td>{a.label}</td>
-                  <td>{a.value} <small className="muted">{a.unit}</small></td>
-                  <td>{a.norm ?? '—'}</td>
-                  <td><span className="dot" /> {a.status}</td>
+                  <td><strong>{a.name}</strong></td>
+                  <td><span className="dot" /> {a.label}</td>
+                  <td className="num">{a.value} <small className="muted">{a.unit}</small></td>
+                  <td className="num muted">{a.norm ?? '—'}</td>
                   <td className="small">{a.message}</td>
                 </tr>
               ))}
             </tbody>
-          </table>
+          </table></div>
         )}
       </section>
+      </div>
 
       {view.symptoms.length > 0 && (
         <section className="panel">
@@ -90,6 +129,14 @@ export function DoctorView({ day }: { day: number }) {
             <p key={s.astronaut_id}><strong>{s.name}</strong>: {s.symptoms.join(', ')}</p>
           ))}
         </section>
+      )}
+      </details>
+
+      {view.role === 'cmo' && (
+        <details className="panel more">
+          <summary><h2>Alarm log, days 1-{day} ({alarms.length})</h2></summary>
+          <AlarmLog alarms={alarms} />
+        </details>
       )}
     </div>
   )

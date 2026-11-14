@@ -1,0 +1,83 @@
+{
+ "_note": "SYNTHETIC biographies of the five fictional crew members. Not real people. Each lists exposures from data/content/exposures.json (sourced risk and monitoring).",
+ "crew": {
+  "kenji": {
+   "background": "Commander. Military test pilot for 15 years before joining the astronaut corps.",
+   "previous_jobs": [
+    "Military test pilot"
+   ],
+   "hobbies": [
+    "Marathon running"
+   ],
+   "flights": 2,
+   "long_duration_flights": 1,
+   "exposures": [
+    "aircraft_pilot",
+    "noise",
+    "previous_spaceflight",
+    "long_duration_flight"
+   ]
+  },
+  "john": {
+   "background": "Flight engineer. Grew up on a family farm, then worked as a mechanical engineer at an onshore wind farm. First spaceflight.",
+   "previous_jobs": [
+    "Farm work",
+    "Wind farm mechanical engineer"
+   ],
+   "hobbies": [
+    "Cycling"
+   ],
+   "flights": 0,
+   "long_duration_flights": 0,
+   "exposures": [
+    "outdoor_work",
+    "noise"
+   ]
+  },
+  "stefan": {
+   "background": "Flight engineer. Structural engineer before selection; ankle fracture in 2019, fully healed. First spaceflight.",
+   "previous_jobs": [
+    "Structural engineer"
+   ],
+   "hobbies": [
+    "Rock climbing"
+   ],
+   "flights": 0,
+   "long_duration_flights": 0,
+   "exposures": [
+    "bone_predisposition"
+   ]
+  },
+  "amara": {
+   "background": "Crew medical officer. Emergency physician; one previous six-month mission on a space station.",
+   "previous_jobs": [
+    "Emergency physician"
+   ],
+   "hobbies": [
+    "Piano"
+   ],
+   "flights": 1,
+   "long_duration_flights": 1,
+   "exposures": [
+    "previous_spaceflight",
+    "long_duration_flight"
+   ]
+  },
+  "maria": {
+   "background": "Mission specialist. Marine biologist with years of field expeditions at sea. First spaceflight.",
+   "previous_jobs": [
+    "Marine biologist, field expeditions"
+   ],
+   "hobbies": [
+    "Free diving",
+    "Photography"
+   ],
+   "flights": 0,
+   "long_duration_flights": 0,
+   "exposures": [
+    "outdoor_work",
+    "insomnia_history"
+   ]
+  }
+ }
+}

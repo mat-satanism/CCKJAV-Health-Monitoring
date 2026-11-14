@@ -25,6 +25,7 @@ def tidy(raw: pd.DataFrame) -> pd.DataFrame:
         "steps": raw["steps"],
         "temp_skin": raw["nightly_temperature"],
         "stress_score": raw["stress_score"],
+        "hrv_ms": raw["rmssd"],
     })
     for source, name in EMOTIONS.items():
         if source in raw.columns:

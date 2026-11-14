@@ -13,6 +13,8 @@ INDICATORS: dict[str, dict] = {
     "sleep_hours":  {"label": "Sleep",          "unit": "h",     "system": "sleep"},
     "mood":         {"label": "Mood",           "unit": "1-5",   "system": "behavioral"},
     "exercise_min": {"label": "Exercise",       "unit": "min",   "system": "musculoskeletal"},
+    "hrv_ms":       {"label": "Heart rate variability", "unit": "ms", "system": "cardiovascular"},
+    "reaction_ms":  {"label": "Reaction time",  "unit": "ms",    "system": "behavioral"},
 }
 
 # Plausible input range (not medical limits): values outside are rejected as
@@ -20,7 +22,7 @@ INDICATORS: dict[str, dict] = {
 BOUNDS: dict[str, tuple[float, float]] = {
     "heart_rate": (20, 250), "bp_sys": (50, 260), "bp_dia": (30, 160),
     "glucose": (20, 600), "temp": (30, 45), "sleep_hours": (0, 24),
-    "mood": (1, 5), "exercise_min": (0, 600),
+    "mood": (1, 5), "exercise_min": (0, 600), "hrv_ms": (5, 300), "reaction_ms": (100, 3000),
 }
 
 SYSTEMS: dict[str, dict] = {
@@ -48,3 +50,12 @@ def load_thresholds() -> dict[str, dict]:
 
 
 THRESHOLDS = load_thresholds()
+
+
+def _load_content(name: str) -> dict[str, dict]:
+    raw = json.loads((DATA_DIR / "content" / f"{name}.json").read_text(encoding="utf-8"))
+    return {k: v for k, v in raw.items() if not k.startswith("_")}
+
+
+# Plain-language explanations and advice with sources (data/content/*.json).
+CONTENT: dict[str, dict] = {name: _load_content(name) for name in ("indicators", "systems", "sources", "measurement_plan", "exposures")}

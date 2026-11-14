@@ -7,6 +7,7 @@ from pydantic import BaseModel, Field
 # Keep in sync with config.INDICATORS. To add one (e.g. spo2), add it in both places.
 IndicatorType = Literal[
     "heart_rate", "bp_sys", "bp_dia", "glucose", "temp", "sleep_hours", "mood", "exercise_min",
+    "hrv_ms", "reaction_ms",
 ]
 Status = Literal["green", "yellow", "red", "grey"]
 BodySystem = Literal[

@@ -1,0 +1,55 @@
+{
+ "note": "Population priors for the Bayesian personal norm, from calm days of 400 simulated missions (seed 7). See pipeline/norm.py.",
+ "indicators": {
+  "heart_rate": {
+   "m0": 60.004,
+   "tau0": 6.162,
+   "sigma": 1.667
+  },
+  "bp_sys": {
+   "m0": 117.765,
+   "tau0": 13.057,
+   "sigma": 4.859
+  },
+  "bp_dia": {
+   "m0": 75.58,
+   "tau0": 9.831,
+   "sigma": 3.928
+  },
+  "glucose": {
+   "m0": 98.283,
+   "tau0": 9.018,
+   "sigma": 5.892
+  },
+  "temp": {
+   "m0": 36.595,
+   "tau0": 0.155,
+   "sigma": 0.149
+  },
+  "sleep_hours": {
+   "m0": 6.875,
+   "tau0": 0.865,
+   "sigma": 1.127
+  },
+  "mood": {
+   "m0": 3.239,
+   "tau0": 0.388,
+   "sigma": 0.59
+  },
+  "exercise_min": {
+   "m0": 66.216,
+   "tau0": 34.398,
+   "sigma": 49.398
+  },
+  "hrv_ms": {
+   "m0": 41.995,
+   "tau0": 19.669,
+   "sigma": 9.628
+  },
+  "reaction_ms": {
+   "m0": 260.296,
+   "tau0": 21.382,
+   "sigma": 16.98
+  }
+ }
+}

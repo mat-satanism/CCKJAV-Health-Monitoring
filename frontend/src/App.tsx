@@ -4,18 +4,21 @@ import { BloodReference } from './components/BloodReference'
 import { BodyMap } from './components/BodyMap'
 import { CheckIn } from './components/CheckIn'
 import { DoctorView } from './components/DoctorView'
+import { MissionStrip } from './components/MissionStrip'
 import { MissionView } from './components/MissionView'
+import { PatientFile } from './components/PatientFile'
+import { PersonView } from './components/PersonView'
 import { InsightsCard, TasksCard } from './components/Sidebar'
 import { SystemPanel } from './components/SystemPanel'
 import type {
-  EnvironmentId, Insights, Meta, MissionContext, MissionInfo, StatusResponse, SystemId, Task,
+  Insights, Meta, MissionContext, MissionInfo, StatusResponse, SystemId, Task,
 } from './types'
 
 type Tab = 'mission' | 'doctor' | 'astronaut'
 const TABS: { id: Tab; label: string }[] = [
   { id: 'mission', label: 'Crew mission' },
   { id: 'doctor', label: 'Doctors' },
-  { id: 'astronaut', label: 'My check-in' },
+  { id: 'astronaut', label: 'Check-in' },
 ]
 
 export default function App() {
@@ -27,6 +30,8 @@ export default function App() {
   const [mission, setMission] = useState<MissionInfo | null>(null)
   const [missionError, setMissionError] = useState<string | null>(null)
   const [tab, setTab] = useState<Tab>('mission')
+  const [fileOpen, setFileOpen] = useState(false)
+  const [chosen, setPatient] = useState<string | null>(null)   // a crew member id, or 'real' for the real-data demo
   const [selected, setSelected] = useState<SystemId | null>('cardiovascular')
   const [error, setError] = useState<string | null>(null)
   const [version, setVersion] = useState(0)
@@ -50,16 +55,17 @@ export default function App() {
   if (error) return <main className="center"><p className="err">{error}</p></main>
   if (!meta || !status || !insights || !ctx) return <main className="center muted">Loading…</main>
 
-  const changeEnv = async (environment: EnvironmentId) => {
-    setCtx(await api.setContext({ ...ctx, environment }))
-    refresh()
-  }
   const changeDay = async (day: number) => {
     if (!mission) return
     const next = Math.min(mission.days_total, Math.max(1, day))
     await api.setMissionDay(next)
     setMission({ ...mission, day: next })
   }
+  const patient = chosen ?? mission?.crew[0]?.astronaut_id ?? 'real'
+  const openPerson = (aid: string) => { setPatient(aid); setFileOpen(false); setTab('astronaut') }
+  const strip = mission && (
+    <MissionStrip day={mission.day} total={mission.days_total} note={mission.note} onDay={changeDay} reloadKey={version} />
+  )
 
   return (
     <div className="app">
@@ -71,35 +77,51 @@ export default function App() {
               onClick={() => setTab(t.id)}>{t.label}</button>
           ))}
         </nav>
-        <select value={ctx.environment} onChange={(e) => changeEnv(e.target.value as EnvironmentId)}>
-          {Object.entries(meta.environments).map(([id, env]) => (
-            <option key={id} value={id}>{env.label}</option>
-          ))}
-        </select>
-        <span className="muted">
-          {ctx.gravity_g ?? 0} g · comms delay {ctx.comm_delay_s && ctx.comm_delay_s >= 60
-            ? `${Math.round(ctx.comm_delay_s / 60)} min` : `${ctx.comm_delay_s ?? 0} s`}
-        </span>
-        <button onClick={() => api.resetDemo().then(refresh)}>Reset demo</button>
+        <div className="context">
+          {/* One mission, one crew: the environment is fixed (switching it kept the same crew, which made no sense). */}
+          <span className="env">{meta.environments[ctx.environment]?.label ?? ctx.environment}</span>
+          <span>{ctx.gravity_g ?? 0} g</span>
+          <span>
+            {ctx.comm_delay_s && ctx.comm_delay_s >= 60
+              ? `${Math.round(ctx.comm_delay_s / 60)} min` : `${ctx.comm_delay_s ?? 0} s`} signal delay
+          </span>
+          <button onClick={() => api.resetDemo().then(refresh)}>Reset demo</button>
+        </div>
       </header>
 
       {tab !== 'astronaut' && (
         missionError || !mission ? <p className="err">{missionError ?? 'Loading mission…'}</p> : (
           <>
-            <div className="clock panel">
-              <button onClick={() => changeDay(mission.day - 1)} disabled={mission.day <= 1} aria-label="Previous day">◀</button>
-              <strong>Mission day {mission.day} / {mission.days_total}</strong>
-              <button onClick={() => changeDay(mission.day + 1)} disabled={mission.day >= mission.days_total} aria-label="Next day">▶</button>
-              <input type="range" min={1} max={mission.days_total} value={mission.day}
-                onChange={(e) => changeDay(Number(e.target.value))} aria-label="Mission day" />
-              <span className="badge-synthetic">{mission.note}</span>
-            </div>
-            {tab === 'mission' ? <MissionView day={mission.day} /> : <DoctorView day={mission.day} />}
+            {strip}
+            {tab === 'mission' ? <MissionView day={mission.day} onOpen={openPerson} /> : <DoctorView day={mission.day} mission={mission} meta={meta} />}
           </>
         )
       )}
 
       {tab === 'astronaut' && (
+        <nav className="patients" aria-label="Choose who to check in">
+          {mission?.crew.map((c) => (
+            <button key={c.astronaut_id} className={patient === c.astronaut_id ? 'on' : ''}
+              aria-pressed={patient === c.astronaut_id} onClick={() => { setPatient(c.astronaut_id); setFileOpen(false) }}>
+              {c.name}<small>{c.role}</small>
+            </button>
+          ))}
+          <button className={patient === 'real' ? 'on' : ''} aria-pressed={patient === 'real'}
+            onClick={() => setPatient('real')}>Real-data demo<small>PMData person</small></button>
+        </nav>
+      )}
+
+      {tab === 'astronaut' && patient !== 'real' && mission && (
+        <>
+          {strip}
+          {fileOpen
+            ? <PatientFile aid={patient} day={mission.day} meta={meta} onBack={() => setFileOpen(false)} />
+            : <PersonView aid={patient} day={mission.day} meta={meta} onDay={changeDay}
+                onChanged={() => setVersion((v) => v + 1)} onOpenFile={() => setFileOpen(true)} />}
+        </>
+      )}
+
+      {tab === 'astronaut' && patient === 'real' && (
         <main className="layout">
           <section className="panel map">
             <BodyMap systems={status.systems} selected={selected} onSelect={setSelected} />
@@ -125,7 +147,7 @@ export default function App() {
           </div>
 
           <aside className="side">
-            <InsightsCard insights={insights} />
+            <InsightsCard insights={insights} meta={meta} />
             <TasksCard tasks={tasks} onDone={(id) => api.completeTask(id).then(refresh)} />
             <CheckIn meta={meta} onSaved={refresh} />
           </aside>

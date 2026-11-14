@@ -10,16 +10,21 @@ On long-duration missions (Moon, Mars) astronauts must spot health changes in th
 ## Features
 Working now:
 - **Body Map**: clickable astronaut figure, each body system colored by status.
-- **Daily Check-in**: heart rate, blood pressure, glucose, temperature, sleep, exercise, mood.
-- **Personal baseline**: status is computed against the astronaut's own norm plus absolute limits.
+- **Daily Check-in**: heart rate, blood pressure, glucose, temperature, sleep, exercise, mood, heart rate variability, reaction time (3-minute PVT). Each indicator says how often and how to measure it; weekly and occasional measures (body mass, bone, blood, urine, saliva) are listed with sources.
+- **Personal baseline**: status is computed against the astronaut's own norm, learned the Bayesian way (start from what is typical for people, update with the person's last 14 days; yellow outside their 99% band or outside 95% two days in a row) plus absolute safe limits, the same rule in every tab. See `docs/personal-norm.md` and `docs/limits-and-assumptions.md`.
 - **Trends**: charts with the personal baseline line and a 7-day forecast.
 - **Assistant**: rule-based advice with escalation levels (self / crew / ground) and a comms-delay note.
 - **Daily tasks** with points.
-- **Mission context**: ISS, transit, rover, Moon base, Mars base (gravity, comms delay).
-- **Demo data (My check-in)**: 30 real days of one PMData participant for heart rate, sleep, mood and exercise; blood pressure, glucose and temperature are synthetic (typical NHANES level + simulated daily changes) and labelled as such.
+- **Mission context**: one Mars-base mission (0.38 g, 20 min signal delay).
+- **Check-in per crew member**: pick an astronaut, tap the body, pick a day on the mission strip or any chart, see the history with their usual range, enter values and symptoms for that day, answer the morning readiness check, see their (synthetic) medical history and medicine for the day.
+- **Demo data (Check-in, real-data demo)**: 30 real days of one PMData participant for heart rate, sleep, mood and exercise; blood pressure, glucose and temperature are synthetic (typical NHANES level + simulated daily changes) and labelled as such.
 - **Crew mission (simulation)**: 5 astronauts over 30 days, synthetic data calibrated on real people. Mission clock, crew status, risks for the next 48 h, and tasks that move to a fit crew member with the reason (e.g. John's EVA goes to Stefan because of fever).
-- **Doctors' tab**: crew medical officer onboard (live) or flight surgeon on Earth (20 min delay): anomalies vs each person's norm, risks with the signs behind them, symptoms, crew-wide alerts (CO2, solar flare).
-- **Risk model**: one logistic regression per event, trained on simulated missions; works offline from a 3 KB JSON file.
+- **Doctors' tab**: crew medical officer onboard (live) or flight surgeon on Earth (20 min delay). The CMO is busy, so the onboard view starts with "Right now": one line per person and what to do; the full tables (anomalies, risks with their signs, symptoms) and the alarm log are one click away. A chart shows the whole crew's distance from their own norm over the mission. The ground gets a daily or weekly report made overnight, saved as PDF from the browser's print dialog.
+- **Isolation of close contacts**: a fever isolates the person (their tasks move to someone else), and whoever shared a task with them in the last 2 days is asked to check temperature twice a day (John's fever on day 18: Maria worked with him on day 17).
+- **Week trends and support**: each card shows what has been going one way for a week (e.g. Maria's sleep going down before her sleep problem), a kind message (take it easier / you're doing well) and demo food tips.
+- **Patient file**: a fictional biography turned into an exposure history (e.g. years as a jet pilot, outdoor work, previous long flights) and from it sourced risks and checks, as NASA's lifetime surveillance of astronaut health does.
+- **Crew-wide signal and daily brief**: when 3+ crew members move the worrying way on the same day, the app points to a shared cause (air, noise, schedule) instead of treating people one by one; the CMO gets one short brief written by fixed rules from the data.
+- **Risk model**: one random forest per event, trained on simulated missions, with SHAP explanations (which signs pushed the risk up). Chosen over logistic regression and LightGBM, see `docs/model-comparison.md`.
 
 Planned:
 - How-to-measure instructions in the check-in and body system descriptions.
@@ -34,9 +39,11 @@ backend/app/
   main.py        API endpoints
   models.py      data models (mirror of docs/api-contract.md)
   config.py      indicators, body systems, environments, thresholds loader
+  status.py      one status rule for every view (personal norm first, then safe limits)
   rules.py       status per indicator/system, advice, escalation level
+  mission.py     simulated crew mission: crew, tasks, alerts, doctors' view
   analytics.py   baseline / deviation / trend / forecast  <- plug ML models in here
-  demo.py        synthetic 30-day demo mission            <- replace with cleaned data
+  demo.py        Check-in real-data demo: 30 real PMData days + synthetic BP, glucose, temp
 backend/tests/   pytest
 frontend/        React + Vite + TypeScript UI (see frontend/README.md)
 data/            thresholds.json (demo values)

@@ -1,0 +1,69 @@
+{
+ "_note": "Measures that are not daily indicators in the app: what they are, how often, and why. Only facts from the cited sources; frequency is ours where the source gives none (marked 'our plan').",
+ "items": [
+  {
+   "what": "Body mass",
+   "how": "Mass measurement device: it pushes the astronaut with a known force and computes mass from the acceleration (there is no weight in orbit).",
+   "how_often": "weekly (our plan)",
+   "why": "Losing mass shows not enough food or muscle loss.",
+   "sources": [
+    "nasa-slammd"
+   ]
+  },
+  {
+   "what": "Bone density",
+   "how": "Bone scan (DXA) before and after the mission; calcium in urine as a sign of bone breaking down.",
+   "how_often": "scan before and after flight; urine samples during flight",
+   "why": "Astronauts can lose up to 1-2% of bone density per month in the hip and spine, compared with 0.5-1% per year in older people on Earth. Bone breaking down also raises calcium in urine, a kidney stone risk.",
+   "sources": [
+    "nasa-bone-lab"
+   ]
+  },
+  {
+   "what": "Blood and urine biomarkers",
+   "how": "Samples collected and analysed for biochemical markers.",
+   "how_often": "several times per mission",
+   "why": "Shows changes in nutrition, bones, kidneys and metabolism that daily numbers miss.",
+   "sources": [
+    "nasa-standard-measures"
+   ]
+  },
+  {
+   "what": "Stress hormones and immune cells",
+   "how": "Blood and saliva samples: stress hormones, viral reactivation, blood counts and cell types.",
+   "how_often": "several times per mission, including the start of the flight",
+   "why": "Launch and the first days are stressful; stress can wake up dormant viruses and weaken immunity.",
+   "sources": [
+    "nasa-standard-measures"
+   ]
+  },
+  {
+   "what": "Full cognition battery",
+   "how": "10 short computer tests (memory, attention, risk taking, emotion recognition and more), about 16 minutes on the station.",
+   "how_often": "regularly during the mission",
+   "why": "Catches slower thinking or riskier decisions before they cause mistakes.",
+   "sources": [
+    "upenn-cognition",
+    "nasa-standard-measures"
+   ]
+  },
+  {
+   "what": "Activity and light (actigraphy)",
+   "how": "A wrist monitor records movement and light exposure.",
+   "how_often": "continuously",
+   "why": "Shows real sleep and body-clock timing.",
+   "sources": [
+    "nasa-standard-measures"
+   ]
+  },
+  {
+   "what": "Balance, movement, heart rate and blood pressure tests",
+   "how": "Sensorimotor tests.",
+   "how_often": "before and after the mission",
+   "why": "Gravity changes affect balance and blood pressure when standing up after landing.",
+   "sources": [
+    "nasa-standard-measures"
+   ]
+  }
+ ]
+}

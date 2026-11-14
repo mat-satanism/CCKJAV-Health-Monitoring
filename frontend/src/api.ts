@@ -1,6 +1,6 @@
 import type {
-  AstronautState, BloodRow, CrewAlert, DoctorView, Insights, Measurement, Meta, MissionContext, MissionInfo,
-  MissionTask, StatusResponse, Task,
+  Alarm, AstronautCard, Brief, PatientFile, AstronautHistory, AstronautState, BloodRow, CrewAlert, DoctorView, Insights, Measurement, Meta, MissionContext, MissionInfo,
+  MissionTask, NowLine, Readiness, Report, StatusResponse, Task, TimelineDay,
 } from './types'
 
 const BASE = import.meta.env.VITE_API_URL ?? 'http://127.0.0.1:8000'
@@ -32,8 +32,20 @@ export const api = {
   // simulated crew mission
   mission: () => req<MissionInfo>('/mission'),
   setMissionDay: (day: number) => req<{ day: number }>(`/mission/day?day=${day}`, { method: 'PUT' }),
+  missionTimeline: () => req<TimelineDay[]>('/mission/timeline'),
   missionCrew: () => req<AstronautState[]>('/mission/crew'),
   missionTasks: () => req<MissionTask[]>('/mission/tasks'),
   missionAlerts: () => req<CrewAlert[]>('/mission/alerts'),
+  astronaut: (aid: string, day: number) => req<AstronautCard>(`/mission/astronaut/${aid}?day=${day}`),
+  astronautHistory: (aid: string) => req<AstronautHistory>(`/mission/astronaut/${aid}/history`),
+  enterForAstronaut: (aid: string, day: number, values: Record<string, number>, symptoms?: string[]) =>
+    req<AstronautCard>(`/mission/astronaut/${aid}/entries?day=${day}`, { method: 'POST', body: JSON.stringify({ values, symptoms }) }),
+  setReadiness: (aid: string, day: number, ready: boolean, note = '') =>
+    req<Readiness>(`/mission/astronaut/${aid}/readiness?day=${day}`, { method: 'POST', body: JSON.stringify({ ready, note }) }),
+  patientFile: (aid: string, day: number) => req<PatientFile>(`/mission/astronaut/${aid}/file?day=${day}`),
+  missionBrief: (day: number) => req<Brief>(`/mission/brief?day=${day}`),
+  missionNow: (day: number) => req<NowLine[]>(`/mission/now?day=${day}`),
+  missionAlarms: (day: number) => req<Alarm[]>(`/mission/alarms?day=${day}`),
+  missionReport: (day: number, period: 'day' | 'week') => req<Report>(`/mission/report?day=${day}&period=${period}`),
   missionDoctor: (role: 'cmo' | 'ground') => req<DoctorView>(`/mission/doctor?role=${role}`),
 }

@@ -1,14 +1,20 @@
 """FastAPI app. Endpoints follow docs/api-contract.md.
 
-Storage is in-memory and seeded with the demo mission on start (see demo.py).
+Storage is in-memory and seeded with the demo mission on start (see demo.py). Values entered in the app are
+also written to SAVED_PATH (data/local/checkins.json, not in git), so a backend restart does not lose them.
+"Reset demo" deletes that file.
 """
+import json
+import os
 from datetime import datetime
+from pathlib import Path
 
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel
 
 from . import analytics, rules
-from .config import BOUNDS, ENVIRONMENTS, INDICATORS, SYSTEMS
+from .config import BOUNDS, CONTENT, DATA_DIR, ENVIRONMENTS, INDICATORS, SYSTEMS
 from .demo import blood_reference, demo_mission
 from .mission import MISSION
 from .models import Measurement, MissionContext, Task
@@ -17,6 +23,7 @@ app = FastAPI(title="CCKJAV Health Monitoring API")
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
 
 MEASUREMENTS: list[Measurement] = []
+SAVED_PATH = Path(os.environ.get("CHN_SAVED_PATH", DATA_DIR / "local" / "checkins.json"))
 CONTEXT = MissionContext(environment="mars_base", mission_day=94, **{
     k: ENVIRONMENTS["mars_base"][k] for k in ("gravity_g", "comm_delay_s")})
 TASKS: list[Task] = []
@@ -32,12 +39,33 @@ def _default_tasks() -> list[Task]:
     ]
 
 
-def reset() -> None:
+def _saved() -> list[Measurement]:
+    if not SAVED_PATH.exists():
+        return []
+    return [Measurement(**m) for m in json.loads(SAVED_PATH.read_text(encoding="utf-8"))]
+
+
+def _save(items: list[Measurement]) -> None:
+    SAVED_PATH.parent.mkdir(parents=True, exist_ok=True)
+    rows = [m.model_dump(mode="json") for m in _saved() + items]
+    SAVED_PATH.write_text(json.dumps(rows, indent=1), encoding="utf-8")
+
+
+def load() -> None:
+    """Demo data plus everything entered in the app so far."""
     MEASUREMENTS.clear()
     MEASUREMENTS.extend(demo_mission())
+    MEASUREMENTS.extend(_saved())
     TASKS[:] = _default_tasks()
     if MISSION:
         MISSION.day = 15
+
+
+def reset() -> None:
+    SAVED_PATH.unlink(missing_ok=True)
+    if MISSION:
+        MISSION.reset()
+    load()
 
 
 def _mission():
@@ -46,7 +74,7 @@ def _mission():
     return MISSION
 
 
-reset()
+load()
 
 
 @app.get("/health")
@@ -56,8 +84,8 @@ def health():
 
 @app.get("/meta")
 def meta():
-    """Labels/units for indicators, systems and environments (for the UI)."""
-    return {"indicators": INDICATORS, "systems": SYSTEMS, "environments": ENVIRONMENTS}
+    """Labels/units for indicators, systems and environments, plus explanations with sources (for the UI)."""
+    return {"indicators": INDICATORS, "systems": SYSTEMS, "environments": ENVIRONMENTS, "content": CONTENT}
 
 
 @app.get("/context", response_model=MissionContext)
@@ -80,6 +108,7 @@ def add_measurements(items: list[Measurement]):
         if not lo <= m.value <= hi:
             raise HTTPException(422, f"{m.type}={m.value} is outside the plausible range {lo}-{hi}")
     MEASUREMENTS.extend(items)
+    _save(items)
     return items
 
 
@@ -118,6 +147,11 @@ def mission_set_day(day: int):
     return {"day": m.day}
 
 
+@app.get("/mission/timeline")
+def mission_timeline():
+    return _mission().timeline()
+
+
 @app.get("/mission/crew")
 def mission_crew():
     m = _mission()
@@ -139,6 +173,109 @@ def mission_doctor(role: str = "cmo"):
     if role not in ("cmo", "ground"):
         raise HTTPException(422, "role must be 'cmo' or 'ground'")
     return _mission().doctor(role)
+
+
+class CrewEntry(BaseModel):
+    values: dict[str, float] = {}
+    symptoms: list[str] | None = None
+
+
+class Readiness(BaseModel):
+    ready: bool
+    note: str = ""
+
+
+def _crew_member(aid: str, day: int | None = None):
+    """The mission, after checking the crew member and the day (None = the mission's current day)."""
+    m = _mission()
+    if aid not in m.ids:
+        raise HTTPException(404, "Unknown crew member")
+    if day is not None and not 1 <= day <= m.days_total:
+        raise HTTPException(422, f"day must be between 1 and {m.days_total}")
+    return m, day or m.day
+
+
+@app.get("/mission/astronaut/{aid}")
+def mission_astronaut(aid: str, day: int | None = None):
+    """One crew member on one mission day: statuses, body systems, risks, medical history."""
+    m, day = _crew_member(aid, day)
+    return m.astronaut(aid, day, with_card=True)
+
+
+@app.get("/mission/astronaut/{aid}/history")
+def mission_astronaut_history(aid: str):
+    m, _ = _crew_member(aid)
+    return m.history(aid)
+
+
+@app.post("/mission/astronaut/{aid}/entries")
+def mission_astronaut_entry(aid: str, entry: CrewEntry, day: int | None = None):
+    """Values for this crew member on one mission day (they replace the simulated ones)."""
+    m, day = _crew_member(aid, day)
+    for ind, value in entry.values.items():
+        if ind not in INDICATORS:
+            raise HTTPException(422, f"Unknown indicator {ind}")
+        lo, hi = BOUNDS[ind]
+        if not lo <= value <= hi:
+            raise HTTPException(422, f"{ind}={value} is outside the plausible range {lo}-{hi}")
+    m.enter(aid, day, entry.values, entry.symptoms)
+    return m.astronaut(aid, day, with_card=True)
+
+
+@app.post("/mission/astronaut/{aid}/readiness")
+def mission_astronaut_readiness(aid: str, r: Readiness, day: int | None = None):
+    m, day = _crew_member(aid, day)
+    return m.set_readiness(aid, day, r.ready, r.note)
+
+
+def _mission_day(day: int | None):
+    m = _mission()
+    if day is not None and not 1 <= day <= m.days_total:
+        raise HTTPException(422, f"day must be between 1 and {m.days_total}")
+    return m, day or m.day
+
+
+@app.get("/mission/astronaut/{aid}/file")
+def mission_astronaut_file(aid: str, day: int | None = None):
+    """Patient file: fictional biography, sourced exposure risks and monitoring, the mission so far."""
+    m, day = _crew_member(aid, day)
+    return m.patient_file(aid, day)
+
+
+@app.get("/mission/crew-signal")
+def mission_crew_signal(day: int | None = None):
+    m, day = _mission_day(day)
+    return m.crew_signal(day)
+
+
+@app.get("/mission/brief")
+def mission_brief(day: int | None = None):
+    """Doctors' daily brief: a few lines, most important first."""
+    m, day = _mission_day(day)
+    return m.brief(day)
+
+
+@app.get("/mission/now")
+def mission_now(day: int | None = None):
+    """CMO quick screen: one line per crew member, most urgent first."""
+    m, day = _mission_day(day)
+    return m.now(day)
+
+
+@app.get("/mission/alarms")
+def mission_alarms(day: int | None = None):
+    """Alarm log from day 1 up to this day."""
+    m, day = _mission_day(day)
+    return m.alarm_log(day)
+
+
+@app.get("/mission/report")
+def mission_report(day: int | None = None, period: str = "day"):
+    """Report for the flight surgeon on Earth: one day or the last 7 days."""
+    if period not in ("day", "week"):
+        raise HTTPException(422, "period must be 'day' or 'week'")
+    m, day = _mission_day(day)
+    return m.report(day, period)
 
 
 @app.get("/reference/blood")

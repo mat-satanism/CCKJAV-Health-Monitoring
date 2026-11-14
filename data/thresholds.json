@@ -7,5 +7,7 @@
   "temp":         { "red_low": 35.0,"yellow_low": 36.0,"yellow_high": 37.5,"red_high": 38.5,"source": "TODO" },
   "sleep_hours":  { "red_low": 4,   "yellow_low": 6,   "yellow_high": 10,  "red_high": 12,  "source": "TODO" },
   "mood":         { "red_low": null,"yellow_low": 2,   "yellow_high": 5,   "red_high": null,"source": "TODO" },
-  "exercise_min": { "red_low": null,"yellow_low": 60,  "yellow_high": 240, "red_high": null,"source": "TODO" }
+  "exercise_min": { "red_low": null,"yellow_low": 60,  "yellow_high": 240, "red_high": null,"source": "TODO" },
+  "hrv_ms":       { "red_low": null,"yellow_low": null,"yellow_high": null,"red_high": null,"source": "No population limit: HRV differs a lot between healthy people (LifeSnaps medians 19-100 ms), so only the personal norm is used." },
+  "reaction_ms":  { "red_low": null,"yellow_low": null,"yellow_high": 355, "red_high": null,"source": "3-minute PVT: a response slower than 355 ms counts as a lapse (Basner & Rubinstein 2011). Used only before a personal norm exists." }
 }

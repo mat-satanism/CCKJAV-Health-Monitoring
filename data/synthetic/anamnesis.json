@@ -1,0 +1,60 @@
+{
+  "_note": "SYNTHETIC medical history for the five fictional crew members of the demo mission. Not real people, not clinical data. Hand-written for the demo; some items tie into the simulated events (John's infection, Maria's sleep).",
+  "crew": {
+    "kenji": {
+      "age": 48, "sex": "male",
+      "conditions": ["Mild seasonal allergic rhinitis (hay fever)"],
+      "allergies": ["Grass pollen"],
+      "medications": [],
+      "family_history": ["Father: high blood pressure from age 55"],
+      "genetic": ["Higher than average predisposition to high blood pressure (polygenic score)"],
+      "notes": "Long-duration flight experience. Tracks blood pressure closely because of family history."
+    },
+    "john": {
+      "age": 41, "sex": "male",
+      "conditions": [],
+      "allergies": ["Penicillin (skin rash)"],
+      "medications": [],
+      "medication_log": [
+        {"day": 18, "drug": "Paracetamol", "dose": "500 mg", "reason": "Fever", "given_by": "Amara (CMO)"},
+        {"day": 19, "drug": "Paracetamol", "dose": "500 mg", "reason": "Fever", "given_by": "Amara (CMO)"},
+        {"day": 20, "drug": "Paracetamol", "dose": "500 mg", "reason": "Fever", "given_by": "Amara (CMO)"}
+      ],
+      "family_history": ["Mother: type 2 diabetes"],
+      "genetic": ["Slow caffeine metabolism"],
+      "notes": "Penicillin allergy matters for any infection treatment onboard."
+    },
+    "stefan": {
+      "age": 38, "sex": "male",
+      "conditions": ["Ankle fracture in 2019, fully healed"],
+      "allergies": [],
+      "medications": [],
+      "family_history": ["Grandfather: osteoporosis"],
+      "genetic": ["Higher than average predisposition to low bone density"],
+      "notes": "Bone loss in low gravity is the main thing to watch. Keep resistance training daily."
+    },
+    "amara": {
+      "age": 44, "sex": "female",
+      "conditions": ["Underactive thyroid (hypothyroidism), stable on treatment"],
+      "allergies": ["Latex"],
+      "medications": [{"drug": "Levothyroxine", "dose": "50 µg", "schedule": "daily, morning, before breakfast", "reason": "Hypothyroidism"}],
+      "family_history": ["Sister: migraine"],
+      "genetic": [],
+      "notes": "Crew medical officer. Uses latex-free gloves from the medical kit."
+    },
+    "maria": {
+      "age": 35, "sex": "female",
+      "conditions": ["Episodes of insomnia during stressful periods"],
+      "allergies": [],
+      "medications": [{"drug": "Melatonin", "dose": "1 mg", "schedule": "as needed, 30 min before sleep", "reason": "Trouble falling asleep"}],
+      "medication_log": [
+        {"day": 21, "drug": "Melatonin", "dose": "1 mg", "reason": "Could not fall asleep", "given_by": "self"},
+        {"day": 22, "drug": "Melatonin", "dose": "1 mg", "reason": "Could not fall asleep", "given_by": "self"},
+        {"day": 24, "drug": "Melatonin", "dose": "1 mg", "reason": "Could not fall asleep", "given_by": "self"}
+      ],
+      "family_history": ["Mother: depression"],
+      "genetic": ["Evening chronotype (naturally sleeps and wakes later)"],
+      "notes": "Sleep is the early sign to watch. Protect her sleep window during busy weeks."
+    }
+  }
+}

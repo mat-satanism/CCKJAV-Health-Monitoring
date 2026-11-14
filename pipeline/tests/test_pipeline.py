@@ -49,9 +49,10 @@ def test_lifesnaps_zero_sleep_is_missing_and_exercise_sums():
         "id": ["x", "x"], "date": ["2021-05-01", "2021-05-02"], "resting_hr": [60, 61],
         "minutesAsleep": [0, 420], "moderately_active_minutes": [10, np.nan],
         "very_active_minutes": [5, np.nan], "steps": [1000, 2000],
-        "nightly_temperature": [33.5, 33.9], "stress_score": [70, 75],
+        "nightly_temperature": [33.5, 33.9], "stress_score": [70, 75], "rmssd": [42.0, 300.0],
     })
     out = lifesnaps.tidy(raw)
+    assert out["hrv_ms"].tolist()[0] == 42.0 and pd.isna(out["hrv_ms"].tolist()[1])   # 300 ms is impossible
     assert out["sleep_hours_device"].isna().tolist() == [True, False]
     assert out["exercise_min"].tolist()[0] == 15
     assert pd.isna(out["exercise_min"].tolist()[1])
