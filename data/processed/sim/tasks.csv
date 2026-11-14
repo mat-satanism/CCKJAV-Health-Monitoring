@@ -1,105 +1,105 @@
 task_id,mission_day,title,kind,demand,skill,assignee,partner
 t000,1,Daily mission planning,command,normal,command,kenji,
-t001,1,Experiment run,science,normal,science,lena,amara
+t001,1,Experiment run,science,normal,science,maria,amara
 t002,1,Systems maintenance,maintenance,normal,maintenance,stefan,
 t003,2,Daily mission planning,command,normal,command,kenji,
-t004,2,Experiment run,science,normal,science,lena,john
+t004,2,Experiment run,science,normal,science,maria,john
 t005,2,Systems maintenance,maintenance,normal,maintenance,john,
 t006,3,Crew health check,medical,normal,medical,amara,
 t007,3,Daily mission planning,command,normal,command,kenji,
-t008,3,Experiment run,science,normal,science,lena,kenji
+t008,3,Experiment run,science,normal,science,maria,kenji
 t009,3,Systems maintenance,maintenance,normal,maintenance,stefan,
 t010,4,Daily mission planning,command,normal,command,kenji,
-t011,4,Experiment run,science,normal,science,lena,amara
+t011,4,Experiment run,science,normal,science,maria,amara
 t012,4,Systems maintenance,maintenance,normal,maintenance,john,
 t013,5,Daily mission planning,command,normal,command,kenji,
-t014,5,Experiment run,science,normal,science,lena,john
+t014,5,Experiment run,science,normal,science,maria,john
 t015,5,Systems maintenance,maintenance,normal,maintenance,stefan,
 t016,6,Crew health check,medical,normal,medical,amara,
 t017,6,Daily mission planning,command,normal,command,kenji,
-t018,6,Experiment run,science,normal,science,lena,kenji
+t018,6,Experiment run,science,normal,science,maria,kenji
 t019,6,Systems maintenance,maintenance,normal,maintenance,john,
 t020,7,Daily mission planning,command,normal,command,kenji,
-t021,7,Experiment run,science,normal,science,lena,amara
+t021,7,Experiment run,science,normal,science,maria,amara
 t022,7,Systems maintenance,maintenance,normal,maintenance,stefan,
 t023,8,Daily mission planning,command,normal,command,kenji,
-t024,8,Experiment run,science,normal,science,lena,john
+t024,8,Experiment run,science,normal,science,maria,john
 t025,8,Systems maintenance,maintenance,normal,maintenance,john,
 t026,9,Crew health check,medical,normal,medical,amara,
 t027,9,Daily mission planning,command,normal,command,kenji,
-t028,9,Experiment run,science,normal,science,lena,kenji
+t028,9,Experiment run,science,normal,science,maria,kenji
 t029,9,Systems maintenance,maintenance,normal,maintenance,stefan,
 t030,10,Daily mission planning,command,normal,command,kenji,
-t031,10,Experiment run,science,normal,science,lena,amara
+t031,10,Experiment run,science,normal,science,maria,amara
 t032,10,Systems maintenance,maintenance,normal,maintenance,john,
 t033,11,Daily mission planning,command,normal,command,kenji,
-t034,11,Experiment run,science,normal,science,lena,john
+t034,11,Experiment run,science,normal,science,maria,john
 t035,11,Systems maintenance,maintenance,normal,maintenance,stefan,
 t036,12,Crew health check,medical,normal,medical,amara,
 t037,12,Daily mission planning,command,normal,command,kenji,
 t038,12,EVA: solar panel inspection,eva,high,eva,john,
-t039,12,Experiment run,science,normal,science,lena,kenji
+t039,12,Experiment run,science,normal,science,maria,kenji
 t040,12,Systems maintenance,maintenance,normal,maintenance,john,
 t041,13,Daily mission planning,command,normal,command,kenji,
-t042,13,Experiment run,science,normal,science,lena,amara
+t042,13,Experiment run,science,normal,science,maria,amara
 t043,13,Systems maintenance,maintenance,normal,maintenance,stefan,
 t044,14,Daily mission planning,command,normal,command,kenji,
-t045,14,Experiment run,science,normal,science,lena,john
+t045,14,Experiment run,science,normal,science,maria,john
 t046,14,Systems maintenance,maintenance,normal,maintenance,john,
 t047,15,Crew health check,medical,normal,medical,amara,
 t048,15,Daily mission planning,command,normal,command,kenji,
-t049,15,Experiment run,science,normal,science,lena,kenji
+t049,15,Experiment run,science,normal,science,maria,kenji
 t050,15,Systems maintenance,maintenance,normal,maintenance,stefan,
 t051,16,Daily mission planning,command,normal,command,kenji,
-t052,16,Experiment run,science,normal,science,lena,amara
+t052,16,Experiment run,science,normal,science,maria,amara
 t053,16,Systems maintenance,maintenance,normal,maintenance,john,
 t054,17,Daily mission planning,command,normal,command,kenji,
-t055,17,Experiment run,science,normal,science,lena,john
+t055,17,Experiment run,science,normal,science,maria,john
 t056,17,Systems maintenance,maintenance,normal,maintenance,stefan,
 t057,18,Crew health check,medical,normal,medical,amara,
 t058,18,Daily mission planning,command,normal,command,kenji,
-t059,18,Experiment run,science,normal,science,lena,kenji
+t059,18,Experiment run,science,normal,science,maria,kenji
 t060,18,Systems maintenance,maintenance,normal,maintenance,john,
 t061,19,Daily mission planning,command,normal,command,kenji,
 t062,19,EVA: antenna repair,eva,high,eva,john,
-t063,19,Experiment run,science,normal,science,lena,amara
+t063,19,Experiment run,science,normal,science,maria,amara
 t064,19,Robotic arm: cargo transfer,robotics,high,robotics,kenji,
 t065,19,Systems maintenance,maintenance,normal,maintenance,stefan,
 t066,20,Daily mission planning,command,normal,command,kenji,
-t067,20,Experiment run,science,normal,science,lena,john
+t067,20,Experiment run,science,normal,science,maria,john
 t068,20,Systems maintenance,maintenance,normal,maintenance,john,
 t069,21,Crew health check,medical,normal,medical,amara,
 t070,21,Daily mission planning,command,normal,command,kenji,
-t071,21,Experiment run,science,normal,science,lena,kenji
+t071,21,Experiment run,science,normal,science,maria,kenji
 t072,21,Systems maintenance,maintenance,normal,maintenance,stefan,
 t073,22,Daily mission planning,command,normal,command,kenji,
-t074,22,Experiment run,science,normal,science,lena,amara
+t074,22,Experiment run,science,normal,science,maria,amara
 t075,22,Systems maintenance,maintenance,normal,maintenance,john,
 t076,23,Daily mission planning,command,normal,command,kenji,
-t077,23,Experiment run,science,normal,science,lena,john
+t077,23,Experiment run,science,normal,science,maria,john
 t078,23,Systems maintenance,maintenance,normal,maintenance,stefan,
 t079,24,Crew health check,medical,normal,medical,amara,
 t080,24,Daily mission planning,command,normal,command,kenji,
-t081,24,Experiment run,science,normal,science,lena,kenji
+t081,24,Experiment run,science,normal,science,maria,kenji
 t082,24,Systems maintenance,maintenance,normal,maintenance,john,
 t083,25,Daily mission planning,command,normal,command,kenji,
-t084,25,Experiment run,science,normal,science,lena,amara
+t084,25,Experiment run,science,normal,science,maria,amara
 t085,25,Systems maintenance,maintenance,normal,maintenance,stefan,
 t086,26,Daily mission planning,command,normal,command,kenji,
-t087,26,Experiment run,science,normal,science,lena,john
+t087,26,Experiment run,science,normal,science,maria,john
 t088,26,Systems maintenance,maintenance,normal,maintenance,john,
 t089,27,Crew health check,medical,normal,medical,amara,
 t090,27,Daily mission planning,command,normal,command,kenji,
 t091,27,EVA: sensor replacement,eva,high,eva,stefan,
-t092,27,Experiment run,science,normal,science,lena,kenji
+t092,27,Experiment run,science,normal,science,maria,kenji
 t093,27,Systems maintenance,maintenance,normal,maintenance,stefan,
 t094,28,Daily mission planning,command,normal,command,kenji,
-t095,28,Experiment run,science,normal,science,lena,amara
+t095,28,Experiment run,science,normal,science,maria,amara
 t096,28,Systems maintenance,maintenance,normal,maintenance,john,
 t097,29,Daily mission planning,command,normal,command,kenji,
-t098,29,Experiment run,science,normal,science,lena,john
+t098,29,Experiment run,science,normal,science,maria,john
 t099,29,Systems maintenance,maintenance,normal,maintenance,stefan,
 t100,30,Crew health check,medical,normal,medical,amara,
 t101,30,Daily mission planning,command,normal,command,kenji,
-t102,30,Experiment run,science,normal,science,lena,kenji
+t102,30,Experiment run,science,normal,science,maria,kenji
 t103,30,Systems maintenance,maintenance,normal,maintenance,john,

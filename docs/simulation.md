@@ -75,9 +75,9 @@ Label: `label_<event>_48h` = 1 if that event starts on day t+1 or t+2 for this a
 
 ## Demo mission (seed 2026)
 
-Crew: Kenji (commander), John and Stefan (flight engineers, EVA), Amara (CMO), Lena (mission specialist).
+Crew: Kenji (commander), John and Stefan (flight engineers, EVA), Amara (CMO), Maria (mission specialist).
 Each is calibrated on one real PMData participant (`calibrated_from`). Guaranteed events: John's infection
-starts on day 18 (an EVA is planned for him on day 19, so it should go to Stefan), Lena's sleep disruption on
+starts on day 18 (an EVA is planned for him on day 19, so it should go to Stefan), Maria's sleep disruption on
 day 21, CO2 build-up on day 25, solar flare on day 27.
 
 ## Stages
@@ -146,7 +146,7 @@ interval includes 0.644. The earlier logistic regression scored 0.530 here. Real
 needs real labelled data, and we say so in the pitch.
 
 **Demo mission:** John's infection risk is 42% on day 16 (two days before the fever; his days 1-15 are at
-most 0.8%), with the sign "Resting pulse +6.2 bpm vs usual today". Lena's sleep-disruption risk is 22% on day
+most 0.8%), with the sign "Resting pulse +6.2 bpm vs usual today". Maria's sleep-disruption risk is 22% on day
 19 and 16% on day 20, before it starts on day 21. The CO2 day is still caught late: at most 8% the day before,
 10% on the day itself. The forest also gives false alarms the CMO has to check, e.g. Stefan's infection risk of
 21% on day 26.

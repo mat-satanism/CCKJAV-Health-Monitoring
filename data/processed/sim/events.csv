@@ -1,5 +1,5 @@
 mission_id,event_id,type,hazard,who,prodrome_start,onset_day,end_day
 demo,demo-0,infection,closed environment,john,16,18,21
-demo,demo-1,sleep_disruption,isolation,lena,19,21,26
+demo,demo-1,sleep_disruption,isolation,maria,19,21,26
 demo,demo-2,co2_buildup,closed environment,crew,24,25,26
 demo,demo-3,solar_flare,radiation,crew,27,27,27

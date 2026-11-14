@@ -80,10 +80,10 @@ DEMO_CREW = [
     {"astronaut_id": "john", "name": "John", "role": "Flight engineer", "skills": "eva;maintenance", "calibrated_from": "pm_p01"},
     {"astronaut_id": "stefan", "name": "Stefan", "role": "Flight engineer", "skills": "eva;maintenance;robotics", "calibrated_from": "pm_p06"},
     {"astronaut_id": "amara", "name": "Amara", "role": "Crew medical officer", "skills": "medical;science", "calibrated_from": "pm_p14"},
-    {"astronaut_id": "lena", "name": "Lena", "role": "Mission specialist", "skills": "science;medical", "calibrated_from": "pm_p11"},
+    {"astronaut_id": "maria", "name": "Maria", "role": "Mission specialist", "skills": "science;medical", "calibrated_from": "pm_p11"},
 ]
 # (event, who, onset day, episode length)
-DEMO_EVENTS = [("infection", "john", 18, 4), ("sleep_disruption", "lena", 21, 6),
+DEMO_EVENTS = [("infection", "john", 18, 4), ("sleep_disruption", "maria", 21, 6),
                ("co2_buildup", "crew", 25, 2), ("solar_flare", "crew", 27, 1)]
 
 
@@ -97,13 +97,13 @@ TASK_KINDS = {
 def demo_tasks(days: int = MISSION_DAYS) -> pd.DataFrame:
     """The demo mission's task plan. John's EVA on day 19 falls on his fever; Stefan's EVA on day 27 on the flare.
 
-    The experiment is done in pairs (Lena + a rotating partner), so who worked closely with whom is known:
-    John works with Lena on day 17, the day before his fever starts.
+    The experiment is done in pairs (Maria + a rotating partner), so who worked closely with whom is known:
+    John works with Maria on day 17, the day before his fever starts.
     """
     plan = []
     for day in range(1, days + 1):
         plan += [(day, "Daily mission planning", "command", "kenji"),
-                 (day, "Experiment run", "science", "lena", ["kenji", "amara", "john"][day % 3]),
+                 (day, "Experiment run", "science", "maria", ["kenji", "amara", "john"][day % 3]),
                  (day, "Systems maintenance", "maintenance", "stefan" if day % 2 else "john")]
         if day % 3 == 0:
             plan.append((day, "Crew health check", "medical", "amara"))

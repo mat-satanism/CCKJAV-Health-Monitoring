@@ -1,5 +1,5 @@
 {
-  "_note": "SYNTHETIC medical history for the five fictional crew members of the demo mission. Not real people, not clinical data. Hand-written for the demo; some items tie into the simulated events (John's infection, Lena's sleep).",
+  "_note": "SYNTHETIC medical history for the five fictional crew members of the demo mission. Not real people, not clinical data. Hand-written for the demo; some items tie into the simulated events (John's infection, Maria's sleep).",
   "crew": {
     "kenji": {
       "age": 48, "sex": "male",
@@ -42,7 +42,7 @@
       "genetic": [],
       "notes": "Crew medical officer. Uses latex-free gloves from the medical kit."
     },
-    "lena": {
+    "maria": {
       "age": 35, "sex": "female",
       "conditions": ["Episodes of insomnia during stressful periods"],
       "allergies": [],

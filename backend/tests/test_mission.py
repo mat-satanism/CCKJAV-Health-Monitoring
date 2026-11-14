@@ -99,7 +99,7 @@ def test_personal_card_has_body_systems_history_and_medication():
 
 
 def test_history_has_every_day_with_a_norm_band_after_the_first_week():
-    hist = client.get("/mission/astronaut/lena/history").json()
+    hist = client.get("/mission/astronaut/maria/history").json()
     hr = hist["heart_rate"]
     assert len(hr) == 30 and hr[0]["norm"] is None
     assert all(r["low"] < r["norm"] < r["high"] for r in hr[8:])
@@ -135,20 +135,20 @@ def test_readiness_check_answers_kindly():
 
 def test_card_and_entries_use_the_day_the_screen_shows():
     _day(15)                                    # e.g. the backend restarted and went back to day 15
-    r = client.post("/mission/astronaut/lena/entries", params={"day": 20}, json={"values": {"sleep_hours": 7.5}})
+    r = client.post("/mission/astronaut/maria/entries", params={"day": 20}, json={"values": {"sleep_hours": 7.5}})
     assert r.json()["day"] == 20
-    sleep = next(i for i in client.get("/mission/astronaut/lena", params={"day": 20}).json()["indicators"]
+    sleep = next(i for i in client.get("/mission/astronaut/maria", params={"day": 20}).json()["indicators"]
                  if i["type"] == "sleep_hours")
     assert sleep["value"] == 7.5 and sleep["entered"]
-    assert client.get("/mission/astronaut/lena", params={"day": 40}).status_code == 422
+    assert client.get("/mission/astronaut/maria", params={"day": 40}).status_code == 422
 
 
 def test_crew_has_hrv_and_reaction_time():
-    _day(22)                                     # Lena's sleep is disrupted from day 21
-    lena = client.get("/mission/astronaut/lena").json()
-    types = {i["type"]: i for i in lena["indicators"]}
+    _day(22)                                     # Maria's sleep is disrupted from day 21
+    maria = client.get("/mission/astronaut/maria").json()
+    types = {i["type"]: i for i in maria["indicators"]}
     assert {"hrv_ms", "reaction_ms"} <= set(types)
-    hist = client.get("/mission/astronaut/lena/history").json()["reaction_ms"]
+    hist = client.get("/mission/astronaut/maria/history").json()["reaction_ms"]
     calm = sorted(r["value"] for r in hist[:15])[7]
     assert types["reaction_ms"]["value"] > calm      # slower than her usual while sleep is disrupted
 
@@ -175,21 +175,21 @@ def test_weekly_report_covers_seven_days_and_lists_medicine_given():
     assert client.get("/mission/report", params={"period": "month"}).status_code == 422
 
 
-def test_fever_isolates_john_and_flags_lena_who_worked_with_him():
+def test_fever_isolates_john_and_flags_maria_who_worked_with_him():
     _day(18)
     alerts = client.get("/mission/alerts").json()
     iso = next(a for a in alerts if a["kind"] == "isolation")
-    assert iso["who"] == "John" and "Lena" in iso["message"]
-    lena = client.get("/mission/astronaut/lena", params={"day": 18}).json()
-    assert lena["contact_of"] == ["John"] and not lena["isolated"]
+    assert iso["who"] == "John" and "Maria" in iso["message"]
+    maria = client.get("/mission/astronaut/maria", params={"day": 18}).json()
+    assert maria["contact_of"] == ["John"] and not maria["isolated"]
     maint = _task("Systems maintenance")               # John's own task goes to Stefan while he is isolated
     assert maint["assignee"] == "john" and maint["reassigned_to_name"] == "Stefan"
     now = client.get("/mission/now", params={"day": 18}).json()
     assert now[0]["name"] == "John" and "isolate" in now[0]["do"].lower()
 
 
-def test_week_trend_shows_lenas_sleep_going_down_before_her_sleep_problem():
-    card = client.get("/mission/astronaut/lena", params={"day": 20}).json()
+def test_week_trend_shows_marias_sleep_going_down_before_her_sleep_problem():
+    card = client.get("/mission/astronaut/maria", params={"day": 20}).json()
     sleep = [t for t in card["trends"] if t["type"] == "sleep_hours"]
     assert sleep and sleep[0]["worse"] and sleep[0]["per_day"] < 0
 
