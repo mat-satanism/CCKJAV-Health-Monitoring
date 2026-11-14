@@ -85,3 +85,59 @@ def test_first_week_has_no_yellow_only_red_can_fire():
         for aid in MISSION.ids:
             for i in MISSION.astronaut(aid, day)["indicators"]:
                 assert i["status"] in ("green", "red"), (aid, day, i["type"])
+
+
+def test_personal_card_has_body_systems_history_and_medication():
+    _day(19)
+    card = client.get("/mission/astronaut/john").json()
+    assert {s["system"] for s in card["systems"]} >= {"cardiovascular", "immune", "sleep"}
+    assert "Penicillin (skin rash)" in card["anamnesis"]["allergies"]
+    assert any(m["drug"] == "Paracetamol" for m in card["medication_today"])
+    amara = client.get("/mission/astronaut/amara").json()
+    assert amara["medication_today"][0]["drug"] == "Levothyroxine"     # daily medicine shows every day
+    assert client.get("/mission/astronaut/nobody").status_code == 404
+
+
+def test_history_has_every_day_with_a_norm_band_after_the_first_week():
+    hist = client.get("/mission/astronaut/lena/history").json()
+    hr = hist["heart_rate"]
+    assert len(hr) == 30 and hr[0]["norm"] is None
+    assert all(r["low"] < r["norm"] < r["high"] for r in hr[8:])
+
+
+def test_entered_value_replaces_the_simulated_one_and_can_take_someone_off_a_task():
+    _day(19)
+    r = client.post("/mission/astronaut/stefan/entries", json={"values": {"temp": 39.4}})
+    temp = next(i for i in r.json()["indicators"] if i["type"] == "temp")
+    assert temp["value"] == 39.4 and temp["status"] == "red" and temp["entered"]
+    assert not r.json()["fit_for_high_demand"]
+    eva = _task("EVA: antenna repair")
+    assert eva["status"] == "needs decision"            # John is ill and Stefan now too
+    assert client.post("/mission/astronaut/stefan/entries", json={"values": {"temp": 50}}).status_code == 422
+
+
+def test_reset_restores_the_simulated_day():
+    _day(19)
+    client.post("/mission/astronaut/stefan/entries", json={"values": {"temp": 39.4}})
+    client.post("/demo/reset")
+    _day(19)
+    temp = next(i for i in client.get("/mission/astronaut/stefan").json()["indicators"] if i["type"] == "temp")
+    assert temp["value"] != 39.4
+
+
+def test_readiness_check_answers_kindly():
+    r = client.post("/mission/astronaut/kenji/readiness", json={"ready": True}).json()
+    assert r["ready"] and r["reply"]
+    assert client.get("/mission/astronaut/kenji").json()["readiness"]["ready"] is True
+    r = client.post("/mission/astronaut/kenji/readiness", json={"ready": False, "note": "headache"}).json()
+    assert "CMO will check in" in r["reply"]
+
+
+def test_card_and_entries_use_the_day_the_screen_shows():
+    _day(15)                                    # e.g. the backend restarted and went back to day 15
+    r = client.post("/mission/astronaut/lena/entries", params={"day": 20}, json={"values": {"sleep_hours": 7.5}})
+    assert r.json()["day"] == 20
+    sleep = next(i for i in client.get("/mission/astronaut/lena", params={"day": 20}).json()["indicators"]
+                 if i["type"] == "sleep_hours")
+    assert sleep["value"] == 7.5 and sleep["entered"]
+    assert client.get("/mission/astronaut/lena", params={"day": 40}).status_code == 422

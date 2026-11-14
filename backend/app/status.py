@@ -39,7 +39,7 @@ def classify(ind: str, value: float, past: list[float], population_band: bool = 
     t = THRESHOLDS.get(ind, {})
     unit = display_unit(ind)
     norm = median(window) if len(window) >= NORM_MIN else None
-    status, message, z = "green", "As usual for this person", None
+    status, message, z, spread = "green", "As usual for this person", None, None
     if norm is not None:
         spread = max(stdev(window), FLOORS.get(ind, MIN_SPREAD))
         z = (value - norm) / spread
@@ -54,4 +54,4 @@ def classify(ind: str, value: float, past: list[float], population_band: bool = 
     red_low, red_high = t.get("red_low"), t.get("red_high")
     if (red_low is not None and value <= red_low) or (red_high is not None and value >= red_high):
         status, message = "red", "Outside safe limits"
-    return {"status": status, "message": message, "norm": norm, "z": z, "unit": unit}
+    return {"status": status, "message": message, "norm": norm, "z": z, "spread": spread, "unit": unit}

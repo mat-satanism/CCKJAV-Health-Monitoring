@@ -46,6 +46,24 @@ export interface AstronautState {
   status: Status; indicators: MissionIndicator[]; symptoms: string[]; risks: EventRisk[]
   fit_for_high_demand: boolean; unfit_reasons: string[]; cautions: string[]; source: 'synthetic'
 }
+// ---------- one crew member's card (synthetic) ----------
+export interface Medication { drug: string; dose: string; schedule?: string; reason: string; day?: number; given_by?: string }
+export interface Anamnesis {
+  age: number; sex: string; conditions: string[]; allergies: string[]; medications: Medication[]
+  family_history: string[]; genetic: string[]; notes: string
+}
+export interface Readiness { ready: boolean; note: string; reply: string }
+export interface AstronautCard extends AstronautState {
+  indicators: (MissionIndicator & { entered: boolean })[]
+  systems: BodySystemStatus[]
+  anamnesis: Anamnesis
+  medication_today: Medication[]
+  readiness: Readiness | null
+}
+export interface HistoryPoint {
+  day: number; value: number; status: Status; norm: number | null; low: number | null; high: number | null; entered: boolean
+}
+export type AstronautHistory = Record<string, HistoryPoint[]>
 export interface MissionTask {
   task_id: string; mission_day: number; title: string; kind: string; demand: 'high' | 'normal'; skill: string
   assignee: string; assignee_name: string

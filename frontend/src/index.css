@@ -216,3 +216,27 @@ footer { margin-top: 28px; font-size: .8rem; color: var(--muted); }
 .learn p, .learn ul { margin: .3rem 0; max-width: 72ch; }
 .learn ul { padding-left: 1.1rem; }
 .checkin .how { font-size: .72rem; color: var(--muted); line-height: 1.3; }
+
+/* ---------- check-in: choose a person, personal card ---------- */
+.patients { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 14px; }
+.patients button { display: grid; text-align: left; padding: .4rem .8rem; border-radius: var(--radius); }
+.patients button small { color: var(--muted); font-size: .72rem; }
+.patients button.on { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }
+.who.linkish { all: unset; display: grid; cursor: pointer; }
+.who.linkish:hover strong, .who.linkish:focus-visible strong { color: var(--accent); text-decoration: underline; }
+.who.linkish:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 4px; }
+.person-head { margin-bottom: 8px; }
+.person-head .fit { margin: .25rem 0 0; }
+.risk-item + .risk-item { margin-top: 8px; }
+.risk-item p { margin: 0; }
+.readiness .row-buttons { display: flex; flex-wrap: wrap; gap: 8px; }
+.readiness p { margin: .25rem 0 .75rem; }
+.symptoms { border: none; padding: 0; margin: 8px 0; display: flex; flex-wrap: wrap; gap: 4px 12px; }
+.symptoms legend { padding: 0; margin-bottom: 4px; }
+.symptoms .sym { display: inline-flex; align-items: center; gap: 5px; font-size: .82rem; }
+.history-card dl { display: grid; grid-template-columns: max-content 1fr; gap: 4px 10px; margin: 0 0 10px; font-size: .86rem; }
+.history-card dt { color: var(--muted); }
+.history-card dd { margin: 0; }
+.history-card dd.warn { color: var(--yellow); font-weight: 600; }
+.history-card h3 { font-size: .9rem; margin: 10px 0 4px; }
+.history-card ul { margin: 0; padding-left: 18px; font-size: .86rem; }

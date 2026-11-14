@@ -66,6 +66,10 @@ One rule for every view (`backend/app/status.py`), personal norm first:
 | GET | /mission/tasks | today's tasks: `status` planned / reassigned / postponed / needs decision, `reassigned_to`, `reason`, `warning` |
 | GET | /mission/alerts | crew-wide alerts (solar flare, same symptoms in 3+ people) |
 | GET | /mission/doctor?role=cmo\|ground | anomalies, risks above 3x usual, symptoms, alerts; `ground` adds the 20 min data delay |
+| GET | /mission/astronaut/{id}?day=N | one crew member's card for day N (default: current day): indicators (with `entered`), body `systems`, risks, synthetic `anamnesis`, `medication_today`, `readiness` |
+| GET | /mission/astronaut/{id}/history | every mission day per indicator: value, status, personal `norm`, `low`/`high` = norm ± 3 spreads, `entered` |
+| POST | /mission/astronaut/{id}/entries?day=N | `{"values": {"temp": 39.2}, "symptoms": ["fever"]}` replaces that day's simulated values; statuses and tasks follow, risks stay the model's. Saved to `data/local/mission_entries.json`, removed by `/demo/reset` |
+| POST | /mission/astronaut/{id}/readiness?day=N | `{"ready": true, "note": ""}` morning readiness check; returns a short `reply` |
 | GET | /reference/blood?crew=C001 | BloodRow[]: NASA Inspiration4 blood tests, reference only, not daily status |
 | POST | /demo/reset | reload the demo (real PMData days plus synthetic pressure, glucose and temperature; see demo.py) and delete the saved check-ins |
 

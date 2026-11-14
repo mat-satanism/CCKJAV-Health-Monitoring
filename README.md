@@ -15,8 +15,9 @@ Working now:
 - **Trends**: charts with the personal baseline line and a 7-day forecast.
 - **Assistant**: rule-based advice with escalation levels (self / crew / ground) and a comms-delay note.
 - **Daily tasks** with points.
-- **Mission context**: ISS, transit, rover, Moon base, Mars base (gravity, comms delay).
-- **Demo data (My check-in)**: 30 real days of one PMData participant for heart rate, sleep, mood and exercise; blood pressure, glucose and temperature are synthetic (typical NHANES level + simulated daily changes) and labelled as such.
+- **Mission context**: one Mars-base mission (0.38 g, 20 min signal delay).
+- **Check-in per crew member**: pick an astronaut, tap the body, pick a day on the mission strip or any chart, see the history with their usual range, enter values and symptoms for that day, answer the morning readiness check, see their (synthetic) medical history and medicine for the day.
+- **Demo data (Check-in, real-data demo)**: 30 real days of one PMData participant for heart rate, sleep, mood and exercise; blood pressure, glucose and temperature are synthetic (typical NHANES level + simulated daily changes) and labelled as such.
 - **Crew mission (simulation)**: 5 astronauts over 30 days, synthetic data calibrated on real people. Mission clock, crew status, risks for the next 48 h, and tasks that move to a fit crew member with the reason (e.g. John's EVA goes to Stefan because of fever).
 - **Doctors' tab**: crew medical officer onboard (live) or flight surgeon on Earth (20 min delay): anomalies vs each person's norm, risks with the signs behind them, symptoms, crew-wide alerts (CO2, solar flare).
 - **Risk model**: one random forest per event, trained on simulated missions, with SHAP explanations (which signs pushed the risk up). Chosen over logistic regression and LightGBM, see `docs/model-comparison.md`.

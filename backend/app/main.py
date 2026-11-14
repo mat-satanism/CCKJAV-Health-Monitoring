@@ -11,6 +11,7 @@ from pathlib import Path
 
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel
 
 from . import analytics, rules
 from .config import BOUNDS, CONTENT, DATA_DIR, ENVIRONMENTS, INDICATORS, SYSTEMS
@@ -62,6 +63,8 @@ def load() -> None:
 
 def reset() -> None:
     SAVED_PATH.unlink(missing_ok=True)
+    if MISSION:
+        MISSION.reset()
     load()
 
 
@@ -170,6 +173,59 @@ def mission_doctor(role: str = "cmo"):
     if role not in ("cmo", "ground"):
         raise HTTPException(422, "role must be 'cmo' or 'ground'")
     return _mission().doctor(role)
+
+
+class CrewEntry(BaseModel):
+    values: dict[str, float] = {}
+    symptoms: list[str] | None = None
+
+
+class Readiness(BaseModel):
+    ready: bool
+    note: str = ""
+
+
+def _crew_member(aid: str, day: int | None = None):
+    """The mission, after checking the crew member and the day (None = the mission's current day)."""
+    m = _mission()
+    if aid not in m.ids:
+        raise HTTPException(404, "Unknown crew member")
+    if day is not None and not 1 <= day <= m.days_total:
+        raise HTTPException(422, f"day must be between 1 and {m.days_total}")
+    return m, day or m.day
+
+
+@app.get("/mission/astronaut/{aid}")
+def mission_astronaut(aid: str, day: int | None = None):
+    """One crew member on one mission day: statuses, body systems, risks, medical history."""
+    m, day = _crew_member(aid, day)
+    return m.astronaut(aid, day, with_card=True)
+
+
+@app.get("/mission/astronaut/{aid}/history")
+def mission_astronaut_history(aid: str):
+    m, _ = _crew_member(aid)
+    return m.history(aid)
+
+
+@app.post("/mission/astronaut/{aid}/entries")
+def mission_astronaut_entry(aid: str, entry: CrewEntry, day: int | None = None):
+    """Values for this crew member on one mission day (they replace the simulated ones)."""
+    m, day = _crew_member(aid, day)
+    for ind, value in entry.values.items():
+        if ind not in INDICATORS:
+            raise HTTPException(422, f"Unknown indicator {ind}")
+        lo, hi = BOUNDS[ind]
+        if not lo <= value <= hi:
+            raise HTTPException(422, f"{ind}={value} is outside the plausible range {lo}-{hi}")
+    m.enter(aid, day, entry.values, entry.symptoms)
+    return m.astronaut(aid, day, with_card=True)
+
+
+@app.post("/mission/astronaut/{aid}/readiness")
+def mission_astronaut_readiness(aid: str, r: Readiness, day: int | None = None):
+    m, day = _crew_member(aid, day)
+    return m.set_readiness(aid, day, r.ready, r.note)
 
 
 @app.get("/reference/blood")

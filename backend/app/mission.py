@@ -4,14 +4,22 @@ Everything here is SYNTHETIC (data/processed/sim, made by pipeline/simulation.py
 Risks come from the model in models/risk_model.json, precomputed in sim/predictions.csv.
 
 Indicator statuses use the shared rule in status.py (personal norm first), same as My check-in.
+Values entered in the app for a crew member (and their readiness check) override the simulated day and are
+saved to MISSION_SAVED_PATH (data/local/, not in git); Reset demo removes them. Risks stay the precomputed
+model output: entering a value changes the statuses and the tasks, not the 48-hour risks.
 """
+import copy
 import csv
 import json
+import os
+from pathlib import Path
 
-from .config import DATA_DIR, ENVIRONMENTS, INDICATORS
-from .status import MODEL_PATH, classify
+from .config import DATA_DIR, ENVIRONMENTS, INDICATORS, SYSTEMS
+from .status import MODEL_PATH, Z_YELLOW, classify
 
 SIM_DIR = DATA_DIR / "processed" / "sim"
+ANAMNESIS_PATH = DATA_DIR / "synthetic" / "anamnesis.json"
+MISSION_SAVED_PATH = Path(os.environ.get("CHN_MISSION_SAVED_PATH", DATA_DIR / "local" / "mission_entries.json"))
 WATCH_MULTIPLE = 3.0      # doctors see a risk when it is at least 3 times the usual level
 HIGH_MULTIPLE = 5.0       # at 5 times the usual level a physical-event risk asks the CMO to confirm fitness
 PHYSICAL_EVENTS = {"infection", "deconditioning"}
@@ -55,6 +63,66 @@ class Mission:
         self.tasks = _read("tasks.csv")
         model = json.loads(MODEL_PATH.read_text())
         self.base_rates = {e: v["base_rate"] for e, v in model["events"].items()}
+        self.anamnesis = json.loads(ANAMNESIS_PATH.read_text(encoding="utf-8"))["crew"]
+        self.simulated = copy.deepcopy(self.values)
+        self.entries: dict[str, dict] = {}        # "aid|day" -> {"values": {...}, "symptoms": [...]}
+        self.readiness: dict[str, dict] = {}      # "aid|day" -> {"ready": bool, "note": str}
+        self.day = 15
+        self._load_saved()
+
+    # ---------- values entered in the app ----------
+    def _load_saved(self) -> None:
+        if MISSION_SAVED_PATH.exists():
+            saved = json.loads(MISSION_SAVED_PATH.read_text(encoding="utf-8"))
+            self.entries, self.readiness = saved.get("entries", {}), saved.get("readiness", {})
+        for key, e in self.entries.items():
+            aid, day = key.split("|")
+            self._apply(aid, int(day), e)
+
+    def _apply(self, aid: str, day: int, entry: dict) -> None:
+        self.values[(aid, day)].update(entry.get("values", {}))
+        if "symptoms" in entry:
+            self.values[(aid, day)]["symptoms"] = entry["symptoms"]
+
+    def _persist(self) -> None:
+        MISSION_SAVED_PATH.parent.mkdir(parents=True, exist_ok=True)
+        MISSION_SAVED_PATH.write_text(json.dumps({"entries": self.entries, "readiness": self.readiness}, indent=1),
+                                      encoding="utf-8")
+
+    def enter(self, aid: str, day: int, values: dict[str, float], symptoms: list[str] | None = None) -> None:
+        """Values for one crew member on one mission day, entered in the check-in."""
+        key = f"{aid}|{day}"
+        entry = self.entries.setdefault(key, {"values": {}})
+        entry["values"].update(values)
+        if symptoms is not None:
+            entry["symptoms"] = symptoms
+        self._apply(aid, day, entry)
+        self._persist()
+
+    def set_readiness(self, aid: str, day: int, ready: bool, note: str = "") -> dict:
+        self.readiness[f"{aid}|{day}"] = {"ready": ready, "note": note}
+        self._persist()
+        return self.readiness_reply(aid, day)
+
+    def readiness_reply(self, aid: str, day: int) -> dict | None:
+        r = self.readiness.get(f"{aid}|{day}")
+        if r is None:
+            return None
+        state = self.astronaut(aid, day, with_card=False)
+        off = [i["label"].lower() for i in state["indicators"] if i["status"] in ("yellow", "red")]
+        off += state["symptoms"]
+        if not r["ready"]:
+            reply = "Noted. The CMO will check in with you before your first task. Take it easy until then."
+        elif off:
+            reply = f"Thanks. You feel ready; the CMO will have a quick look at {', '.join(off)} with you."
+        else:
+            reply = "You're doing well. Everything is as usual for you today. Have a good day."
+        return {**r, "reply": reply}
+
+    def reset(self) -> None:
+        self.values = copy.deepcopy(self.simulated)
+        self.entries, self.readiness = {}, {}
+        MISSION_SAVED_PATH.unlink(missing_ok=True)
         self.day = 15
 
     # ---------- one astronaut ----------
@@ -79,7 +147,8 @@ class Mission:
                         "action": EVENT_ACTIONS[event]})
         return sorted(out, key=lambda r: -r["risk"])
 
-    def astronaut(self, aid: str, day: int | None = None) -> dict:
+    def astronaut(self, aid: str, day: int | None = None, with_card: bool = False) -> dict:
+        """with_card: add what the personal card needs (body systems, medical history, today's medication)."""
         day = day or self.day
         member = next(c for c in self.crew if c["astronaut_id"] == aid)
         indicators = [self._indicator(aid, day, i) for i in INDICATORS]
@@ -90,11 +159,43 @@ class Mission:
         reasons += [f"Symptom: {s}" for s in symptoms if s in BLOCKING_SYMPTOMS]
         cautions = [f"{r['label']} risk {r['multiple']:g}x usual in the next 48 h ({'; '.join(r['signs']) or 'no single sign'})"
                     for r in risks if r["event"] in PHYSICAL_EVENTS and r["level"] == "high"]
-        return {**member, "skills": member["skills"].split(";"), "day": day,
-                "status": max((i["status"] for i in indicators), key=ORDER.index),
-                "indicators": indicators, "symptoms": symptoms, "risks": risks,
-                "fit_for_high_demand": not reasons, "unfit_reasons": reasons, "cautions": cautions,
-                "source": "synthetic"}
+        out = {**member, "skills": member["skills"].split(";"), "day": day,
+               "status": max((i["status"] for i in indicators), key=ORDER.index),
+               "indicators": indicators, "symptoms": symptoms, "risks": risks,
+               "fit_for_high_demand": not reasons, "unfit_reasons": reasons, "cautions": cautions,
+               "source": "synthetic"}
+        if with_card:
+            entered = self.entries.get(f"{aid}|{day}", {}).get("values", {})
+            for i in indicators:
+                i["entered"] = i["type"] in entered
+            history = self.anamnesis[aid]
+            out.update(
+                systems=[{"system": s, "indicators": inds,
+                          "status": max((i["status"] for i in indicators if i["type"] in inds), key=ORDER.index)}
+                         for s in SYSTEMS for inds in [[k for k, m in INDICATORS.items() if m["system"] == s]]],
+                anamnesis={k: v for k, v in history.items() if k != "medication_log"},
+                medication_today=[{**m, "day": day, "given_by": "self"} for m in history["medications"]
+                                  if m["schedule"].startswith("daily")]
+                                 + [m for m in history.get("medication_log", []) if m["day"] == day],
+                readiness=self.readiness_reply(aid, day))
+        return out
+
+    def history(self, aid: str) -> dict:
+        """Every mission day for one crew member: value, personal norm, the yellow band around it, status."""
+        out = {}
+        for ind in INDICATORS:
+            rows = []
+            for day in range(1, self.days_total + 1):
+                value = self.values[(aid, day)][ind]
+                c = classify(ind, value, [self.values[(aid, d)][ind] for d in range(1, day)], population_band=False)
+                band = None if c["norm"] is None else Z_YELLOW * c["spread"]
+                rows.append({"day": day, "value": value, "status": c["status"],
+                             "norm": None if c["norm"] is None else round(c["norm"], 2),
+                             "low": None if band is None else round(c["norm"] - band, 2),
+                             "high": None if band is None else round(c["norm"] + band, 2),
+                             "entered": ind in self.entries.get(f"{aid}|{day}", {}).get("values", {})})
+            out[ind] = rows
+        return out
 
     # ---------- whole crew ----------
     def alerts(self, day: int | None = None) -> list[dict]:

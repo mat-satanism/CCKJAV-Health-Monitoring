@@ -1,6 +1,6 @@
 import type {
-  AstronautState, BloodRow, CrewAlert, DoctorView, Insights, Measurement, Meta, MissionContext, MissionInfo,
-  MissionTask, StatusResponse, Task, TimelineDay,
+  AstronautCard, AstronautHistory, AstronautState, BloodRow, CrewAlert, DoctorView, Insights, Measurement, Meta, MissionContext, MissionInfo,
+  MissionTask, Readiness, StatusResponse, Task, TimelineDay,
 } from './types'
 
 const BASE = import.meta.env.VITE_API_URL ?? 'http://127.0.0.1:8000'
@@ -36,5 +36,11 @@ export const api = {
   missionCrew: () => req<AstronautState[]>('/mission/crew'),
   missionTasks: () => req<MissionTask[]>('/mission/tasks'),
   missionAlerts: () => req<CrewAlert[]>('/mission/alerts'),
+  astronaut: (aid: string, day: number) => req<AstronautCard>(`/mission/astronaut/${aid}?day=${day}`),
+  astronautHistory: (aid: string) => req<AstronautHistory>(`/mission/astronaut/${aid}/history`),
+  enterForAstronaut: (aid: string, day: number, values: Record<string, number>, symptoms?: string[]) =>
+    req<AstronautCard>(`/mission/astronaut/${aid}/entries?day=${day}`, { method: 'POST', body: JSON.stringify({ values, symptoms }) }),
+  setReadiness: (aid: string, day: number, ready: boolean, note = '') =>
+    req<Readiness>(`/mission/astronaut/${aid}/readiness?day=${day}`, { method: 'POST', body: JSON.stringify({ ready, note }) }),
   missionDoctor: (role: 'cmo' | 'ground') => req<DoctorView>(`/mission/doctor?role=${role}`),
 }

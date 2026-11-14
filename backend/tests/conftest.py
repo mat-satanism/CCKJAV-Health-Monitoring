@@ -3,4 +3,6 @@ import os
 import tempfile
 from pathlib import Path
 
-os.environ["CHN_SAVED_PATH"] = str(Path(tempfile.mkdtemp()) / "checkins.json")
+_tmp = Path(tempfile.mkdtemp())
+os.environ["CHN_SAVED_PATH"] = str(_tmp / "checkins.json")
+os.environ["CHN_MISSION_SAVED_PATH"] = str(_tmp / "mission_entries.json")

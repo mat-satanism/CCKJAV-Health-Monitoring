@@ -6,6 +6,7 @@ import { CheckIn } from './components/CheckIn'
 import { DoctorView } from './components/DoctorView'
 import { MissionStrip } from './components/MissionStrip'
 import { MissionView } from './components/MissionView'
+import { PersonView } from './components/PersonView'
 import { InsightsCard, TasksCard } from './components/Sidebar'
 import { SystemPanel } from './components/SystemPanel'
 import type {
@@ -16,7 +17,7 @@ type Tab = 'mission' | 'doctor' | 'astronaut'
 const TABS: { id: Tab; label: string }[] = [
   { id: 'mission', label: 'Crew mission' },
   { id: 'doctor', label: 'Doctors' },
-  { id: 'astronaut', label: 'My check-in' },
+  { id: 'astronaut', label: 'Check-in' },
 ]
 
 export default function App() {
@@ -28,6 +29,7 @@ export default function App() {
   const [mission, setMission] = useState<MissionInfo | null>(null)
   const [missionError, setMissionError] = useState<string | null>(null)
   const [tab, setTab] = useState<Tab>('mission')
+  const [chosen, setPatient] = useState<string | null>(null)   // a crew member id, or 'real' for the real-data demo
   const [selected, setSelected] = useState<SystemId | null>('cardiovascular')
   const [error, setError] = useState<string | null>(null)
   const [version, setVersion] = useState(0)
@@ -57,6 +59,11 @@ export default function App() {
     await api.setMissionDay(next)
     setMission({ ...mission, day: next })
   }
+  const patient = chosen ?? mission?.crew[0]?.astronaut_id ?? 'real'
+  const openPerson = (aid: string) => { setPatient(aid); setTab('astronaut') }
+  const strip = mission && (
+    <MissionStrip day={mission.day} total={mission.days_total} note={mission.note} onDay={changeDay} reloadKey={version} />
+  )
 
   return (
     <div className="app">
@@ -83,14 +90,34 @@ export default function App() {
       {tab !== 'astronaut' && (
         missionError || !mission ? <p className="err">{missionError ?? 'Loading mission…'}</p> : (
           <>
-            <MissionStrip day={mission.day} total={mission.days_total} note={mission.note}
-              onDay={changeDay} reloadKey={version} />
-            {tab === 'mission' ? <MissionView day={mission.day} /> : <DoctorView day={mission.day} />}
+            {strip}
+            {tab === 'mission' ? <MissionView day={mission.day} onOpen={openPerson} /> : <DoctorView day={mission.day} />}
           </>
         )
       )}
 
       {tab === 'astronaut' && (
+        <nav className="patients" aria-label="Choose who to check in">
+          {mission?.crew.map((c) => (
+            <button key={c.astronaut_id} className={patient === c.astronaut_id ? 'on' : ''}
+              aria-pressed={patient === c.astronaut_id} onClick={() => setPatient(c.astronaut_id)}>
+              {c.name}<small>{c.role}</small>
+            </button>
+          ))}
+          <button className={patient === 'real' ? 'on' : ''} aria-pressed={patient === 'real'}
+            onClick={() => setPatient('real')}>Real-data demo<small>PMData person</small></button>
+        </nav>
+      )}
+
+      {tab === 'astronaut' && patient !== 'real' && mission && (
+        <>
+          {strip}
+          <PersonView aid={patient} day={mission.day} meta={meta} onDay={changeDay}
+            onChanged={() => setVersion((v) => v + 1)} />
+        </>
+      )}
+
+      {tab === 'astronaut' && patient === 'real' && (
         <main className="layout">
           <section className="panel map">
             <BodyMap systems={status.systems} selected={selected} onSelect={setSelected} />

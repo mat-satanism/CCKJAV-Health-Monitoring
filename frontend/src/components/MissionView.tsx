@@ -21,13 +21,15 @@ export function AlertList({ alerts }: { alerts: CrewAlert[] }) {
   )
 }
 
-function CrewRow({ a }: { a: AstronautState }) {
+function CrewRow({ a, onOpen }: { a: AstronautState; onOpen: (aid: string) => void }) {
   const top = a.risks.find((r) => r.level !== 'normal')
   const off = a.indicators.filter((i) => i.status === 'yellow' || i.status === 'red')
   return (
     <div className={`crew-row status-${a.status}`}>
       <span className="dot" aria-label={`status ${a.status}`} />
-      <div className="who"><strong>{a.name}</strong><small>{a.role}</small></div>
+      <button className="who linkish" onClick={() => onOpen(a.astronaut_id)} title={`Open ${a.name}'s card`}>
+        <strong>{a.name}</strong><small>{a.role}</small>
+      </button>
       <div className="lamps" aria-label="Indicators">
         {a.indicators.map((i) => (
           <span key={i.type} className={`lamp status-${i.status}`}
@@ -47,7 +49,7 @@ function CrewRow({ a }: { a: AstronautState }) {
   )
 }
 
-export function MissionView({ day }: { day: number }) {
+export function MissionView({ day, onOpen }: { day: number; onOpen: (aid: string) => void }) {
   const [crew, setCrew] = useState<AstronautState[] | null>(null)
   const [tasks, setTasks] = useState<MissionTask[]>([])
   const [alerts, setAlerts] = useState<CrewAlert[]>([])
@@ -66,7 +68,7 @@ export function MissionView({ day }: { day: number }) {
     <div className="mission">
       <AlertList alerts={alerts} />
       <section className="panel roster" aria-label="Crew">
-        {crew.map((a) => <CrewRow key={a.astronaut_id} a={a} />)}
+        {crew.map((a) => <CrewRow key={a.astronaut_id} a={a} onOpen={onOpen} />)}
       </section>
       <section className="panel">
         <h2>Tasks on day {day}</h2>
