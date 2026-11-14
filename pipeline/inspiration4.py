@@ -25,10 +25,11 @@ UNIT_FIX = {("hemoglobin", "percent"): "gram_per_deciliter"}
 
 
 # Likely pre-analytical artefact (blood processed late): on R+45 three crew have
-# glucose of 36-44 mg/dL while their potassium rises the same day (C004: 5.9).
+# glucose of 36-44 mg/dL; for C003 and C004 potassium is also above their usual
+# values the same day (C004: 5.9). C002's potassium stays in its usual range.
 # Cells use glucose and leak potassium when a sample waits before processing.
 # Values are kept and marked; charts and conclusions should leave them out.
-SUSPECT_NOTE = "likely delayed sample processing (low glucose with raised potassium)"
+SUSPECT_NOTE = "likely delayed sample processing (very low glucose on R+45; see docs/data.md)"
 SUSPECT = {(crew, "R+45", analyte) for crew in ("C002", "C003", "C004") for analyte in ("glucose", "potassium")}
 
 

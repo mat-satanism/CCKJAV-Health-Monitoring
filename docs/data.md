@@ -66,7 +66,7 @@ One row per crew member, timepoint and analyte. Panels: `cmp` (metabolic panel, 
 
 Fixes: hemoglobin is labelled "percent" in the source but is g/dL; ALT/AST max columns lack `range_`; eGFR max is text `N/A` (left empty). Cells that are empty in the source (some CBC timepoints) have no row.
 
-`quality_note`: glucose (36-44 mg/dL) and potassium of C002, C003 and C004 at R+45 are marked "likely delayed sample processing". The same day their potassium rises (C004: 5.9, above the lab range), while C001's glucose (84) and potassium stay normal. Low glucose with raised potassium is the usual sign of blood that waited before processing: cells keep using glucose and leak potassium. OSD-575 says fresh serum was sent at room temperature to Quest Diagnostics. The values are kept; leave them out of charts and conclusions.
+`quality_note`: glucose (36-44 mg/dL) and potassium of C002, C003 and C004 at R+45 are marked "likely delayed sample processing". The same day potassium is above their own usual values for C003 (4.4 vs 3.0-3.8) and C004 (5.9, above the lab range, vs 3.7-4.2); C002's potassium (4.1) stays within its usual 3.5-4.4. C001's glucose (84) and potassium stay normal. Low glucose with raised potassium is the usual sign of blood that waited before processing: cells keep using glucose and leak potassium. OSD-575 says fresh serum was sent at room temperature to Quest Diagnostics. The values are kept; leave them out of charts and conclusions.
 
 ## `data/processed/nhanes_reference.csv`
 
