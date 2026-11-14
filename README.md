@@ -46,6 +46,7 @@ docs/            api contract, sources
 - **Data:** to show real/cleaned data in the app, make `demo_mission()` in `backend/app/demo.py` return your records as `Measurement` objects.
 - **Thresholds:** edit `data/thresholds.json` and add the source to `docs/sources.md`.
 - Notebooks go to `notebooks/`, raw data to `data/raw/` (keep large files out of git).
+- **Cleaned data:** `python -m pipeline.get_data` then `python -m pipeline.build` fills `data/processed/` (daily wearable table, Inspiration4 blood tests, NHANES reference ranges). Columns and cleaning rules: [docs/data.md](docs/data.md).
 
 ## Quick start
 Backend:
