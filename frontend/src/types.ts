@@ -124,7 +124,8 @@ export interface MissionContext {
 }
 
 export interface Source { title: string; publisher: string; year: number | null; url: string }
-export interface IndicatorContent { why: string; how_to_measure: string; advice: string[]; sources: string[] }
+export interface IndicatorContent { why: string; how_to_measure: string; advice: string[]; sources: string[]; frequency: string }
+export interface PlanItem { what: string; how: string; how_often: string; why: string; sources: string[] }
 export interface SystemContent { what: string; in_space: string; hazards: string[]; sources: string[] }
 
 export interface Meta {
@@ -135,5 +136,6 @@ export interface Meta {
     indicators: Record<string, IndicatorContent>
     systems: Record<SystemId, SystemContent>
     sources: Record<string, Source>
+    measurement_plan: { items: PlanItem[] }
   }
 }

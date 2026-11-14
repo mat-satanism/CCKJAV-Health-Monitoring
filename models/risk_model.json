@@ -23,6 +23,10 @@
   "mood_dev3",
   "exercise_min_z",
   "exercise_min_dev3",
+  "hrv_ms_z",
+  "hrv_ms_dev3",
+  "reaction_ms_z",
+  "reaction_ms_dev3",
   "crew_sleep_hours_dev",
   "crew_mood_dev",
   "crew_heart_rate_dev",
@@ -36,7 +40,9 @@
   "temp": 0.1059349905471385,
   "sleep_hours": 0.6630349799334758,
   "mood": 0.3631365196012815,
-  "exercise_min": 19.868923617991022
+  "exercise_min": 19.868923617991022,
+  "hrv_ms": 4.007513547509601,
+  "reaction_ms": 12.191058393772833
  },
  "events": {
   "sleep_disruption": {

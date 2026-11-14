@@ -45,7 +45,8 @@ def classify(ind: str, value: float, past: list[float], population_band: bool = 
         z = (value - norm) / spread
         if abs(z) >= Z_YELLOW:
             status, message = "yellow", f"{value - norm:+.1f} {unit} vs this person's usual {norm:.1f}"
-    elif population_band and (value < t.get("yellow_low", float("-inf")) or value > t.get("yellow_high", float("inf"))):
+    elif population_band and (value < (t.get("yellow_low") if t.get("yellow_low") is not None else float("-inf"))
+                              or value > (t.get("yellow_high") if t.get("yellow_high") is not None else float("inf"))):
         status, message = "yellow", "Outside the normal range (no personal norm yet)"
     elif population_band:
         message = "Within the normal range (no personal norm yet)"

@@ -122,3 +122,17 @@ def test_saved_check_ins_survive_a_backend_restart_but_not_reset():
     assert _status("sleep_hours")["latest"] == 6.5
     client.post("/demo/reset")
     assert _status("sleep_hours")["latest"] != 6.5
+
+
+def test_measurement_plan_items_cite_known_sources():
+    content = client.get("/meta").json()["content"]
+    items = content["measurement_plan"]["items"]
+    assert any(i["what"] == "Bone density" for i in items)
+    assert all(i["sources"] and all(s in content["sources"] for s in i["sources"]) for i in items)
+
+
+def test_new_indicators_have_a_frequency_and_use_only_the_personal_norm():
+    meta = client.get("/meta").json()
+    for ind in ("hrv_ms", "reaction_ms"):
+        assert ind in meta["indicators"] and meta["content"]["indicators"][ind]["frequency"]
+    assert _status("hrv_ms")["status"] == "grey"     # the real-data demo person has no HRV

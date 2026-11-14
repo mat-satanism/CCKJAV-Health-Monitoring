@@ -23,6 +23,12 @@ Texts: `data/content/indicators.json`, `systems.json`; every item cites ids from
 - `stahn-2017`: [Increased core body temperature in astronauts during long-duration space missions (Stahn et al.)](https://www.nature.com/articles/s41598-017-15560-w) (Scientific Reports 7, 16180, 2017)
 - `energy-2024`: [Substrate metabolism in male astronauts onboard the International Space Station: the ENERGY study](https://www.nature.com/articles/s41526-024-00360-0) (npj Microgravity, 2024)
 - `insulin-2023`: [Spaceflight induces changes in gene expression profiles linked to insulin and estrogen](https://www.nature.com/articles/s42003-023-05213-2) (Communications Biology, 2023)
+- `nasa-standard-measures`: [Spaceflight Standard Measures](https://www.nasa.gov/humans-in-space/spaceflight-standard-measures-characterizing-how-humans-adapt-in-space) (NASA): what is measured on the station
+- `upenn-cognition`: [Cognition test battery](https://www.med.upenn.edu/uep/cognition.html) (University of Pennsylvania): 10 tests incl. the 3-minute PVT, used by all ISS astronauts
+- `basner-2011`: [A 3-minute version of the Psychomotor Vigilance Test (Basner, Rubinstein)](https://pmc.ncbi.nlm.nih.gov/articles/PMC3190077) (J Occup Environ Med, 2011): 355 ms lapse threshold
+- `otsuka-2015`: [Intrinsic cardiovascular autonomic regulatory system of astronauts exposed long-term to microgravity in space (Otsuka et al.)](https://pmc.ncbi.nlm.nih.gov/articles/PMC5516430/) (npj Microgravity, 2015): heart rhythm control changed in 7 astronauts in space
+- `nasa-bone-lab`: [Bone and Mineral Evaluation and Analysis](https://www.nasa.gov/content/bone-and-mineral-evaluation-and-analysis) (NASA): up to 1-2% bone density loss per month in hip and spine
+- `nasa-slammd`: [Space Linear Acceleration Mass Measurement Device](https://www.nasa.gov/image-detail/gmt147_12_51_michael-barratt_a-few-crew-shots/) (NASA, 2024): how body mass is measured in orbit
 - `hrp-48033`: [Exploration Medical Capability Clinical Decision Support System Concept of Operations, HRP-48033](https://ntrs.nasa.gov/citations/20220017856) (NASA Human Research Program, 2021)
 
 ## Datasets

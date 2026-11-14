@@ -116,7 +116,7 @@ Code: `pipeline/simulation.py`; tests: `pipeline/tests/test_simulation.py`.
 ## Stage 2: risk model (2026-11-14, switched to random forest the same day)
 
 `python -m pipeline.model` (needs `scikit-learn` and `shap`, training only). One **random forest** per event
-(300 trees, at least 20 days per leaf) on 33 features: for each of the 8 indicators the z-score vs the
+(300 trees, at least 20 days per leaf) on 41 features: for each of the 10 indicators the z-score vs the
 personal norm and the 3-day mean deviation, the whole-crew deviation of sleep, mood and pulse, and whether a
 norm exists yet. Trained on 400 simulated missions (seed 7). Each demo prediction is explained with **SHAP**:
 how many percentage points each sign added to the risk; signs adding at least 1 point are shown. The app
@@ -132,22 +132,24 @@ The rule is "the biggest |z| of any indicator today". "Top 5%" = alerts on the 5
 
 | Event | Share of days | AUC model | AUC rule | Caught with top-5% alerts | Precision of those alerts |
 |---|---|---|---|---|---|
-| Sleep disruption | 3.0% | 0.820 | 0.680 | 23.4% | 14.1% |
-| Infection | 2.0% | 0.948 | 0.810 | 65.2% | 25.7% |
-| Deconditioning | 1.9% | 0.936 | 0.650 | 54.1% | 20.9% |
-| Low mood | 1.8% | 0.861 | 0.678 | 28.2% | 10.3% |
-| CO2 build-up | 2.4% | 0.806 | 0.636 | 27.3% | 12.9% |
+| Sleep disruption | 3.0% | 0.830 | 0.679 | 24.3% | 14.7% |
+| Infection | 2.0% | 0.948 | 0.801 | 66.9% | 26.4% |
+| Deconditioning | 1.9% | 0.930 | 0.648 | 53.8% | 20.8% |
+| Low mood | 1.8% | 0.859 | 0.674 | 29.3% | 10.7% |
+| CO2 build-up | 2.4% | 0.809 | 0.644 | 29.3% | 13.9% |
 
 **Real people (PMData, 16 people, 1517 days), target "tomorrow's mood is worse than usual":** the sim-trained
-`low_mood` risk scores AUC 0.660 (95% interval over people 0.625-0.689) and `sleep_disruption` 0.595, while
+`low_mood` risk scores AUC 0.632 and `sleep_disruption` 0.609 (before HRV and reaction time were added: 0.660,
+95% interval over people 0.625-0.689, and 0.595), while
 "same as today" scores 0.644. So the forest is on par with the simple reference on real mood, not better: the
 interval includes 0.644. The earlier logistic regression scored 0.530 here. Real early-warning skill still
 needs real labelled data, and we say so in the pitch.
 
-**Demo mission:** John's infection risk is 49% on day 16 (two days before the fever; his days 1-15 are at
-most 0.7%), with the sign "Resting pulse +6.2 bpm vs usual today". Lena's sleep-disruption risk is 16-18% on
-days 19-20, before it starts on day 21. The CO2 day is still caught late: at most 8% the day before, 9% on the
-day itself. The forest also gives false alarms the CMO has to check, e.g. Stefan's infection risk on day 26.
+**Demo mission:** John's infection risk is 42% on day 16 (two days before the fever; his days 1-15 are at
+most 0.8%), with the sign "Resting pulse +6.2 bpm vs usual today". Lena's sleep-disruption risk is 22% on day
+19 and 16% on day 20, before it starts on day 21. The CO2 day is still caught late: at most 8% the day before,
+10% on the day itself. The forest also gives false alarms the CMO has to check, e.g. Stefan's infection risk of
+21% on day 26.
 
 Risks are calibrated probabilities, so they look small (events happen on 2-3% of days). The UI should show them
 next to the usual level ("10 times the usual risk") rather than as a bare percentage.
@@ -169,3 +171,19 @@ Rules, chosen with the data:
 Demo walk-through: day 16 John's infection risk is 10.8x usual (pulse +6.2 bpm vs his norm); day 18 fever 38.3 °C,
 not fit; day 19 his EVA goes to Stefan ("John is not fit: Symptom: fever"); day 25 same symptoms in all 5 → check the
 air (CO2); day 27 solar flare → EVA postponed. Tested in `backend/tests/test_mission.py`.
+
+
+## Stage 4: heart rate variability and reaction time (2026-11-14)
+
+Two new daily indicators, chosen from what NASA measures on the space station (docs/sources.md):
+- `hrv_ms`, heart rate variability during sleep (RMSSD, wearable). Calibrated on real people: each astronaut
+  copies the median, spread and persistence of one LifeSnaps participant with at least 21 HRV days (39 people,
+  medians 19-100 ms). No population limits: only the personal norm decides.
+- `reaction_ms`, mean reaction time of the 3-minute PVT (part of NASA's Cognition battery). ASSUMPTION: per-person
+  mean 260 ms (between people ±20), daily spread 15 ms, 8 ms slower per hour of sleep below the person's usual.
+  Before a personal norm exists, slower than 355 ms is yellow (the PVT-B lapse threshold, Basner & Rubinstein 2011).
+
+Event effects on both are ASSUMPTIONS (in `EVENTS`): e.g. infection lowers HRV by 12 ms, sleep disruption makes
+reaction 30 ms slower. They use their own random stream, so all earlier simulated values stayed the same.
+Weekly or occasional measures (body mass, bone scans, blood, urine, saliva, the full cognition battery) are not
+simulated; the app lists them with sources in "Also measured, not daily" (`data/content/measurement_plan.json`).

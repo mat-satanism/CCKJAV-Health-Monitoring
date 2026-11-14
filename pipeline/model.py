@@ -35,6 +35,7 @@ LABELS = {
     "heart_rate": ("Resting pulse", "bpm"), "bp_sys": ("Systolic pressure", "mmHg"),
     "bp_dia": ("Diastolic pressure", "mmHg"), "glucose": ("Glucose", "mg/dL"), "temp": ("Temperature", "°C"),
     "sleep_hours": ("Sleep", "h"), "mood": ("Mood", "points"), "exercise_min": ("Exercise", "min"),
+    "hrv_ms": ("Heart rate variability", "ms"), "reaction_ms": ("Reaction time", "ms"),
 }
 
 

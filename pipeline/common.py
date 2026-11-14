@@ -27,6 +27,7 @@ DAILY_COLUMNS = [
     "exercise_min",        # moderately + very active minutes (device)
     "steps",               # steps per day (device)
     "temp_skin",           # nightly skin temperature, deg C (device, LifeSnaps)
+    "hrv_ms",              # heart rate variability during sleep, RMSSD in ms (device, LifeSnaps)
     # Short mood survey in LifeSnaps: 1 = the person ticked this feeling that day, 0 = did not.
     "emo_alert", "emo_happy", "emo_neutral", "emo_relaxed", "emo_sad", "emo_tense", "emo_tired",
 ]
@@ -42,6 +43,7 @@ VALID_RANGES = {
     "heart_rate": (30, 220),
     "stress_score": (0, 100),
     "temp_skin": (20, 42),
+    "hrv_ms": (5, 250),
 }
 
 

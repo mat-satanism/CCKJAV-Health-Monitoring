@@ -5,11 +5,12 @@ import {
 import { api } from '../api'
 import type { AstronautCard, AstronautHistory, HistoryPoint, Meta, Status, SystemId } from '../types'
 import { BodyMap } from './BodyMap'
+import { MeasurementPlan } from './MeasurementPlan'
 
 // One crew member of the simulated mission: body map for the chosen day, history of every indicator with
 // the personal norm band, check-in for that day, readiness, medical history. All data is synthetic.
 
-const FIELDS = ['heart_rate', 'bp_sys', 'bp_dia', 'glucose', 'temp', 'sleep_hours', 'exercise_min']
+const FIELDS = ['heart_rate', 'bp_sys', 'bp_dia', 'glucose', 'temp', 'sleep_hours', 'exercise_min', 'hrv_ms', 'reaction_ms']
 const MOODS = ['😞', '🙁', '😐', '🙂', '😄']
 const SYMPTOMS = ['fever', 'headache', 'fatigue', 'trouble sleeping', 'dizziness when standing']
 const DOT: Record<Status, string> = {
@@ -200,11 +201,19 @@ export function PersonView({ aid, day, meta, onDay, onChanged }: Props) {
               <article key={i.type} className={`indicator status-${i.status}`}>
                 <header>
                   <span className="dot" />
-                  <strong>{i.label}</strong>
+                  <strong title={meta.content.indicators[i.type]?.why}>{i.label}</strong>
                   {i.entered && <span className="source source-manual">entered</span>}
                   <span className="value">{i.value} <small>{i.unit}</small></span>
                 </header>
                 <p className="muted">{i.message}</p>
+                {meta.content.indicators[i.type] && (
+                  <details className="learn">
+                    <summary>Why it changes and how often to measure</summary>
+                    <p>{meta.content.indicators[i.type].why}</p>
+                    <p><strong>How often.</strong> {meta.content.indicators[i.type].frequency}.{' '}
+                      <strong>How.</strong> {meta.content.indicators[i.type].how_to_measure}</p>
+                  </details>
+                )}
                 <HistoryChart points={hist[i.type]} day={card.day} onDay={onDay} />
               </article>
             ))}
@@ -217,6 +226,7 @@ export function PersonView({ aid, day, meta, onDay, onChanged }: Props) {
         <Readiness card={card} onDone={reload} />
         <CheckInFor key={`${aid}-${card.day}`} card={card} meta={meta} onSaved={reload} />
         <MedicalHistory card={card} />
+        <MeasurementPlan meta={meta} />
       </aside>
     </main>
   )

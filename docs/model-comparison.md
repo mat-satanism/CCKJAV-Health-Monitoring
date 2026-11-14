@@ -42,5 +42,8 @@ our own simulated data. The forest is also explained exactly by SHAP (TreeExplai
 Honest limits: no model here beats "same as today" on real mood; the forest only matches it. All event labels
 come from our simulator, so the numbers show the approach, not real medical skill.
 
+Update (same day): after adding heart rate variability and reaction time (8 more features) the forest scores
+0.632 on real mood (PMData has neither, so they count as 0); the comparison above was run before that.
+
 Not tried yet: Bayesian personal norms (a mentor's suggestion for the "is this normal for this person" layer,
 planned separately) and Cox time-to-event models (postponed).

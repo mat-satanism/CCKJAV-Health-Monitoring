@@ -7,7 +7,7 @@ import type { AstronautState, CrewAlert, MissionTask } from '../types'
 
 const LAMP_LABEL: Record<string, string> = {
   heart_rate: 'Pulse', bp_sys: 'Sys', bp_dia: 'Dia', glucose: 'Gluc',
-  temp: 'Temp', sleep_hours: 'Sleep', mood: 'Mood', exercise_min: 'Exer',
+  temp: 'Temp', sleep_hours: 'Sleep', mood: 'Mood', exercise_min: 'Exer', hrv_ms: 'HRV', reaction_ms: 'React',
 }
 
 export function AlertList({ alerts }: { alerts: CrewAlert[] }) {

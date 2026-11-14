@@ -1,63 +1,99 @@
 {
-  "_note": "Every source here was opened and read on 2026-11-14. Content files cite sources by id. Paraphrased, not quoted.",
-  "nasa-hazards": {
-    "title": "5 Hazards of Human Spaceflight",
-    "publisher": "NASA Human Research Program",
-    "year": null,
-    "url": "https://www.nasa.gov/hrp/hazards/"
-  },
-  "ochmo-tb-019": {
-    "title": "NASA-STD-3001 Technical Brief: Orthostatic Intolerance (OCHMO-TB-019 Rev B)",
-    "publisher": "NASA Office of the Chief Health and Medical Officer",
-    "year": 2023,
-    "url": "https://www.nasa.gov/wp-content/uploads/2023/12/ochmo-tb-019-orthostatic-intolerance.pdf"
-  },
-  "ochmo-mtb-013": {
-    "title": "NASA-STD-3001 Medical Technical Brief: Bone Loss (OCHMO-MTB-013 Rev D)",
-    "publisher": "NASA Office of the Chief Health and Medical Officer",
-    "year": 2023,
-    "url": "https://www.nasa.gov/wp-content/uploads/2023/12/ochmo-tb-030-bone-loss.pdf"
-  },
-  "ochmo-tb-031": {
-    "title": "OCHMO-TB-031 Exercise Overview",
-    "publisher": "NASA Office of the Chief Health and Medical Officer",
-    "year": null,
-    "url": "https://www.nasa.gov/ochmo-tb-031-exercise-overview-2/"
-  },
-  "hrp-sleep-2016": {
-    "title": "Risk of Performance Decrements and Adverse Health Outcomes Resulting from Sleep Loss, Circadian Desynchronization, and Work Overload (Flynn-Evans, Gregory, Arsintescu, Whitmire)",
-    "publisher": "NASA Human Research Program, NTRS 20160003864",
-    "year": 2016,
-    "url": "https://ntrs.nasa.gov/citations/20160003864"
-  },
-  "hrp-immune-2009": {
-    "title": "Risk of Crew Adverse Health Event Due to Altered Immune Response, HRP-47060 (Crucian et al.)",
-    "publisher": "NASA Human Research Program",
-    "year": 2009,
-    "url": "https://humanresearchroadmap.nasa.gov/evidence/reports/immune.pdf"
-  },
-  "stahn-2017": {
-    "title": "Increased core body temperature in astronauts during long-duration space missions (Stahn et al.)",
-    "publisher": "Scientific Reports 7, 16180",
-    "year": 2017,
-    "url": "https://www.nature.com/articles/s41598-017-15560-w"
-  },
-  "energy-2024": {
-    "title": "Substrate metabolism in male astronauts onboard the International Space Station: the ENERGY study",
-    "publisher": "npj Microgravity",
-    "year": 2024,
-    "url": "https://www.nature.com/articles/s41526-024-00360-0"
-  },
-  "insulin-2023": {
-    "title": "Spaceflight induces changes in gene expression profiles linked to insulin and estrogen",
-    "publisher": "Communications Biology",
-    "year": 2023,
-    "url": "https://www.nature.com/articles/s42003-023-05213-2"
-  },
-  "hrp-48033": {
-    "title": "Exploration Medical Capability Clinical Decision Support System Concept of Operations, HRP-48033",
-    "publisher": "NASA Human Research Program",
-    "year": 2021,
-    "url": "https://ntrs.nasa.gov/citations/20220017856"
-  }
+ "_note": "Every source here was opened and read on 2026-11-14. Content files cite sources by id. Paraphrased, not quoted.",
+ "nasa-hazards": {
+  "title": "5 Hazards of Human Spaceflight",
+  "publisher": "NASA Human Research Program",
+  "year": null,
+  "url": "https://www.nasa.gov/hrp/hazards/"
+ },
+ "ochmo-tb-019": {
+  "title": "NASA-STD-3001 Technical Brief: Orthostatic Intolerance (OCHMO-TB-019 Rev B)",
+  "publisher": "NASA Office of the Chief Health and Medical Officer",
+  "year": 2023,
+  "url": "https://www.nasa.gov/wp-content/uploads/2023/12/ochmo-tb-019-orthostatic-intolerance.pdf"
+ },
+ "ochmo-mtb-013": {
+  "title": "NASA-STD-3001 Medical Technical Brief: Bone Loss (OCHMO-MTB-013 Rev D)",
+  "publisher": "NASA Office of the Chief Health and Medical Officer",
+  "year": 2023,
+  "url": "https://www.nasa.gov/wp-content/uploads/2023/12/ochmo-tb-030-bone-loss.pdf"
+ },
+ "ochmo-tb-031": {
+  "title": "OCHMO-TB-031 Exercise Overview",
+  "publisher": "NASA Office of the Chief Health and Medical Officer",
+  "year": null,
+  "url": "https://www.nasa.gov/ochmo-tb-031-exercise-overview-2/"
+ },
+ "hrp-sleep-2016": {
+  "title": "Risk of Performance Decrements and Adverse Health Outcomes Resulting from Sleep Loss, Circadian Desynchronization, and Work Overload (Flynn-Evans, Gregory, Arsintescu, Whitmire)",
+  "publisher": "NASA Human Research Program, NTRS 20160003864",
+  "year": 2016,
+  "url": "https://ntrs.nasa.gov/citations/20160003864"
+ },
+ "hrp-immune-2009": {
+  "title": "Risk of Crew Adverse Health Event Due to Altered Immune Response, HRP-47060 (Crucian et al.)",
+  "publisher": "NASA Human Research Program",
+  "year": 2009,
+  "url": "https://humanresearchroadmap.nasa.gov/evidence/reports/immune.pdf"
+ },
+ "stahn-2017": {
+  "title": "Increased core body temperature in astronauts during long-duration space missions (Stahn et al.)",
+  "publisher": "Scientific Reports 7, 16180",
+  "year": 2017,
+  "url": "https://www.nature.com/articles/s41598-017-15560-w"
+ },
+ "energy-2024": {
+  "title": "Substrate metabolism in male astronauts onboard the International Space Station: the ENERGY study",
+  "publisher": "npj Microgravity",
+  "year": 2024,
+  "url": "https://www.nature.com/articles/s41526-024-00360-0"
+ },
+ "insulin-2023": {
+  "title": "Spaceflight induces changes in gene expression profiles linked to insulin and estrogen",
+  "publisher": "Communications Biology",
+  "year": 2023,
+  "url": "https://www.nature.com/articles/s42003-023-05213-2"
+ },
+ "hrp-48033": {
+  "title": "Exploration Medical Capability Clinical Decision Support System Concept of Operations, HRP-48033",
+  "publisher": "NASA Human Research Program",
+  "year": 2021,
+  "url": "https://ntrs.nasa.gov/citations/20220017856"
+ },
+ "nasa-standard-measures": {
+  "title": "Spaceflight Standard Measures: characterizing how humans adapt in space",
+  "publisher": "NASA",
+  "year": null,
+  "url": "https://www.nasa.gov/humans-in-space/spaceflight-standard-measures-characterizing-how-humans-adapt-in-space"
+ },
+ "upenn-cognition": {
+  "title": "Cognition test battery",
+  "publisher": "University of Pennsylvania, Unit for Experimental Psychiatry",
+  "year": null,
+  "url": "https://www.med.upenn.edu/uep/cognition.html"
+ },
+ "basner-2011": {
+  "title": "Fitness for duty: a 3-minute version of the Psychomotor Vigilance Test predicts fatigue-related declines in luggage screening performance",
+  "publisher": "J Occup Environ Med (Basner, Rubinstein)",
+  "year": 2011,
+  "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC3190077"
+ },
+ "otsuka-2015": {
+  "title": "Intrinsic cardiovascular autonomic regulatory system of astronauts exposed long-term to microgravity in space",
+  "publisher": "npj Microgravity (Otsuka et al.)",
+  "year": 2015,
+  "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC5516430/"
+ },
+ "nasa-bone-lab": {
+  "title": "Bone and Mineral Evaluation and Analysis",
+  "publisher": "NASA",
+  "year": null,
+  "url": "https://www.nasa.gov/content/bone-and-mineral-evaluation-and-analysis"
+ },
+ "nasa-slammd": {
+  "title": "Astronaut works on the Space Linear Acceleration Mass Measurement Device",
+  "publisher": "NASA",
+  "year": 2024,
+  "url": "https://www.nasa.gov/image-detail/gmt147_12_51_michael-barratt_a-few-crew-shots/"
+ }
 }

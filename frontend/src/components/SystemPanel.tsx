@@ -61,7 +61,7 @@ export function SystemPanel({ system, meta, indicators }: Props) {
               <details className="learn">
                 <summary>Why it matters and how to measure</summary>
                 <p>{c.why}</p>
-                <p><strong>How to measure.</strong> {c.how_to_measure}</p>
+                <p><strong>How often.</strong> {c.frequency}. <strong>How to measure.</strong> {c.how_to_measure}</p>
                 <ul>{c.advice.map((a) => <li key={a}>{a}</li>)}</ul>
                 <SourceLinks ids={c.sources} sources={meta.content.sources} />
               </details>

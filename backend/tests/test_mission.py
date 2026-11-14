@@ -141,3 +141,13 @@ def test_card_and_entries_use_the_day_the_screen_shows():
                  if i["type"] == "sleep_hours")
     assert sleep["value"] == 7.5 and sleep["entered"]
     assert client.get("/mission/astronaut/lena", params={"day": 40}).status_code == 422
+
+
+def test_crew_has_hrv_and_reaction_time():
+    _day(22)                                     # Lena's sleep is disrupted from day 21
+    lena = client.get("/mission/astronaut/lena").json()
+    types = {i["type"]: i for i in lena["indicators"]}
+    assert {"hrv_ms", "reaction_ms"} <= set(types)
+    hist = client.get("/mission/astronaut/lena/history").json()["reaction_ms"]
+    calm = sorted(r["value"] for r in hist[:15])[7]
+    assert types["reaction_ms"]["value"] > calm      # slower than her usual while sleep is disrupted

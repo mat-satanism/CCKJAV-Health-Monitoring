@@ -3,7 +3,7 @@ import { api } from '../api'
 import type { Meta } from '../types'
 
 // Indicators asked in the daily check-in; each field shows how to measure it (data/content/indicators.json).
-const FIELDS = ['heart_rate', 'bp_sys', 'bp_dia', 'glucose', 'temp', 'sleep_hours', 'exercise_min']
+const FIELDS = ['heart_rate', 'bp_sys', 'bp_dia', 'glucose', 'temp', 'sleep_hours', 'exercise_min', 'hrv_ms', 'reaction_ms']
 const MOODS = ['😞', '🙁', '😐', '🙂', '😄']
 
 export function CheckIn({ meta, onSaved }: { meta: Meta; onSaved: () => void }) {
