@@ -3,7 +3,7 @@
   "heart_rate":   { "red_low": 45,  "yellow_low": 55,  "yellow_high": 100, "red_high": 120, "source": "TODO" },
   "bp_sys":       { "red_low": 85,  "yellow_low": 95,  "yellow_high": 130, "red_high": 160, "source": "TODO" },
   "bp_dia":       { "red_low": 50,  "yellow_low": 60,  "yellow_high": 85,  "red_high": 100, "source": "TODO" },
-  "glucose":      { "red_low": 55,  "yellow_low": 70,  "yellow_high": 140, "red_high": 200, "source": "TODO" },
+  "glucose":      { "red_low": null,"yellow_low": 65,  "yellow_high": 114, "red_high": 128, "source": "fasting, mg/dL. High side: NHANES 2021-2023 adults 20-60 without diabetes, 95th/99th percentile (data/processed/nhanes_reference.csv). Low side: Inspiration4 lab reference minimum (OSD-575). No red low until a source is found." },
   "temp":         { "red_low": 35.0,"yellow_low": 36.0,"yellow_high": 37.5,"red_high": 38.5,"source": "TODO" },
   "sleep_hours":  { "red_low": 4,   "yellow_low": 6,   "yellow_high": 10,  "red_high": 12,  "source": "TODO" },
   "mood":         { "red_low": null,"yellow_low": 2,   "yellow_high": 5,   "red_high": null,"source": "TODO" },

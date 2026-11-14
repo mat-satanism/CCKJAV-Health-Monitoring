@@ -3,7 +3,7 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from pipeline import inspiration4, lifesnaps, nhanes, pmdata
+from pipeline import demo, inspiration4, lifesnaps, nhanes, pmdata
 from pipeline.common import DAILY_COLUMNS, finish_daily
 
 
@@ -96,3 +96,34 @@ def test_weighted_percentiles_follow_weights():
     # The value 10 carries almost all the weight, so the median sits next to 10
     # (interpolated between the weight midpoints of 1 and 10).
     assert nhanes.weighted_percentiles([1, 10], [1, 99], [50])[0] == pytest.approx(9.91)
+
+
+def test_demo_mission_window_types_and_sources():
+    daily = pd.DataFrame({
+        "person_id": ["p", "p", "p"],
+        "date": ["2019-11-05", "2019-11-06", "2019-11-07"],
+        "heart_rate": [50, 49.7, None], "sleep_hours": [7, 7, 6], "mood": [4, 4, 3], "exercise_min": [10, 96, 0],
+    })
+    out = demo.demo_mission(daily, person="p", start="2019-11-06", days=2)
+    assert out["mission_day"].min() == 1 and out["mission_day"].max() == 2
+    assert len(out) == 7  # 4 values on day 1, 3 on day 2 (no heart rate)
+    src = dict(zip(out["type"], out["source"]))
+    assert src["heart_rate"] == "sensor" and src["mood"] == "manual"
+
+
+def test_without_diabetes_drops_diagnosed_and_high_hba1c():
+    glu = pd.DataFrame({"SEQN": [1, 2, 3, 4], "WTSAF2YR": [1, 1, 1, 1], "LBXGLU": [90, 250, 140, 95]})
+    diq = pd.DataFrame({"SEQN": [1, 2, 3, 4], "DIQ010": [2, 1, 2, 2]})   # 1 = told they have diabetes
+    ghb = pd.DataFrame({"SEQN": [1, 2, 3, 4], "LBXGH": [5.2, 8.0, 7.1, 5.5]})
+    assert nhanes.without_diabetes(glu, diq, ghb)["SEQN"].tolist() == [1, 4]
+
+
+def test_r45_glucose_is_marked_not_dropped():
+    raw = pd.DataFrame({
+        "Sample Name": ["C003_serum_R+45", "C001_serum_R+45"],
+        "glucose_value_mg": [36, 84], "glucose_range_min_mg": [65, 65], "glucose_range_max_mg": [99, 99],
+    })
+    out = inspiration4.tidy(raw, "cmp").set_index("crew_id")
+    assert out.loc["C003", "value"] == 36
+    assert "delayed" in out.loc["C003", "quality_note"]
+    assert pd.isna(out.loc["C001", "quality_note"])

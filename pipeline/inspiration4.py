@@ -24,6 +24,14 @@ COLUMN = re.compile(r"^(?P<analyte>.+?)_(?P<kind>value|range_min|range_max|max)(
 UNIT_FIX = {("hemoglobin", "percent"): "gram_per_deciliter"}
 
 
+# Likely pre-analytical artefact (blood processed late): on R+45 three crew have
+# glucose of 36-44 mg/dL while their potassium rises the same day (C004: 5.9).
+# Cells use glucose and leak potassium when a sample waits before processing.
+# Values are kept and marked; charts and conclusions should leave them out.
+SUSPECT_NOTE = "likely delayed sample processing (low glucose with raised potassium)"
+SUSPECT = {(crew, "R+45", analyte) for crew in ("C002", "C003", "C004") for analyte in ("glucose", "potassium")}
+
+
 def parse_sample(name: str) -> dict:
     """'C001_serum_L-3' -> crew C001, timepoint L-3, -3 days, pre-flight."""
     parts = name.split("_")
@@ -62,6 +70,8 @@ def tidy(raw: pd.DataFrame, panel: str) -> pd.DataFrame:
     out.loc[out["value"] < out["ref_min"], "flag"] = "low"
     out.loc[out["value"] > out["ref_max"], "flag"] = "high"
     out.loc[out["value"].isna(), "flag"] = pd.NA
+    keys = zip(out["crew_id"], out["timepoint"], out["analyte"])
+    out["quality_note"] = [SUSPECT_NOTE if k in SUSPECT else pd.NA for k in keys]
     return out
 
 

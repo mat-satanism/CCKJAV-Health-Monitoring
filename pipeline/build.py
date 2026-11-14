@@ -5,12 +5,13 @@
 
 Writes:
     daily.csv               one row per person per day (PMData, LifeSnaps, MMASH)
+    demo_mission.csv        30 real days of one person in the backend's Measurement format
     inspiration4_blood.csv  one row per crew member, timepoint and analyte, with lab ranges
-    nhanes_reference.csv    population percentiles for blood pressure, pulse and glucose
+    nhanes_reference.csv    population percentiles for blood pressure, pulse and glucose (glucose: without diabetes)
 """
 import pandas as pd
 
-from . import inspiration4, lifesnaps, mmash, nhanes, pmdata
+from . import demo, inspiration4, lifesnaps, mmash, nhanes, pmdata
 from .common import PROCESSED
 
 
@@ -22,6 +23,10 @@ def main() -> None:
     daily.to_csv(PROCESSED / "daily.csv", index=False, float_format="%.2f")
     print(f"daily.csv               {len(daily):>6} rows, {daily['person_id'].nunique()} people")
     print(daily.groupby("source_dataset")["person_id"].agg(["count", "nunique"]).to_string())
+
+    demo_rows = demo.demo_mission(daily)
+    demo_rows.to_csv(PROCESSED / "demo_mission.csv", index=False)
+    print(f"demo_mission.csv        {len(demo_rows):>6} rows ({demo.DEMO_PERSON}, from {demo.DEMO_START})")
 
     blood = inspiration4.load()
     blood.to_csv(PROCESSED / "inspiration4_blood.csv", index=False)

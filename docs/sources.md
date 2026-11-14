@@ -23,3 +23,4 @@ Details and licenses: [data.md](data.md).
 | Indicator | Range used | Source |
 |---|---|---|
 | heart_rate | TODO | TODO |
+| glucose | yellow < 65 or > 114, red > 128 mg/dL (fasting) | High: NHANES 2021-2023 adults 20-60 without diabetes, 95th/99th percentile. Low: Inspiration4 lab reference minimum (OSD-575). See [data.md](data.md) |

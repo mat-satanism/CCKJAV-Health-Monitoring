@@ -14,7 +14,7 @@ from .common import RAW
 DIR = RAW / "nhanes"
 AGE_MIN, AGE_MAX = 20, 60
 PERCENTILES = [1, 5, 50, 95, 99]
-SOURCE = "NHANES 2021-2023, CDC (DEMO_L, BPXO_L, GLU_L)"
+SOURCE = "NHANES 2021-2023, CDC (DEMO_L, BPXO_L, GLU_L, DIQ_L, GHB_L)"
 
 
 def weighted_percentiles(values, weights, percentiles=PERCENTILES) -> list[float]:
@@ -32,6 +32,20 @@ def _read(name: str, directory: Path) -> pd.DataFrame:
     return pd.read_sas(directory / f"{name}.xpt", format="xport")
 
 
+HBA1C_DIABETES = 6.5  # %, HbA1c at or above this counts as (undiagnosed) diabetes
+
+
+def without_diabetes(glu: pd.DataFrame, diq: pd.DataFrame, ghb: pd.DataFrame) -> pd.DataFrame:
+    """Drop people told by a doctor they have diabetes (DIQ010 == 1) or with HbA1c >= 6.5%.
+
+    Astronauts are selected healthy, so their reference is the population without diabetes.
+    Including diabetes pushes the 99th percentile of fasting glucose from 128 to 310 mg/dL.
+    """
+    g = glu.merge(diq[["SEQN", "DIQ010"]], on="SEQN", how="left").merge(ghb[["SEQN", "LBXGH"]], on="SEQN", how="left")
+    healthy = (g["DIQ010"] != 1) & (g["LBXGH"] < HBA1C_DIABETES)
+    return g.loc[healthy, glu.columns]
+
+
 def reference(demo: pd.DataFrame, bp: pd.DataFrame, glu: pd.DataFrame) -> pd.DataFrame:
     adults = demo.loc[demo["RIDAGEYR"].between(AGE_MIN, AGE_MAX), ["SEQN", "WTMEC2YR"]]
 
@@ -45,20 +59,22 @@ def reference(demo: pd.DataFrame, bp: pd.DataFrame, glu: pd.DataFrame) -> pd.Dat
     glu = glu.merge(adults[["SEQN"]], on="SEQN")
 
     rows = []
-    for ind, unit, frame, wcol in [
-        ("bp_sys", "mmHg", bp, "WTMEC2YR"),
-        ("bp_dia", "mmHg", bp, "WTMEC2YR"),
-        ("heart_rate", "bpm", bp, "WTMEC2YR"),
-        ("glucose", "mg/dL", glu.rename(columns={"LBXGLU": "glucose"}), "WTSAF2YR"),
+    for ind, unit, frame, wcol, population in [
+        ("bp_sys", "mmHg", bp, "WTMEC2YR", "all adults"),
+        ("bp_dia", "mmHg", bp, "WTMEC2YR", "all adults"),
+        ("heart_rate", "bpm", bp, "WTMEC2YR", "all adults"),
+        ("glucose", "mg/dL", glu.rename(columns={"LBXGLU": "glucose"}), "WTSAF2YR", "adults without diabetes"),
     ]:
         data = frame[[ind, wcol]].dropna()
         data = data[data[wcol] > 0]
         p = weighted_percentiles(data[ind], data[wcol])
         rows.append({"indicator": ind, "unit": unit, "n": len(data),
                      **{f"p{q:02d}": round(x, 1) for q, x in zip(PERCENTILES, p)},
-                     "age_range": f"{AGE_MIN}-{AGE_MAX}", "weight": wcol, "source": SOURCE})
+                     "age_range": f"{AGE_MIN}-{AGE_MAX}", "population": population,
+                     "weight": wcol, "source": SOURCE})
     return pd.DataFrame(rows)
 
 
 def load(directory: Path = DIR) -> pd.DataFrame:
-    return reference(_read("DEMO_L", directory), _read("BPXO_L", directory), _read("GLU_L", directory))
+    glu = without_diabetes(_read("GLU_L", directory), _read("DIQ_L", directory), _read("GHB_L", directory))
+    return reference(_read("DEMO_L", directory), _read("BPXO_L", directory), glu)

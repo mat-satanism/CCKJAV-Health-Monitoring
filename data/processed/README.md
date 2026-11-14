@@ -9,6 +9,7 @@ These tables are derived from other people's datasets. Keep this file next to th
 | `daily.csv` (rows `pm_*`) | PMData, Thambawita et al., Simula, https://datasets.simula.no/pmdata | CC BY-NC 4.0: non-commercial use only, with attribution |
 | `daily.csv` (rows `ls_*`) | LifeSnaps, Yfantidou et al., https://zenodo.org/records/7229547 | CC BY 4.0: attribution |
 | `daily.csv` (rows `mm_*`) | MMASH, Rossi et al., PhysioNet, https://physionet.org/content/mmash/1.0.0/ | Open Database License (ODbL) 1.0: attribution; a shared adapted database stays under ODbL |
+| `demo_mission.csv` | PMData (participant p06), as above | CC BY-NC 4.0 |
 | `inspiration4_blood.csv` | NASA OSDR OSD-575 and OSD-569 (Inspiration4), https://osdr.nasa.gov/bio/repo/data/studies/OSD-575 | NASA open data: cite the studies |
 | `nhanes_reference.csv` | NHANES 2021-2023, CDC National Center for Health Statistics, https://wwwn.cdc.gov/nchs/nhanes/ | US government public domain |
 

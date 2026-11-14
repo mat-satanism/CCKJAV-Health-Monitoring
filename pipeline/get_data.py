@@ -26,7 +26,7 @@ DATASETS = {
         "LSDS-7_Complete_Blood_Count_CBC_TRANSFORMED.csv": OSDR.format(
             "OSD-569", "LSDS-7_Complete_Blood_Count_CBC_TRANSFORMED.csv"),
     },
-    "nhanes": {f"{n}.xpt": NHANES.format(n) for n in ("DEMO_L", "BPXO_L", "GLU_L")},
+    "nhanes": {f"{n}.xpt": NHANES.format(n) for n in ("DEMO_L", "BPXO_L", "GLU_L", "DIQ_L", "GHB_L")},
     "mmash": {"mmash-1.0.0.zip": "https://physionet-open.s3.amazonaws.com/mmash/mmash-1.0.0.zip"},
     "lifesnaps": {"rais_anonymized.zip": "https://zenodo.org/records/7229547/files/rais_anonymized.zip?download=1"},
     "pmdata": {"pmdata.zip": "https://datasets.simula.no/downloads/pmdata.zip"},
