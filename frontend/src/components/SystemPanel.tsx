@@ -1,4 +1,5 @@
-import type { IndicatorStatus, Meta, Source, SystemId } from '../types'
+import type { IndicatorStatus, Meta, SystemId } from '../types'
+import { SourceLinks } from './Sources'
 import { TrendChart } from './TrendChart'
 
 const ARROW = { up: '↑', down: '↓', flat: '→' } as const
@@ -11,20 +12,6 @@ interface Props {
   system: SystemId
   meta: Meta
   indicators: IndicatorStatus[]
-}
-
-function SourceLinks({ ids, sources }: { ids: string[]; sources: Record<string, Source> }) {
-  return (
-    <p className="sources small">
-      Sources:{' '}
-      {ids.map((id, n) => {
-        const s = sources[id]
-        return s ? (
-          <span key={id}>{n > 0 && '; '}<a href={s.url} target="_blank" rel="noreferrer">{s.title}</a>{s.year ? ` (${s.year})` : ''}</span>
-        ) : null
-      })}
-    </p>
-  )
 }
 
 export function SystemPanel({ system, meta, indicators }: Props) {
@@ -63,6 +50,7 @@ export function SystemPanel({ system, meta, indicators }: Props) {
                 <p>{c.why}</p>
                 <p><strong>How often.</strong> {c.frequency}. <strong>How to measure.</strong> {c.how_to_measure}</p>
                 <ul>{c.advice.map((a) => <li key={a}>{a}</li>)}</ul>
+                {c.tests?.length > 0 && <><p><strong>If it stays off, tests to consider.</strong></p><ul>{c.tests.map((t) => <li key={t}>{t}</li>)}</ul></>}
                 <SourceLinks ids={c.sources} sources={meta.content.sources} />
               </details>
             )}

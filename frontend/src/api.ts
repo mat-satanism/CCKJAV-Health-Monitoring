@@ -1,5 +1,5 @@
 import type {
-  Alarm, AstronautCard, AstronautHistory, AstronautState, BloodRow, CrewAlert, DoctorView, Insights, Measurement, Meta, MissionContext, MissionInfo,
+  Alarm, AstronautCard, Brief, PatientFile, AstronautHistory, AstronautState, BloodRow, CrewAlert, DoctorView, Insights, Measurement, Meta, MissionContext, MissionInfo,
   MissionTask, NowLine, Readiness, Report, StatusResponse, Task, TimelineDay,
 } from './types'
 
@@ -42,6 +42,8 @@ export const api = {
     req<AstronautCard>(`/mission/astronaut/${aid}/entries?day=${day}`, { method: 'POST', body: JSON.stringify({ values, symptoms }) }),
   setReadiness: (aid: string, day: number, ready: boolean, note = '') =>
     req<Readiness>(`/mission/astronaut/${aid}/readiness?day=${day}`, { method: 'POST', body: JSON.stringify({ ready, note }) }),
+  patientFile: (aid: string, day: number) => req<PatientFile>(`/mission/astronaut/${aid}/file?day=${day}`),
+  missionBrief: (day: number) => req<Brief>(`/mission/brief?day=${day}`),
   missionNow: (day: number) => req<NowLine[]>(`/mission/now?day=${day}`),
   missionAlarms: (day: number) => req<Alarm[]>(`/mission/alarms?day=${day}`),
   missionReport: (day: number, period: 'day' | 'week') => req<Report>(`/mission/report?day=${day}&period=${period}`),

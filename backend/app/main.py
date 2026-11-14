@@ -235,6 +235,26 @@ def _mission_day(day: int | None):
     return m, day or m.day
 
 
+@app.get("/mission/astronaut/{aid}/file")
+def mission_astronaut_file(aid: str, day: int | None = None):
+    """Patient file: fictional biography, sourced exposure risks and monitoring, the mission so far."""
+    m, day = _crew_member(aid, day)
+    return m.patient_file(aid, day)
+
+
+@app.get("/mission/crew-signal")
+def mission_crew_signal(day: int | None = None):
+    m, day = _mission_day(day)
+    return m.crew_signal(day)
+
+
+@app.get("/mission/brief")
+def mission_brief(day: int | None = None):
+    """Doctors' daily brief: a few lines, most important first."""
+    m, day = _mission_day(day)
+    return m.brief(day)
+
+
 @app.get("/mission/now")
 def mission_now(day: int | None = None):
     """CMO quick screen: one line per crew member, most urgent first."""

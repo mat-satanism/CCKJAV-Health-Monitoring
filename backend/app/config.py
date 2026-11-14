@@ -58,4 +58,4 @@ def _load_content(name: str) -> dict[str, dict]:
 
 
 # Plain-language explanations and advice with sources (data/content/*.json).
-CONTENT: dict[str, dict] = {name: _load_content(name) for name in ("indicators", "systems", "sources", "measurement_plan")}
+CONTENT: dict[str, dict] = {name: _load_content(name) for name in ("indicators", "systems", "sources", "measurement_plan", "exposures")}

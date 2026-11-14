@@ -24,6 +24,11 @@ Every synthetic value is labelled "synthetic" in the API and in the app.
 - Advice for mission events (`EVENT_ACTIONS`) is a placeholder, not from a clinical source. So are the isolation
   protocol (fever: isolate; close contact = a shared task in the last 2 days: check temperature twice a day for 3
   days), the support messages and the food tips (`backend/app/mission.py`). The app labels them as placeholders.
+- Biographies (`data/synthetic/biographies.json`) are fictional. The exposure -> risk -> monitoring links
+  (`data/content/exposures.json`) are sourced; steps marked "our plan" follow from the risk but are not stated
+  in a source (e.g. a skin check after years in the sun).
+- Crew-wide signal thresholds (2 prediction scales, 3 of 5 people, chance under 5%) were tuned by us on 40
+  simulated missions (docs/crew-signal.md).
 - How infectious an infection is, is not simulated: contacts are flagged, they do not get ill by themselves.
 - Week trends: 7 days that clearly go one way (correlation 0.7 or more) and change by at least 2 of the person's
   usual day-to-day spreads. Thresholds chosen by us, not from a source.

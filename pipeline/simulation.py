@@ -91,7 +91,11 @@ DEMO_EVENTS = [("infection", "john", 18, 4), ("sleep_disruption", "maria", 21, 6
 TASK_KINDS = {
     "eva": ("high", "eva"), "robotics": ("high", "robotics"), "maintenance": ("normal", "maintenance"),
     "science": ("normal", "science"), "medical": ("normal", "medical"), "command": ("normal", "command"),
+    "pmc": ("normal", "pmc"),       # private medical conference: personal, never reassigned
 }
+# On the space station each crew member has a weekly private medical conference with the flight surgeon,
+# about 15 minutes (NASA podcast "Mission Control: Crew Health Consoles", 2025). One weekday per person here.
+PMC_TITLE = "Private medical conference (flight surgeon, 15 min)"
 
 
 def demo_tasks(days: int = MISSION_DAYS) -> pd.DataFrame:
@@ -107,6 +111,9 @@ def demo_tasks(days: int = MISSION_DAYS) -> pd.DataFrame:
                  (day, "Systems maintenance", "maintenance", "stefan" if day % 2 else "john")]
         if day % 3 == 0:
             plan.append((day, "Crew health check", "medical", "amara"))
+        for i, member in enumerate(DEMO_CREW):
+            if (day - 1) % 7 == i + 1:
+                plan.append((day, PMC_TITLE, "pmc", member["astronaut_id"]))
     plan += [(12, "EVA: solar panel inspection", "eva", "john"),
              (19, "EVA: antenna repair", "eva", "john"),
              (19, "Robotic arm: cargo transfer", "robotics", "kenji"),

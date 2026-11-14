@@ -136,3 +136,12 @@ def test_new_indicators_have_a_frequency_and_use_only_the_personal_norm():
     for ind in ("hrv_ms", "reaction_ms"):
         assert ind in meta["indicators"] and meta["content"]["indicators"][ind]["frequency"]
     assert _status("hrv_ms")["status"] == "grey"     # the real-data demo person has no HRV
+
+
+def test_exposures_and_indicator_tests_cite_known_sources():
+    content = client.get("/meta").json()["content"]
+    for e in content["exposures"].values():
+        assert e["risk"] and e["sources"] and all(s in content["sources"] for s in e["sources"])
+        assert e["monitoring"] or e["our_plan"]
+    for ind in content["indicators"].values():
+        assert ind["tests"] and all(s in content["sources"] for s in ind["sources"])

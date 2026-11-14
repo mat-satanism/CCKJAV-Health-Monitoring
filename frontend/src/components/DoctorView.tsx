@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { api } from '../api'
-import type { Alarm, DoctorView as View, Meta, MissionInfo, NowLine } from '../types'
+import type { Alarm, Brief, DoctorView as View, Meta, MissionInfo, NowLine } from '../types'
 import { CrewChart } from './CrewChart'
 import { AlertList } from './MissionView'
 import { AlarmLog, Report } from './Report'
@@ -31,11 +31,12 @@ export function DoctorView({ day, mission, meta }: { day: number; mission: Missi
   const [view, setView] = useState<View | null>(null)
   const [now, setNow] = useState<NowLine[]>([])
   const [alarms, setAlarms] = useState<Alarm[]>([])
+  const [brief, setBrief] = useState<Brief | null>(null)
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    Promise.all([api.missionDoctor(role), api.missionNow(day), api.missionAlarms(day)])
-      .then(([v, n, a]) => { setView(v); setNow(n); setAlarms(a); setError(null) })
+    Promise.all([api.missionDoctor(role), api.missionNow(day), api.missionAlarms(day), api.missionBrief(day)])
+      .then(([v, n, a, b]) => { setView(v); setNow(n); setAlarms(a); setBrief(b); setError(null) })
       .catch((e) => setError(String(e)))
   }, [role, day])
 
@@ -63,6 +64,13 @@ export function DoctorView({ day, mission, meta }: { day: number; mission: Missi
 
       <AlertList alerts={view.alerts} />
 
+      {brief && (
+        <section className={`panel brief ${brief.all_clear ? 'status-green' : ''}`}>
+          <h2>Today in brief</h2>
+          <ul>{brief.lines.map((l) => <li key={l} className={l.startsWith('Crew-wide') ? 'crew-wide' : ''}>{l}</li>)}</ul>
+          <p className="small muted">Written from the data by fixed rules, no AI text: every line can be traced to a number.</p>
+        </section>
+      )}
       {view.role === 'cmo' && <NowList lines={now} />}
       {view.role === 'ground' && <Report day={day} />}
       <CrewChart mission={mission} meta={meta} day={day} />

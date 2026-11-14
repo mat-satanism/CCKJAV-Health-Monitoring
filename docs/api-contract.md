@@ -66,6 +66,9 @@ One rule for every view (`backend/app/status.py`), personal norm first:
 | GET | /mission/tasks | today's tasks: `status` planned / reassigned / postponed / needs decision, `reassigned_to`, `reason`, `warning` |
 | GET | /mission/alerts | crew-wide alerts (solar flare, same symptoms in 3+ people) |
 | GET | /mission/doctor?role=cmo\|ground | anomalies, risks above 3x usual, symptoms, alerts; `ground` adds the 20 min data delay |
+| GET | /mission/astronaut/{id}/file?day=N | patient file: fictional `biography`, `exposures` (sourced risk, `monitoring` from sources, `our_plan`), `anamnesis`, `mission_so_far` |
+| GET | /mission/crew-signal?day=N | indicators where 3+ crew moved the worrying way on the same day (2+ prediction scales), with the chance of that by accident; see docs/crew-signal.md |
+| GET | /mission/brief?day=N | doctors' daily brief: `lines` (most important first), `all_clear` |
 | GET | /mission/now?day=N | CMO quick screen: one line per crew member (`level`, `what`, `do`), most urgent first |
 | GET | /mission/alarms?day=N | alarm log from day 1 to N: red values, high risks, crew alerts, moved tasks, each with the `action` |
 | GET | /mission/report?day=N&period=day\|week | report for the flight surgeon, made overnight: per person status, days off usual, symptoms, risks, medicine given, not-ready days; plus the alarms of the period |

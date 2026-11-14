@@ -44,3 +44,13 @@ Details and licenses: [data.md](data.md).
 |---|---|---|
 | heart_rate | TODO | TODO |
 | glucose | yellow < 65 or > 114, red > 128 mg/dL (fasting) | High: NHANES 2021-2023 adults 20-60 without diabetes, 95th/99th percentile. Low: Inspiration4 lab reference minimum (OSD-575). See [data.md](data.md) |
+
+## Patient files and tests (added 2026-11-14)
+- `nasa-lsah`: [Lifetime Surveillance of Astronaut Health](https://www.nasa.gov/directorates/esdmd/hhp/lifetime-surveillance-of-astronaut-health-lsah) (NASA): exposure history per astronaut, monitoring per hazard
+- `ochmo-radiation`: [Design for Ionizing Radiation Protection](https://www.nasa.gov/wp-content/uploads/2023/03/radiation-protection-technical-brief-ochmo.pdf) (NASA OCHMO): career dose from spaceflight below 600 mSv, all past flights count
+- `sans-2023`: [SANS briefing for astronaut candidates (Brunstetter)](https://ntrs.nasa.gov/api/citations/20230006218/downloads/Brunstetter%20-%20Crewmember%20SANS%20Overview%20-%20Export%20Control%20-FINAL%20-%2001May23.pdf) (NASA, 2023): about 70% of long-duration crew show signs; eye tests before, on flight days 30 and 90, after
+- `ochmo-acoustics`: [Acoustics, OCHMO-TB-035 Rev C](https://www.nasa.gov/sites/default/files/atoms/files/acoustics_technical_brief_ochmo_0.pdf) (NASA OCHMO, 2023): noise limits, personal audio max 115 dBA
+- `buckey-2001`: [Hearing loss in space (Buckey et al.)](https://ntrs.nasa.gov/citations/20040088577) (2001): temporary and some permanent loss after long flights; audiometry in space disturbed by noise
+- `reynolds-2021`: [Cancer incidence and mortality in the USA Astronaut Corps, 1959-2017](https://doi.org/10.1136/oemed-2020-107143) (Occup Environ Med, 2021; read via Europe PMC): melanoma SIR 252, consistent with aircraft pilots
+- `cdc-sun`: [Sun Exposure at Work](https://www.cdc.gov/niosh/outdoor-workers/about/sun-exposure.html) (CDC NIOSH): outdoor work raises sunburn and skin cancer risk
+- `nasa-pmc-podcast`: [Mission Control: Crew Health Consoles](https://www.nasa.gov/podcasts/houston-we-have-a-podcast/mission-control-crew-health-consoles) (NASA, 2025): weekly 15-minute private medical conference per crew member

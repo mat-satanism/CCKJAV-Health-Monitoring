@@ -63,6 +63,17 @@ export interface AstronautCard extends AstronautState {
   trends: Trend[]
   support: { level: 'good' | 'watch' | 'low'; message: string; nutrition: string[] }
 }
+export interface PatientFile {
+  astronaut_id: string; name: string; role: string; day: number; source: 'synthetic'
+  biography: { background: string; previous_jobs: string[]; hobbies: string[]; flights: number; long_duration_flights: number }
+  anamnesis: Anamnesis
+  exposures: (Exposure & { id: string })[]
+  mission_so_far: {
+    days_yellow: number; days_red: number; symptoms: string[]; medication_given: Medication[]
+    not_ready_days: number[]; worse_trends: string[]
+  }
+}
+export interface Brief { day: number; lines: string[]; all_clear: boolean }
 export interface Trend { type: string; label: string; per_day: number; unit: string; worse: boolean; message: string }
 export interface HistoryPoint {
   day: number; value: number; status: Status; norm: number | null; low: number | null; high: number | null
@@ -142,7 +153,8 @@ export interface MissionContext {
 }
 
 export interface Source { title: string; publisher: string; year: number | null; url: string }
-export interface IndicatorContent { why: string; how_to_measure: string; advice: string[]; sources: string[]; frequency: string }
+export interface IndicatorContent { why: string; how_to_measure: string; advice: string[]; sources: string[]; frequency: string; tests: string[] }
+export interface Exposure { id?: string; label: string; risk: string; monitoring: string[]; our_plan: string[]; sources: string[] }
 export interface PlanItem { what: string; how: string; how_often: string; why: string; sources: string[] }
 export interface SystemContent { what: string; in_space: string; hazards: string[]; sources: string[] }
 
@@ -155,5 +167,6 @@ export interface Meta {
     systems: Record<SystemId, SystemContent>
     sources: Record<string, Source>
     measurement_plan: { items: PlanItem[] }
+    exposures: Record<string, Exposure>
   }
 }

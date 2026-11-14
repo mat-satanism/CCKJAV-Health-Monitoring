@@ -200,3 +200,41 @@ def test_support_message_and_demo_nutrition_tips():
     john = client.get("/mission/astronaut/john", params={"day": 19}).json()["support"]
     assert john["level"] == "low" and any("fluids" in t for t in john["nutrition"])
     assert any("caffeine" in t for t in john["nutrition"])          # slow caffeine metabolism in his history
+
+
+def test_patient_file_turns_the_biography_into_sourced_monitoring():
+    f = client.get("/mission/astronaut/kenji/file", params={"day": 20}).json()
+    assert f["biography"]["flights"] == 2 and f["source"] == "synthetic"
+    ids = {e["id"] for e in f["exposures"]}
+    assert {"previous_spaceflight", "long_duration_flight"} <= ids
+    assert all(e["sources"] and (e["monitoring"] or e["our_plan"]) for e in f["exposures"])
+    john = client.get("/mission/astronaut/john/file", params={"day": 20}).json()
+    assert any(m["drug"] == "Paracetamol" for m in john["mission_so_far"]["medication_given"])
+    assert client.get("/mission/astronaut/nobody/file").status_code == 404
+
+
+def test_co2_days_show_a_crew_wide_signal_and_the_calibration_week_does_not():
+    assert any(s["type"] == "mood" and s["direction"] == "down"
+               for s in client.get("/mission/crew-signal", params={"day": 25}).json())
+    for day in range(1, 7):
+        assert client.get("/mission/crew-signal", params={"day": day}).json() == []
+
+
+def test_brief_puts_the_crew_signal_first_and_says_all_clear_on_a_quiet_day():
+    lines = client.get("/mission/brief", params={"day": 25}).json()["lines"]
+    assert lines[0].startswith("Crew-wide") and any(line.startswith("Crew-wide: mood down") for line in lines)
+    quiet = client.get("/mission/brief", params={"day": 4}).json()
+    assert quiet["all_clear"] and quiet["lines"][0].startswith("All crew as usual")
+
+
+def test_entered_values_feed_the_brief_the_same_day():
+    client.post("/mission/astronaut/stefan/entries", params={"day": 4}, json={"values": {"temp": 39.4}})
+    lines = client.get("/mission/brief", params={"day": 4}).json()["lines"]
+    assert any(line.startswith("Stefan") for line in lines)
+
+
+def test_private_medical_conference_is_never_moved_to_someone_else():
+    for day in range(1, 31):
+        for t in client.get("/mission/tasks").json() if _day(day) is None else []:
+            if t["kind"] == "pmc":
+                assert t["status"] == "planned"

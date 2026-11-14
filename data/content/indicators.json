@@ -12,7 +12,10 @@
    "ochmo-tb-031",
    "hrp-48033"
   ],
-  "frequency": "every morning at rest (wearable gives it automatically)"
+  "frequency": "every morning at rest (wearable gives it automatically)",
+  "tests": [
+   "Stand test: pulse and blood pressure lying down and after standing up"
+  ]
  },
  "bp_sys": {
   "why": "Blood pressure shows whether the circulation can keep blood flowing to the brain. In space fluid volume drops, and on return to gravity pressure can fall when standing up.",
@@ -25,7 +28,11 @@
    "ochmo-tb-019",
    "hrp-48033"
   ],
-  "frequency": "every morning, seated, same cuff"
+  "frequency": "every morning, seated, same cuff",
+  "tests": [
+   "Repeat seated readings in the morning, same cuff",
+   "Stand test: pressure lying down and after standing up"
+  ]
  },
  "bp_dia": {
   "why": "The lower number of blood pressure; read it together with the upper one.",
@@ -37,7 +44,11 @@
    "ochmo-tb-019",
    "hrp-48033"
   ],
-  "frequency": "every morning, with systolic"
+  "frequency": "every morning, with systolic",
+  "tests": [
+   "Repeat seated readings in the morning, same cuff",
+   "Stand test: pressure lying down and after standing up"
+  ]
  },
  "glucose": {
   "why": "Blood glucose shows how the body is handling energy. Spaceflight shifts which fuel the body burns, mostly through diet, and may change insulin signalling.",
@@ -49,9 +60,13 @@
   "sources": [
    "energy-2024",
    "insulin-2023",
-   "hrp-48033"
+   "hrp-48033",
+   "nasa-standard-measures"
   ],
-  "frequency": "every morning, fasting"
+  "frequency": "every morning, fasting",
+  "tests": [
+   "Blood sample for biochemical markers"
+  ]
  },
  "temp": {
   "why": "A rise in body temperature can be a sign of infection. In orbit it also rises more during exercise, and resting temperature can creep up by about 1 °C over months, so your own usual value matters more than the textbook one.",
@@ -63,9 +78,13 @@
   "sources": [
    "stahn-2017",
    "hrp-immune-2009",
-   "hrp-48033"
+   "hrp-48033",
+   "nasa-standard-measures"
   ],
-  "frequency": "every morning; not continuous (no reliable all-day sensor)"
+  "frequency": "every morning; not continuous (no reliable all-day sensor)",
+  "tests": [
+   "Blood and saliva samples: blood counts, stress hormones, reactivation of dormant viruses"
+  ]
  },
  "sleep_hours": {
   "why": "Astronauts sleep less in space than on the ground, and short sleep is linked to more mistakes and slower decisions.",
@@ -76,9 +95,14 @@
    "Log real work hours so planners can leave enough downtime."
   ],
   "sources": [
-   "hrp-sleep-2016"
+   "hrp-sleep-2016",
+   "nasa-standard-measures"
   ],
-  "frequency": "every morning, right after waking"
+  "frequency": "every morning, right after waking",
+  "tests": [
+   "Wrist monitor for activity and light (actigraphy)",
+   "Sleep quality questionnaire after waking"
+  ]
  },
  "mood": {
   "why": "Isolation, confinement and workload strain mood and teamwork over long missions.",
@@ -89,9 +113,15 @@
   ],
   "sources": [
    "nasa-hazards",
-   "hrp-sleep-2016"
+   "hrp-sleep-2016",
+   "nasa-standard-measures",
+   "nasa-pmc-podcast"
   ],
-  "frequency": "every morning and evening (short check-in)"
+  "frequency": "every morning and evening (short check-in)",
+  "tests": [
+   "Mood and team questionnaire before sleep",
+   "Private medical conference with the flight surgeon: weekly, about 15 minutes, or on request"
+  ]
  },
  "exercise_min": {
   "why": "Exercise is the main protection against bone and muscle loss in weightlessness, and it also helps the heart, blood pressure on return to gravity, and kidney-stone risk.",
@@ -102,9 +132,13 @@
   ],
   "sources": [
    "ochmo-tb-031",
-   "ochmo-mtb-013"
+   "ochmo-mtb-013",
+   "nasa-bone-lab"
   ],
-  "frequency": "every day, logged after training"
+  "frequency": "every day, logged after training",
+  "tests": [
+   "Bone scan (DXA) before and after the mission"
+  ]
  },
  "hrv_ms": {
   "why": "Heart rate variability is how much the time between heartbeats changes. Higher than your usual usually means rested and recovered; a drop below your usual can come with stress, poor sleep or the start of an illness. In a study of 7 astronauts on the space station, the body's own heart-rhythm control changed in space and returned to normal back on Earth.",
@@ -115,6 +149,9 @@
   "frequency": "every night, automatically (wearable)",
   "sources": [
    "otsuka-2015"
+  ],
+  "tests": [
+   "24-hour ECG recording (Holter), as used in the space station heart-rhythm study"
   ]
  },
  "reaction_ms": {
@@ -128,6 +165,9 @@
    "upenn-cognition",
    "basner-2011",
    "nasa-standard-measures"
+  ],
+  "tests": [
+   "Full Cognition battery: 10 short tests, about 16 minutes on the station"
   ]
  }
 }

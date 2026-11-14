@@ -6,6 +6,7 @@ import { CheckIn } from './components/CheckIn'
 import { DoctorView } from './components/DoctorView'
 import { MissionStrip } from './components/MissionStrip'
 import { MissionView } from './components/MissionView'
+import { PatientFile } from './components/PatientFile'
 import { PersonView } from './components/PersonView'
 import { InsightsCard, TasksCard } from './components/Sidebar'
 import { SystemPanel } from './components/SystemPanel'
@@ -29,6 +30,7 @@ export default function App() {
   const [mission, setMission] = useState<MissionInfo | null>(null)
   const [missionError, setMissionError] = useState<string | null>(null)
   const [tab, setTab] = useState<Tab>('mission')
+  const [fileOpen, setFileOpen] = useState(false)
   const [chosen, setPatient] = useState<string | null>(null)   // a crew member id, or 'real' for the real-data demo
   const [selected, setSelected] = useState<SystemId | null>('cardiovascular')
   const [error, setError] = useState<string | null>(null)
@@ -60,7 +62,7 @@ export default function App() {
     setMission({ ...mission, day: next })
   }
   const patient = chosen ?? mission?.crew[0]?.astronaut_id ?? 'real'
-  const openPerson = (aid: string) => { setPatient(aid); setTab('astronaut') }
+  const openPerson = (aid: string) => { setPatient(aid); setFileOpen(false); setTab('astronaut') }
   const strip = mission && (
     <MissionStrip day={mission.day} total={mission.days_total} note={mission.note} onDay={changeDay} reloadKey={version} />
   )
@@ -100,7 +102,7 @@ export default function App() {
         <nav className="patients" aria-label="Choose who to check in">
           {mission?.crew.map((c) => (
             <button key={c.astronaut_id} className={patient === c.astronaut_id ? 'on' : ''}
-              aria-pressed={patient === c.astronaut_id} onClick={() => setPatient(c.astronaut_id)}>
+              aria-pressed={patient === c.astronaut_id} onClick={() => { setPatient(c.astronaut_id); setFileOpen(false) }}>
               {c.name}<small>{c.role}</small>
             </button>
           ))}
@@ -112,8 +114,10 @@ export default function App() {
       {tab === 'astronaut' && patient !== 'real' && mission && (
         <>
           {strip}
-          <PersonView aid={patient} day={mission.day} meta={meta} onDay={changeDay}
-            onChanged={() => setVersion((v) => v + 1)} />
+          {fileOpen
+            ? <PatientFile aid={patient} day={mission.day} meta={meta} onBack={() => setFileOpen(false)} />
+            : <PersonView aid={patient} day={mission.day} meta={meta} onDay={changeDay}
+                onChanged={() => setVersion((v) => v + 1)} onOpenFile={() => setFileOpen(true)} />}
         </>
       )}
 

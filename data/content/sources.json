@@ -95,5 +95,53 @@
   "publisher": "NASA",
   "year": 2024,
   "url": "https://www.nasa.gov/image-detail/gmt147_12_51_michael-barratt_a-few-crew-shots/"
+ },
+ "ochmo-radiation": {
+  "title": "NASA-STD-3001 Technical Brief: Design for Ionizing Radiation Protection",
+  "publisher": "NASA OCHMO",
+  "year": null,
+  "url": "https://www.nasa.gov/wp-content/uploads/2023/03/radiation-protection-technical-brief-ochmo.pdf"
+ },
+ "ochmo-acoustics": {
+  "title": "NASA-STD-3001 Technical Brief: Acoustics (OCHMO-TB-035 Rev C)",
+  "publisher": "NASA OCHMO",
+  "year": 2023,
+  "url": "https://www.nasa.gov/sites/default/files/atoms/files/acoustics_technical_brief_ochmo_0.pdf"
+ },
+ "buckey-2001": {
+  "title": "Hearing loss in space (Buckey et al.)",
+  "publisher": "Aviation, Space, and Environmental Medicine",
+  "year": 2001,
+  "url": "https://ntrs.nasa.gov/citations/20040088577"
+ },
+ "sans-2023": {
+  "title": "Spaceflight Associated Neuro-ocular Syndrome (SANS): a briefing for astronaut candidates (Brunstetter)",
+  "publisher": "NASA",
+  "year": 2023,
+  "url": "https://ntrs.nasa.gov/api/citations/20230006218/downloads/Brunstetter%20-%20Crewmember%20SANS%20Overview%20-%20Export%20Control%20-FINAL%20-%2001May23.pdf"
+ },
+ "cdc-sun": {
+  "title": "Sun Exposure at Work",
+  "publisher": "CDC NIOSH",
+  "year": null,
+  "url": "https://www.cdc.gov/niosh/outdoor-workers/about/sun-exposure.html"
+ },
+ "reynolds-2021": {
+  "title": "Cancer incidence and mortality in the USA Astronaut Corps, 1959-2017 (Reynolds et al.)",
+  "publisher": "Occupational and Environmental Medicine",
+  "year": 2021,
+  "url": "https://doi.org/10.1136/oemed-2020-107143"
+ },
+ "nasa-pmc-podcast": {
+  "title": "Houston We Have a Podcast: Mission Control, Crew Health Consoles (Ep. 377)",
+  "publisher": "NASA",
+  "year": 2025,
+  "url": "https://www.nasa.gov/podcasts/houston-we-have-a-podcast/mission-control-crew-health-consoles"
+ },
+ "nasa-lsah": {
+  "title": "Lifetime Surveillance of Astronaut Health",
+  "publisher": "NASA",
+  "year": null,
+  "url": "https://www.nasa.gov/directorates/esdmd/hhp/lifetime-surveillance-of-astronaut-health-lsah"
  }
 }

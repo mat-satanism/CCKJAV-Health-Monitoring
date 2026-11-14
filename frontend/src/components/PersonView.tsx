@@ -6,6 +6,7 @@ import { api } from '../api'
 import type { AstronautCard, AstronautHistory, HistoryPoint, Meta, Status, SystemId } from '../types'
 import { BodyMap } from './BodyMap'
 import { MeasurementPlan } from './MeasurementPlan'
+import { SourceLinks } from './Sources'
 
 // One crew member of the simulated mission: body map for the chosen day, history of every indicator with
 // the personal norm band, check-in for that day, readiness, medical history. All data is synthetic.
@@ -17,7 +18,9 @@ const DOT: Record<Status, string> = {
   green: 'var(--green)', yellow: 'var(--yellow)', red: 'var(--red)', grey: 'var(--grey)',
 }
 
-interface Props { aid: string; day: number; meta: Meta; onDay: (day: number) => void; onChanged: () => void }
+interface Props {
+  aid: string; day: number; meta: Meta; onDay: (day: number) => void; onChanged: () => void; onOpenFile: () => void
+}
 
 function HistoryChart({ points, day, onDay }: { points: HistoryPoint[]; day: number; onDay: (d: number) => void }) {
   const data = points.map((p) => ({ ...p, band: p.low != null && p.high != null ? [p.low, p.high] : null }))
@@ -148,7 +151,7 @@ function MedicalHistory({ card }: { card: AstronautCard }) {
   )
 }
 
-export function PersonView({ aid, day, meta, onDay, onChanged }: Props) {
+export function PersonView({ aid, day, meta, onDay, onChanged, onOpenFile }: Props) {
   const [card, setCard] = useState<AstronautCard | null>(null)
   const [hist, setHist] = useState<AstronautHistory | null>(null)
   const [selected, setSelected] = useState<SystemId | null>('cardiovascular')
@@ -173,6 +176,7 @@ export function PersonView({ aid, day, meta, onDay, onChanged }: Props) {
       <section className="panel map">
         <div className="person-head">
           <strong>{card.name}</strong> <small className="muted">{card.role}</small>
+          <button className="file-link" onClick={onOpenFile}>Open patient file</button>
           <p className={`fit ${card.fit_for_high_demand ? 'ok' : 'no'}`}>
             {card.fit_for_high_demand ? 'Fit for EVA' : 'Not fit for EVA'}
           </p>
@@ -228,10 +232,17 @@ export function PersonView({ aid, day, meta, onDay, onChanged }: Props) {
                 <p className="muted">{i.message}</p>
                 {meta.content.indicators[i.type] && (
                   <details className="learn">
-                    <summary>Why it changes and how often to measure</summary>
+                    <summary>Why we track this, and which tests</summary>
                     <p>{meta.content.indicators[i.type].why}</p>
                     <p><strong>How often.</strong> {meta.content.indicators[i.type].frequency}.{' '}
                       <strong>How.</strong> {meta.content.indicators[i.type].how_to_measure}</p>
+                    {meta.content.indicators[i.type].tests?.length > 0 && (
+                      <>
+                        <p><strong>If it stays off, tests to consider:</strong></p>
+                        <ul>{meta.content.indicators[i.type].tests.map((t) => <li key={t}>{t}</li>)}</ul>
+                      </>
+                    )}
+                    <SourceLinks ids={meta.content.indicators[i.type].sources} sources={meta.content.sources} />
                   </details>
                 )}
                 <HistoryChart points={hist[i.type]} day={card.day} onDay={onDay} />

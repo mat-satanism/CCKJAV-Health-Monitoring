@@ -12,13 +12,22 @@ import copy
 import csv
 import json
 import os
+from math import comb
 from pathlib import Path
 
-from .config import DATA_DIR, ENVIRONMENTS, INDICATORS, SYSTEMS, THRESHOLDS
+from .config import CONTENT, DATA_DIR, ENVIRONMENTS, INDICATORS, SYSTEMS, THRESHOLDS
 from .status import MODEL_PATH, PRIORS, classify, display_unit
 
 SIM_DIR = DATA_DIR / "processed" / "sim"
 ANAMNESIS_PATH = DATA_DIR / "synthetic" / "anamnesis.json"
+BIOGRAPHY_PATH = DATA_DIR / "synthetic" / "biographies.json"
+# Crew signal, tuned on 40 simulated missions (docs/crew-signal.md): catches 59% of CO2 days, fires on 0.8% of
+# calm days. (1.5 scales caught 78% but fired on 10% of calm days: too noisy for a busy CMO.)
+Z_SHIFT = 2.0             # a person counts as "moved" when 2+ prediction scales off their own norm
+P_MOVED = 0.023           # chance of that in one direction on a normal day (one tail of a normal at 2.0)
+CREW_MIN = 3              # at least this many people moving the same way ...
+P_SIGNAL = 0.05           # ... and less than a 5% chance of that happening by chance
+SHARED_CAUSES = "station air (CO2), noise, temperature, light and work hours"
 MISSION_SAVED_PATH = Path(os.environ.get("CHN_MISSION_SAVED_PATH", DATA_DIR / "local" / "mission_entries.json"))
 WATCH_MULTIPLE = 3.0      # doctors see a risk when it is at least 3 times the usual level
 HIGH_MULTIPLE = 5.0       # at 5 times the usual level a physical-event risk asks the CMO to confirm fitness
@@ -88,6 +97,7 @@ class Mission:
         model = json.loads(MODEL_PATH.read_text())
         self.base_rates = {e: v["base_rate"] for e, v in model["events"].items()}
         self.anamnesis = json.loads(ANAMNESIS_PATH.read_text(encoding="utf-8"))["crew"]
+        self.biographies = json.loads(BIOGRAPHY_PATH.read_text(encoding="utf-8"))["crew"]
         self.simulated = copy.deepcopy(self.values)
         self.entries: dict[str, dict] = {}        # "aid|day" -> {"values": {...}, "symptoms": [...]}
         self.readiness: dict[str, dict] = {}      # "aid|day" -> {"ready": bool, "note": str}
@@ -261,7 +271,8 @@ class Mission:
             item = {**t, "mission_day": day, "assignee_name": names[t["assignee"]], "status": "planned",
                     "partner": partner, "partner_name": names.get(partner) if partner else None,
                     "reassigned_to": None, "reassigned_to_name": None, "reason": None, "warning": None}
-            off = t["assignee"] in isolated or (t["demand"] == "high" and not states[t["assignee"]]["fit_for_high_demand"])
+            off = t["kind"] != "pmc" and (t["assignee"] in isolated
+                                          or (t["demand"] == "high" and not states[t["assignee"]]["fit_for_high_demand"]))
             if t["kind"] == "eva" and flare:
                 item.update(status="postponed", reason="Solar flare: no EVA until the radiation alarm is over.")
             elif off:
@@ -370,6 +381,80 @@ class Mission:
         if any(t["type"] == "exercise_min" and t["worse"] for t in trends):
             tips.append(NUTRITION["exercise"])
         return {"level": level, "message": SUPPORT[level], "nutrition": tips}
+
+    # ---------- patient file ----------
+    def patient_file(self, aid: str, day: int) -> dict:
+        """Fictional biography -> exposure history -> sourced risks and monitoring, plus the mission so far."""
+        bio = self.biographies[aid]
+        exposures = [{"id": e, **CONTENT["exposures"][e]} for e in bio["exposures"]]
+        states = [self.astronaut(aid, d) for d in range(1, day + 1)]
+        member = next(c for c in self.crew if c["astronaut_id"] == aid)
+        hist = self.anamnesis[aid]
+        return {
+            "astronaut_id": aid, "name": member["name"], "role": member["role"], "day": day,
+            "biography": {k: v for k, v in bio.items() if k != "exposures"},
+            "anamnesis": {k: v for k, v in hist.items() if k != "medication_log"},
+            "exposures": exposures,
+            "mission_so_far": {
+                "days_yellow": sum(s["status"] == "yellow" for s in states),
+                "days_red": sum(s["status"] == "red" for s in states),
+                "symptoms": sorted({x for s in states for x in s["symptoms"]}),
+                "medication_given": [m for m in hist.get("medication_log", []) if m["day"] <= day],
+                "not_ready_days": [d for d in range(1, day + 1)
+                                   if (r := self.readiness.get(f"{aid}|{d}")) and not r["ready"]],
+                "worse_trends": [t["message"] for t in self.trends(aid, day) if t["worse"]],
+            },
+            "source": "synthetic",
+        }
+
+    # ---------- crew-wide (environment) signal and the doctors' brief ----------
+    def crew_signal(self, day: int) -> list[dict]:
+        """Indicators where several people moved the same way on the same day: more likely a shared cause."""
+        crew = [self.astronaut(aid, day) for aid in self.ids]
+        out = []
+        for ind in INDICATORS:
+            zs = [(a["name"], i["z"]) for a in crew for i in a["indicators"] if i["type"] == ind and i["z"] is not None]
+            n = len(zs)
+            worse_up = WORSE_WHEN[ind] > 0          # only the worrying direction: a crew sleeping more is not an alarm
+            direction = "up" if worse_up else "down"
+            picked = [nm for nm, z in zs if (z >= Z_SHIFT if worse_up else z <= -Z_SHIFT)]
+            k = len(picked)
+            if k < CREW_MIN:
+                continue
+            p = sum(comb(n, j) * P_MOVED**j * (1 - P_MOVED) ** (n - j) for j in range(k, n + 1))
+            if p >= P_SIGNAL:
+                continue
+            out.append({"type": ind, "label": INDICATORS[ind]["label"], "direction": direction,
+                            "people": picked, "n": k, "of": n, "p_chance": round(p, 4),
+                            "mean_shift": round(sum(z for _, z in zs) / n, 2),
+                            "check": SHARED_CAUSES})
+        return out
+
+    def brief(self, day: int) -> dict:
+        """One short read for the CMO: what matters today, most important first. Template, no language model."""
+        lines = []
+        for s in self.crew_signal(day):
+            lines.append(f"Crew-wide: {s['label'].lower()} {s['direction']} in {s['n']} of {s['of']} "
+                         f"({', '.join(s['people'])}); by chance alone "
+                         f"{'under 0.1%' if s['p_chance'] < 0.001 else format(s['p_chance'], '.1%')}. Check {s['check']}.")
+        lines += [a["message"] for a in self.alerts(day)]
+        lines += [f"{x['name']}: {x['what']}. {x['do']}" for x in self.now(day) if x["level"] != "green"]
+        for aid in self.ids:
+            worse = [t for t in self.trends(aid, day) if t["worse"]]
+            if worse:
+                name = next(c["name"] for c in self.crew if c["astronaut_id"] == aid)
+                lines.append(f"{name}, this week: " + "; ".join(t["message"][0].lower() + t["message"][1:] for t in worse[:2]) + ".")
+        moved = [t for t in self.tasks_for(day) if t["status"] not in ("planned",)]
+        if moved:
+            lines.append(f"{len(moved)} task(s) moved or postponed today.")
+        pmc = [t for t in self.tasks_for(day) if t["kind"] == "pmc"]
+        if pmc:
+            lines.append("Private medical conferences with the flight surgeon today: "
+                         + ", ".join(t["assignee_name"] for t in pmc) + " (about 15 minutes each).")
+        all_clear = not lines or all(line.startswith("Private medical conferences") for line in lines)
+        if all_clear:
+            lines.insert(0, "All crew as usual today. Nothing needs action.")
+        return {"day": day, "lines": lines, "all_clear": all_clear, "source": "synthetic"}
 
     # ---------- for the doctors: what to do now, alarm log, report ----------
     def now(self, day: int | None = None) -> list[dict]:

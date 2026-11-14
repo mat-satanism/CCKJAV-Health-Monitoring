@@ -1,0 +1,93 @@
+{
+ "_note": "Exposure history -> risk -> what to monitor, as NASA's Lifetime Surveillance of Astronaut Health does (an exposure history per astronaut, monitoring per hazard). 'monitoring' = from the cited sources; 'our_plan' = our step that follows from the risk, not stated in a source.",
+ "previous_spaceflight": {
+  "label": "Previous spaceflights",
+  "risk": "Radiation from every spaceflight adds up. NASA limits an astronaut's total career dose from spaceflight to less than 600 mSv, for all ages and sexes.",
+  "monitoring": [
+   "Add this mission's dose to the career total and keep it below 600 mSv"
+  ],
+  "our_plan": [],
+  "sources": [
+   "ochmo-radiation"
+  ]
+ },
+ "long_duration_flight": {
+  "label": "Previous long-duration flight",
+  "risk": "About 70% of long-duration crewmembers show signs of SANS, changes in the eye and optic nerve, from mild to severe. No permanent loss of vision has been seen.",
+  "monitoring": [
+   "Vision screening, retinal photography, OCT and eye ultrasound before flight, on flight days 30 and 90, and after flight"
+  ],
+  "our_plan": [
+   "Compare the eye images with those from the previous flight"
+  ],
+  "sources": [
+   "sans-2023"
+  ]
+ },
+ "aircraft_pilot": {
+  "label": "Years as a jet pilot",
+  "risk": "US astronauts have more melanoma than expected (2.5 times), consistent with what is seen in aircraft pilots. The authors suggest ultraviolet light or lifestyle, not spaceflight itself.",
+  "monitoring": [],
+  "our_plan": [
+   "Skin check for new or changing moles before and after the mission"
+  ],
+  "sources": [
+   "reynolds-2021"
+  ]
+ },
+ "outdoor_work": {
+  "label": "Years of outdoor work in the sun",
+  "risk": "Outdoor work in sunlight raises the risk of sunburn and skin cancer.",
+  "monitoring": [],
+  "our_plan": [
+   "Skin check for new or changing moles before and after the mission",
+   "Sun protection during field training on Earth"
+  ],
+  "sources": [
+   "cdc-sun"
+  ]
+ },
+ "noise": {
+  "label": "Noisy workplace (engines, machinery)",
+  "risk": "Noise exposure is generally considered to affect hearing. Temporary and some permanent hearing loss has been documented after long spaceflights, though a clear link to station noise is not proven.",
+  "monitoring": [
+   "Personal audio devices are limited to 115 dBA at the ear on board"
+  ],
+  "our_plan": [
+   "Hearing test before and after the mission (hearing tests on board are disturbed by noise)"
+  ],
+  "sources": [
+   "ochmo-acoustics",
+   "buckey-2001"
+  ]
+ },
+ "bone_predisposition": {
+  "label": "Family history of osteoporosis or a previous fracture",
+  "risk": "Astronauts can lose up to 1-2% of bone density per month in the hip and spine, compared with 0.5-1% per year in older people on Earth.",
+  "monitoring": [
+   "Bone scan (DXA) before and after spaceflight",
+   "Biochemical samples before, during and after flight",
+   "Daily resistance exercise"
+  ],
+  "our_plan": [],
+  "sources": [
+   "nasa-bone-lab",
+   "ochmo-mtb-013"
+  ]
+ },
+ "insomnia_history": {
+  "label": "History of insomnia",
+  "risk": "Astronauts sleep less in space than on the ground, and short sleep is linked to more mistakes and slower decisions.",
+  "monitoring": [
+   "Wrist monitor for activity and light (actigraphy)",
+   "Sleep quality questionnaire after waking"
+  ],
+  "our_plan": [
+   "Protect the sleep window in busy weeks"
+  ],
+  "sources": [
+   "hrp-sleep-2016",
+   "nasa-standard-measures"
+  ]
+ }
+}

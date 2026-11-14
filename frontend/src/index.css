@@ -275,3 +275,18 @@ details.more[open] > summary { margin-bottom: 12px; }
 .support { margin: 0 0 .75rem; padding: .5rem .7rem; border-radius: var(--radius); background: var(--surface-2); font-size: .9rem; }
 .support-low { border-left: 3px solid var(--accent); }
 .support-good { color: var(--green); }
+
+/* ---------- patient file, brief ---------- */
+.file-link { margin-left: 8px; font-size: .8rem; padding: .15rem .55rem; }
+.patient-file { display: grid; gap: 18px; }
+.patient-file .back { justify-self: start; }
+.patient-file dl, .file-head dl { display: grid; grid-template-columns: max-content 1fr; gap: 4px 12px; margin: 8px 0 0; font-size: .9rem; }
+.patient-file dt { color: var(--muted); }
+.patient-file dd { margin: 0; }
+.patient-file dd.warn { color: var(--yellow); font-weight: 600; }
+.exposure { border-top: 1px solid var(--border); padding: 12px 0 4px; }
+.exposure h3 { margin: 0 0 4px; font-size: 1rem; }
+.exposure ul { margin: 4px 0 8px; padding-left: 18px; }
+.exposure ul.plan { color: var(--muted); }
+.brief ul { margin: 0; padding-left: 18px; display: grid; gap: 6px; }
+.brief li.crew-wide { color: var(--yellow); font-weight: 600; }
