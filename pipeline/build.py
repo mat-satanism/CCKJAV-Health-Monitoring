@@ -5,13 +5,15 @@
 
 Writes:
     daily.csv               one row per person per day (PMData, LifeSnaps, MMASH)
+    features_pmdata.csv     one row per person per calendar day with norm-based features and tomorrow's target
+    features_lifesnaps.csv  same for LifeSnaps (see pipeline/features.py)
     demo_mission.csv        30 real days of one person in the backend's Measurement format
     inspiration4_blood.csv  one row per crew member, timepoint and analyte, with lab ranges
     nhanes_reference.csv    population percentiles for blood pressure, pulse and glucose (glucose: without diabetes)
 """
 import pandas as pd
 
-from . import demo, inspiration4, lifesnaps, mmash, nhanes, pmdata
+from . import demo, features, inspiration4, lifesnaps, mmash, nhanes, pmdata
 from .common import PROCESSED
 
 
@@ -23,6 +25,13 @@ def main() -> None:
     daily.to_csv(PROCESSED / "daily.csv", index=False, float_format="%.2f")
     print(f"daily.csv               {len(daily):>6} rows, {daily['person_id'].nunique()} people")
     print(daily.groupby("source_dataset")["person_id"].agg(["count", "nunique"]).to_string())
+
+    for name, table in features.build_all(daily).items():
+        table.to_csv(PROCESSED / name, index=False, float_format="%.3f")
+        target = next(c for c in table.columns if c.startswith("target_"))
+        usable = table[target].notna()
+        print(f"{name:<23} {len(table):>6} calendar days, {table['person_id'].nunique()} people; "
+              f"{int(usable.sum())} days with tomorrow's target ({table.loc[usable, 'person_id'].nunique()} people)")
 
     demo_rows = demo.demo_mission(daily)
     demo_rows.to_csv(PROCESSED / "demo_mission.csv", index=False)

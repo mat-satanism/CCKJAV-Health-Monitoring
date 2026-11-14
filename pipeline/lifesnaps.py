@@ -7,6 +7,12 @@ from .common import RAW, finish_daily
 
 CSV_PATH = RAW / "lifesnaps" / "csv" / "daily_fitbit_sema_df_unprocessed.csv"
 
+# Survey columns in the source -> our column names. Filled on about 2290 of 7410 days.
+EMOTIONS = {
+    "ALERT": "emo_alert", "HAPPY": "emo_happy", "NEUTRAL": "emo_neutral",
+    "RESTED/RELAXED": "emo_relaxed", "SAD": "emo_sad", "TENSE/ANXIOUS": "emo_tense", "TIRED": "emo_tired",
+}
+
 
 def tidy(raw: pd.DataFrame) -> pd.DataFrame:
     df = pd.DataFrame({
@@ -20,6 +26,9 @@ def tidy(raw: pd.DataFrame) -> pd.DataFrame:
         "temp_skin": raw["nightly_temperature"],
         "stress_score": raw["stress_score"],
     })
+    for source, name in EMOTIONS.items():
+        if source in raw.columns:
+            df[name] = raw[source]
     return finish_daily(df, "lifesnaps")
 
 
