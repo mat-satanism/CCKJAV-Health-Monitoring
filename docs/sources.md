@@ -3,7 +3,7 @@
 For every threshold or claim used in the app: link + one line on what we took from it.
 
 ## NASA Human Research Program
-- 5 Hazards of Human Spaceflight: TODO link
+- 5 Hazards of Human Spaceflight: https://www.nasa.gov/hrp/hazards/ (used in the app content, see below)
 - Risks of Human Spaceflight: TODO link
 - Ongoing HRP Research in Space: TODO link
 
