@@ -11,7 +11,7 @@ On long-duration missions (Moon, Mars) astronauts must spot health changes in th
 Working now:
 - **Body Map**: clickable astronaut figure, each body system colored by status.
 - **Daily Check-in**: heart rate, blood pressure, glucose, temperature, sleep, exercise, mood.
-- **Personal baseline**: status is computed against the astronaut's own norm plus absolute limits.
+- **Personal baseline**: status is computed against the astronaut's own 14-day norm (yellow at 3+ spreads) plus absolute safe limits, the same rule in every tab.
 - **Trends**: charts with the personal baseline line and a 7-day forecast.
 - **Assistant**: rule-based advice with escalation levels (self / crew / ground) and a comms-delay note.
 - **Daily tasks** with points.
@@ -34,9 +34,11 @@ backend/app/
   main.py        API endpoints
   models.py      data models (mirror of docs/api-contract.md)
   config.py      indicators, body systems, environments, thresholds loader
+  status.py      one status rule for every view (personal norm first, then safe limits)
   rules.py       status per indicator/system, advice, escalation level
+  mission.py     simulated crew mission: crew, tasks, alerts, doctors' view
   analytics.py   baseline / deviation / trend / forecast  <- plug ML models in here
-  demo.py        synthetic 30-day demo mission            <- replace with cleaned data
+  demo.py        My check-in demo: 30 real PMData days + synthetic BP, glucose, temp
 backend/tests/   pytest
 frontend/        React + Vite + TypeScript UI (see frontend/README.md)
 data/            thresholds.json (demo values)

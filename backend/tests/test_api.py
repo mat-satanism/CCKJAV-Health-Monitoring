@@ -39,8 +39,23 @@ def _post(type_, value, unit):
 def test_skipped_workout_is_not_a_ground_emergency():
     _post("exercise_min", 0, "min")
     status = {i["type"]: i["status"] for i in client.get("/status").json()["indicators"]}
-    assert status["exercise_min"] == "yellow"
+    assert status["exercise_min"] != "red"     # the demo person often has days without exercise
     assert client.get("/insights").json()["level"] != "ground"
+
+
+def _status(ind):
+    return next(i for i in client.get("/status").json()["indicators"] if i["type"] == ind)
+
+
+def test_athletes_usual_low_pulse_is_not_flagged():
+    hr = _status("heart_rate")                  # demo person's resting pulse is about 49, below the population band
+    assert hr["status"] == "green" and "usual" in hr["message"]
+
+
+def test_a_big_change_from_the_personal_norm_is_yellow():
+    _post("heart_rate", 70, "bpm")              # about +20 bpm vs this person's norm, still inside population limits
+    hr = _status("heart_rate")
+    assert hr["status"] == "yellow" and "vs this person's usual" in hr["message"]
 
 
 def test_lowest_mood_is_yellow_not_red():
@@ -89,5 +104,5 @@ def test_every_indicator_and_system_has_sourced_content():
             item = content[group][name]
             assert item["sources"], f"{group}/{name} has no source"
             assert all(s in sources and sources[s]["url"].startswith("https://") for s in item["sources"])
-    for ind, item in content["indicators"].items():
+    for item in content["indicators"].values():
         assert item["why"] and item["how_to_measure"] and item["advice"]

@@ -11,7 +11,7 @@ Live docs: http://127.0.0.1:8000/docs
 
 // IndicatorStatus
 { "type": "heart_rate", "latest": 72, "status": "green|yellow|red|grey",
-  "baseline": 65, "deviation": 1.4, "trend": "up|down|flat",
+  "baseline": 65, "deviation": 1.4, "trend": "up|down|flat",   // baseline = personal norm, deviation = spreads from it
   "source": "manual|sensor|synthetic",
   "message": "Within normal range", "actions": ["..."] }
 
@@ -39,9 +39,11 @@ Body systems: `cardiovascular`, `musculoskeletal`, `behavioral`, `immune`, `meta
 `POST /measurements` rejects (422) unknown indicator types and values outside the plausible range in `BOUNDS` (`backend/app/config.py`), e.g. heart rate 20-250 bpm, mood 1-5.
 
 ## Status logic
-1. Latest value outside `red_*` limits in `data/thresholds.json` → red; outside `yellow_*` → yellow. A `null` red limit means that side only goes yellow (used for mood and exercise: one bad day shouldn't call the ground).
-2. Otherwise, |deviation from personal baseline| ≥ 2 → yellow.
-3. No data → grey. A system takes the worst status of its indicators.
+One rule for every view (`backend/app/status.py`), personal norm first:
+1. Latest value outside the `red_*` limits in `data/thresholds.json` → red. A `null` red limit means that side never turns red (mood and exercise: one bad day shouldn't call the ground).
+2. Personal norm = median of the previous 14 values (needs at least 7). If the value is 3 or more spreads from it → yellow. The spread has a per-indicator floor from `models/risk_model.json`.
+3. Before a norm exists, the `yellow_*` band of `data/thresholds.json` decides yellow. After that the population band is not used, so a person's usual value (e.g. an athlete's low resting pulse) is not flagged.
+4. No data → grey. A system takes the worst status of its indicators.
 4. Escalation: any red → `ground`; 2+ yellow → `crew`; else `self`.
 
 ## Endpoints
@@ -67,6 +69,6 @@ Body systems: `cardiovascular`, `musculoskeletal`, `behavioral`, `immune`, `meta
 | GET | /reference/blood?crew=C001 | BloodRow[]: NASA Inspiration4 blood tests, reference only, not daily status |
 | POST | /demo/reset | reload the demo mission (real PMData days where they exist, grey elsewhere; see demo.py) |
 
-Mission rules (backend/app/mission.py): red = outside safe limits; yellow = 3+ spreads from the person's own 14-day norm. A red indicator or a fever / dizziness symptom takes someone off high-demand tasks; a high model risk only asks the CMO to confirm.
+Mission rules (backend/app/mission.py): statuses use the same rule as above. A red indicator or a fever / dizziness symptom takes someone off high-demand tasks; a high model risk only asks the CMO to confirm.
 
 Todo: `/report` (summary for ground flight surgeon), persistent storage.

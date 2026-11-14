@@ -3,23 +3,15 @@
 Everything here is SYNTHETIC (data/processed/sim, made by pipeline/simulation.py; design in docs/simulation.md).
 Risks come from the model in models/risk_model.json, precomputed in sim/predictions.csv.
 
-Status rule in the mission view (personal norm first, our core idea):
-- red: outside the safe limits in data/thresholds.json (red_low / red_high);
-- yellow: more than Z_YELLOW spreads away from this person's own norm (median of the previous 14 days);
-  before a norm exists (first 7 days), the yellow band of thresholds.json is used instead.
-Z_YELLOW = 3 because with 8 indicators a 2-spread rule marks someone yellow on 54% of calm simulated days
-(3 spreads: 13%), see docs/simulation.md.
+Indicator statuses use the shared rule in status.py (personal norm first), same as My check-in.
 """
 import csv
 import json
-from statistics import median, stdev
 
-from .config import DATA_DIR, ENVIRONMENTS, INDICATORS, THRESHOLDS
+from .config import DATA_DIR, ENVIRONMENTS, INDICATORS
+from .status import MODEL_PATH, classify
 
 SIM_DIR = DATA_DIR / "processed" / "sim"
-MODEL_PATH = DATA_DIR.parent / "models" / "risk_model.json"
-NORM_DAYS, NORM_MIN = 14, 7
-Z_YELLOW = 3.0
 WATCH_MULTIPLE = 3.0      # doctors see a risk when it is at least 3 times the usual level
 HIGH_MULTIPLE = 5.0       # at 5 times the usual level a physical-event risk asks the CMO to confirm fitness
 PHYSICAL_EVENTS = {"infection", "deconditioning"}
@@ -63,30 +55,16 @@ class Mission:
         self.tasks = _read("tasks.csv")
         model = json.loads(MODEL_PATH.read_text())
         self.base_rates = {e: v["base_rate"] for e, v in model["events"].items()}
-        self.floors = model["floors"]
         self.day = 15
 
     # ---------- one astronaut ----------
     def _indicator(self, aid: str, day: int, ind: str) -> dict:
         value = self.values[(aid, day)][ind]
-        past = [self.values[(aid, d)][ind] for d in range(max(1, day - NORM_DAYS), day)]
-        t = THRESHOLDS.get(ind, {})
-        unit = {"1-5": "points"}.get(INDICATORS[ind]["unit"], INDICATORS[ind]["unit"])
-        norm = median(past) if len(past) >= NORM_MIN else None
-        status, message, z = "green", "As usual for this person", None
-        if norm is not None:
-            spread = max(stdev(past), self.floors.get(ind, 1.0))
-            z = (value - norm) / spread
-            if abs(z) >= Z_YELLOW:
-                status, message = "yellow", f"{value - norm:+.1f} {unit} vs this person's usual {norm:.1f}"
-        elif value < t.get("yellow_low", float("-inf")) or value > t.get("yellow_high", float("inf")):
-            status, message = "yellow", "Outside the normal range (no personal norm yet)"
-        red_low, red_high = t.get("red_low"), t.get("red_high")
-        if (red_low is not None and value <= red_low) or (red_high is not None and value >= red_high):
-            status, message = "red", "Outside safe limits"
-        return {"type": ind, "label": INDICATORS[ind]["label"], "unit": unit, "value": value,
-                "norm": None if norm is None else round(norm, 1), "z": None if z is None else round(z, 1),
-                "status": status, "message": message}
+        past = [self.values[(aid, d)][ind] for d in range(1, day)]
+        c = classify(ind, value, past)
+        return {"type": ind, "label": INDICATORS[ind]["label"], "unit": c["unit"], "value": value,
+                "norm": None if c["norm"] is None else round(c["norm"], 1),
+                "z": None if c["z"] is None else round(c["z"], 1), "status": c["status"], "message": c["message"]}
 
     def _risks(self, aid: str, day: int) -> list[dict]:
         p = self.preds.get((aid, day), {})

@@ -1,25 +1,16 @@
-"""Turn measurements into statuses, messages, actions and an escalation level."""
+"""Turn measurements into statuses, messages, actions and an escalation level.
+
+The status rule itself lives in status.py and is shared with the crew mission view.
+"""
 from . import analytics
-from .config import CONTENT, INDICATORS, SYSTEMS, THRESHOLDS
+from .config import CONTENT, INDICATORS, SYSTEMS
 from .models import BodySystemStatus, IndicatorStatus, Measurement
+from .status import classify
 
 ORDER = ["grey", "green", "yellow", "red"]
-DEVIATION_YELLOW = 2.0  # |z| above this vs personal baseline -> yellow
 
 # First piece of advice per indicator, from data/content/indicators.json (each item cites its sources there).
 ACTIONS = {ind: CONTENT["indicators"][ind]["advice"][0] for ind in INDICATORS}
-
-
-def _threshold_status(ind: str, value: float) -> str:
-    t = THRESHOLDS.get(ind)
-    if not t:
-        return "green"
-    red_low, red_high = t.get("red_low"), t.get("red_high")
-    if (red_low is not None and value <= red_low) or (red_high is not None and value >= red_high):
-        return "red"
-    if value < t["yellow_low"] or value > t["yellow_high"]:
-        return "yellow"
-    return "green"
 
 
 def indicator_status(ind: str, series: list[Measurement]) -> IndicatorStatus:
@@ -29,17 +20,13 @@ def indicator_status(ind: str, series: list[Measurement]) -> IndicatorStatus:
     ordered = sorted(series, key=lambda m: m.ts)
     values = [m.value for m in ordered]
     latest = values[-1]
-    status = _threshold_status(ind, latest)
-    message = {"green": "Within normal range", "yellow": "Outside normal range",
-               "red": "Outside safe limits"}[status]
-    dev = analytics.deviation(values)
-    if status == "green" and dev is not None and abs(dev) >= DEVIATION_YELLOW:
-        status, message = "yellow", "Unusual for you compared to your baseline"
+    c = classify(ind, latest, values[:-1])
     return IndicatorStatus(
-        type=ind, latest=latest, status=status,
-        baseline=analytics.baseline(values), deviation=dev, trend=analytics.trend(values),
+        type=ind, latest=latest, status=c["status"],
+        baseline=None if c["norm"] is None else round(c["norm"], 2),
+        deviation=None if c["z"] is None else round(c["z"], 2), trend=analytics.trend(values),
         source=ordered[-1].source,
-        message=message, actions=[ACTIONS[ind]] if status != "green" else [],
+        message=c["message"], actions=[ACTIONS[ind]] if c["status"] != "green" else [],
     )
 
 

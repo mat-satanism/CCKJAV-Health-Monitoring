@@ -10,7 +10,7 @@ The data team can replace either source by returning `Measurement` objects from 
 """
 import csv
 import random
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 
 from .config import DATA_DIR, INDICATORS
 from .models import Measurement
@@ -29,8 +29,8 @@ DRIFT = {"heart_rate": 2.5, "sleep_hours": -0.5, "mood": -0.4}  # per day, last 
 def _real_mission() -> list[Measurement]:
     with DEMO_CSV.open(newline="", encoding="utf-8") as f:
         rows = list(csv.DictReader(f))
-    times = [datetime.fromisoformat(r["ts"].replace("Z", "+00:00")) for r in rows]
-    today = datetime.now(timezone.utc).replace(hour=8, minute=0, second=0, microsecond=0)
+    times = [datetime.fromisoformat(r["ts"]) for r in rows]
+    today = datetime.now(UTC).replace(hour=8, minute=0, second=0, microsecond=0)
     shift = today - max(times)
     return [
         Measurement(ts=t + shift, astronaut_id=r["astronaut_id"], type=r["type"],
@@ -41,7 +41,7 @@ def _real_mission() -> list[Measurement]:
 
 def _synthetic_mission(days: int = 30, seed: int = 7) -> list[Measurement]:
     rng = random.Random(seed)
-    start = datetime.now(timezone.utc).replace(hour=8, minute=0, second=0, microsecond=0) - timedelta(days=days - 1)
+    start = datetime.now(UTC).replace(hour=8, minute=0, second=0, microsecond=0) - timedelta(days=days - 1)
     out = []
     for d in range(days):
         ts = start + timedelta(days=d)

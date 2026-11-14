@@ -151,7 +151,7 @@ in `docs/api-contract.md`. Frontend: tabs **Crew mission** (mission clock, crew 
 and **Doctors** (role switch CMO / flight surgeon), plus the earlier single-astronaut view as **My check-in**.
 
 Rules, chosen with the data:
-- Yellow = 3 or more spreads from the person's own norm. With 8 indicators a 2-spread rule marks someone yellow
+- Yellow = 3 or more spreads from the person's own norm (since 2026-11-14 the same rule, `backend/app/status.py`, also drives My check-in). With 8 indicators a 2-spread rule marks someone yellow
   on 54% of calm simulated astronaut-days, 2.5 spreads on 30%, 3 spreads on 13% (1-3% per indicator).
 - Only measured facts take someone off a high-demand task (a red indicator, fever, dizziness when standing). A high
   model risk (5x the usual level or more) only shows "CMO to confirm fitness": on day 19 the model raises a false
