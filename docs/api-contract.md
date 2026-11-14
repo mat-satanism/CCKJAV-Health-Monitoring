@@ -67,7 +67,9 @@ One rule for every view (`backend/app/status.py`), personal norm first:
 | GET | /mission/alerts | crew-wide alerts (solar flare, same symptoms in 3+ people) |
 | GET | /mission/doctor?role=cmo\|ground | anomalies, risks above 3x usual, symptoms, alerts; `ground` adds the 20 min data delay |
 | GET | /reference/blood?crew=C001 | BloodRow[]: NASA Inspiration4 blood tests, reference only, not daily status |
-| POST | /demo/reset | reload the demo mission (real PMData days where they exist, grey elsewhere; see demo.py) |
+| POST | /demo/reset | reload the demo (real PMData days plus synthetic pressure, glucose and temperature; see demo.py) and delete the saved check-ins |
+
+Storage: demo data ends yesterday, so a check-in from today is always the newest value. Values sent to `POST /measurements` are also written to `data/local/checkins.json` (not in git) and loaded again when the backend restarts.
 
 Mission rules (backend/app/mission.py): statuses use the same rule as above. A red indicator or a fever / dizziness symptom takes someone off high-demand tasks; a high model risk only asks the CMO to confirm.
 

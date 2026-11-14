@@ -10,7 +10,12 @@ const ZONES: { system: SystemId; label: string; shapes: ReactElement[] }[] = [
   },
   {
     system: 'sleep', label: 'Sleep',
-    shapes: [<path key="moon" d="M150 18 a14 14 0 1 0 12 22 a11 11 0 1 1 -12 -22z" />],
+    shapes: [  // a bed: headboard, pillow, mattress, foot
+      <rect key="bed-head" x="141" y="18" width="5" height="26" rx="2" />,
+      <rect key="bed-pillow" x="148" y="27" width="10" height="6" rx="3" />,
+      <rect key="bed-mattress" x="141" y="34" width="36" height="8" rx="2" />,
+      <rect key="bed-foot" x="172" y="34" width="5" height="10" rx="2" />,
+    ],
   },
   {
     system: 'immune', label: 'Immune system',

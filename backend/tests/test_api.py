@@ -106,3 +106,19 @@ def test_every_indicator_and_system_has_sourced_content():
             assert all(s in sources and sources[s]["url"].startswith("https://") for s in item["sources"])
     for item in content["indicators"].values():
         assert item["why"] and item["how_to_measure"] and item["advice"]
+
+
+def test_a_check_in_from_today_is_the_newest_value():
+    from datetime import UTC, datetime
+    now = datetime.now(UTC).replace(hour=0, minute=5).isoformat()   # early morning: before the demo's 08:00
+    client.post("/measurements", json=[{"ts": now, "type": "heart_rate", "value": 55, "unit": "bpm"}])
+    assert _status("heart_rate")["latest"] == 55
+
+
+def test_saved_check_ins_survive_a_backend_restart_but_not_reset():
+    from app import main
+    _post("sleep_hours", 6.5, "h")
+    main.load()                                 # what happens when the server starts again
+    assert _status("sleep_hours")["latest"] == 6.5
+    client.post("/demo/reset")
+    assert _status("sleep_hours")["latest"] != 6.5

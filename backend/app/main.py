@@ -1,14 +1,19 @@
 """FastAPI app. Endpoints follow docs/api-contract.md.
 
-Storage is in-memory and seeded with the demo mission on start (see demo.py).
+Storage is in-memory and seeded with the demo mission on start (see demo.py). Values entered in the app are
+also written to SAVED_PATH (data/local/checkins.json, not in git), so a backend restart does not lose them.
+"Reset demo" deletes that file.
 """
+import json
+import os
 from datetime import datetime
+from pathlib import Path
 
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 
 from . import analytics, rules
-from .config import BOUNDS, CONTENT, ENVIRONMENTS, INDICATORS, SYSTEMS
+from .config import BOUNDS, CONTENT, DATA_DIR, ENVIRONMENTS, INDICATORS, SYSTEMS
 from .demo import blood_reference, demo_mission
 from .mission import MISSION
 from .models import Measurement, MissionContext, Task
@@ -17,6 +22,7 @@ app = FastAPI(title="CCKJAV Health Monitoring API")
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
 
 MEASUREMENTS: list[Measurement] = []
+SAVED_PATH = Path(os.environ.get("CHN_SAVED_PATH", DATA_DIR / "local" / "checkins.json"))
 CONTEXT = MissionContext(environment="mars_base", mission_day=94, **{
     k: ENVIRONMENTS["mars_base"][k] for k in ("gravity_g", "comm_delay_s")})
 TASKS: list[Task] = []
@@ -32,12 +38,31 @@ def _default_tasks() -> list[Task]:
     ]
 
 
-def reset() -> None:
+def _saved() -> list[Measurement]:
+    if not SAVED_PATH.exists():
+        return []
+    return [Measurement(**m) for m in json.loads(SAVED_PATH.read_text(encoding="utf-8"))]
+
+
+def _save(items: list[Measurement]) -> None:
+    SAVED_PATH.parent.mkdir(parents=True, exist_ok=True)
+    rows = [m.model_dump(mode="json") for m in _saved() + items]
+    SAVED_PATH.write_text(json.dumps(rows, indent=1), encoding="utf-8")
+
+
+def load() -> None:
+    """Demo data plus everything entered in the app so far."""
     MEASUREMENTS.clear()
     MEASUREMENTS.extend(demo_mission())
+    MEASUREMENTS.extend(_saved())
     TASKS[:] = _default_tasks()
     if MISSION:
         MISSION.day = 15
+
+
+def reset() -> None:
+    SAVED_PATH.unlink(missing_ok=True)
+    load()
 
 
 def _mission():
@@ -46,7 +71,7 @@ def _mission():
     return MISSION
 
 
-reset()
+load()
 
 
 @app.get("/health")
@@ -80,6 +105,7 @@ def add_measurements(items: list[Measurement]):
         if not lo <= m.value <= hi:
             raise HTTPException(422, f"{m.type}={m.value} is outside the plausible range {lo}-{hi}")
     MEASUREMENTS.extend(items)
+    _save(items)
     return items
 
 

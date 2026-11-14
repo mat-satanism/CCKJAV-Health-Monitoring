@@ -2,7 +2,8 @@
 
 Mixed demo (see docs/data.md):
 - heart_rate, sleep_hours, mood, exercise_min: 30 real days of one PMData participant,
-  read from data/processed/demo_mission.csv. Dates are shifted so the last day is today.
+  read from data/processed/demo_mission.csv. Dates are shifted so the last day is yesterday,
+  so anything entered in today's check-in is always the newest value.
 - bp_sys, bp_dia, glucose, temp: no data for this person, so they stay grey.
 
 If the CSV is missing, the demo falls back to a synthetic mission for all indicators.
@@ -30,8 +31,8 @@ def _real_mission() -> list[Measurement]:
     with DEMO_CSV.open(newline="", encoding="utf-8") as f:
         rows = list(csv.DictReader(f))
     times = [datetime.fromisoformat(r["ts"]) for r in rows]
-    today = datetime.now(UTC).replace(hour=8, minute=0, second=0, microsecond=0)
-    shift = today - max(times)
+    yesterday = datetime.now(UTC).replace(hour=8, minute=0, second=0, microsecond=0) - timedelta(days=1)
+    shift = yesterday - max(times)
     return [
         Measurement(ts=t + shift, astronaut_id=r["astronaut_id"], type=r["type"],
                     value=float(r["value"]), unit=r["unit"], source=r["source"])
@@ -41,7 +42,7 @@ def _real_mission() -> list[Measurement]:
 
 def _synthetic_mission(days: int = 30, seed: int = 7) -> list[Measurement]:
     rng = random.Random(seed)
-    start = datetime.now(UTC).replace(hour=8, minute=0, second=0, microsecond=0) - timedelta(days=days - 1)
+    start = datetime.now(UTC).replace(hour=8, minute=0, second=0, microsecond=0) - timedelta(days=days)
     out = []
     for d in range(days):
         ts = start + timedelta(days=d)

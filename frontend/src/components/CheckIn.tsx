@@ -9,7 +9,8 @@ const MOODS = ['😞', '🙁', '😐', '🙂', '😄']
 export function CheckIn({ meta, onSaved }: { meta: Meta; onSaved: () => void }) {
   const [values, setValues] = useState<Record<string, string>>({})
   const [mood, setMood] = useState<number | null>(null)
-  const [state, setState] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle')
+  const [why, setWhy] = useState('')
+  const [state, setState] = useState<'idle' | 'saving' | 'saved' | 'error' | 'empty'>('idle')
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -18,12 +19,14 @@ export function CheckIn({ meta, onSaved }: { meta: Meta; onSaved: () => void }) 
       .filter(([, v]) => v.trim() !== '')
       .map(([type, v]) => ({ ts, type, value: Number(v), unit: meta.indicators[type].unit, source: 'manual' as const }))
     if (mood) items.push({ ts, type: 'mood', value: mood, unit: '1-5', source: 'manual' })
-    if (!items.length) return
+    if (!items.length) { setState('empty'); return }
     setState('saving')
     try {
       await api.addMeasurements(items)
       setValues({}); setMood(null); setState('saved'); onSaved()
-    } catch {
+    } catch (err) {
+      setWhy(String(err).includes(': 422') ? 'A value is outside the possible range, please check it.'
+        : 'Is the backend running?')
       setState('error')
     }
   }
@@ -50,7 +53,8 @@ export function CheckIn({ meta, onSaved }: { meta: Meta; onSaved: () => void }) 
       </div>
       <button className="primary" disabled={state === 'saving'}>Save</button>
       {state === 'saved' && <span className="muted"> Saved</span>}
-      {state === 'error' && <span className="err"> Could not save</span>}
+      {state === 'error' && <span className="err"> Could not save. {why}</span>}
+      {state === 'empty' && <span className="err"> Enter at least one value or pick a mood</span>}
     </form>
   )
 }

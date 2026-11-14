@@ -9,7 +9,7 @@ import { MissionView } from './components/MissionView'
 import { InsightsCard, TasksCard } from './components/Sidebar'
 import { SystemPanel } from './components/SystemPanel'
 import type {
-  EnvironmentId, Insights, Meta, MissionContext, MissionInfo, StatusResponse, SystemId, Task,
+  Insights, Meta, MissionContext, MissionInfo, StatusResponse, SystemId, Task,
 } from './types'
 
 type Tab = 'mission' | 'doctor' | 'astronaut'
@@ -51,10 +51,6 @@ export default function App() {
   if (error) return <main className="center"><p className="err">{error}</p></main>
   if (!meta || !status || !insights || !ctx) return <main className="center muted">Loading…</main>
 
-  const changeEnv = async (environment: EnvironmentId) => {
-    setCtx(await api.setContext({ ...ctx, environment }))
-    refresh()
-  }
   const changeDay = async (day: number) => {
     if (!mission) return
     const next = Math.min(mission.days_total, Math.max(1, day))
@@ -73,12 +69,8 @@ export default function App() {
           ))}
         </nav>
         <div className="context">
-          <select value={ctx.environment} onChange={(e) => changeEnv(e.target.value as EnvironmentId)}
-            aria-label="Mission environment">
-            {Object.entries(meta.environments).map(([id, env]) => (
-              <option key={id} value={id}>{env.label}</option>
-            ))}
-          </select>
+          {/* One mission, one crew: the environment is fixed (switching it kept the same crew, which made no sense). */}
+          <span className="env">{meta.environments[ctx.environment]?.label ?? ctx.environment}</span>
           <span>{ctx.gravity_g ?? 0} g</span>
           <span>
             {ctx.comm_delay_s && ctx.comm_delay_s >= 60
@@ -124,7 +116,7 @@ export default function App() {
           </div>
 
           <aside className="side">
-            <InsightsCard insights={insights} />
+            <InsightsCard insights={insights} meta={meta} />
             <TasksCard tasks={tasks} onDone={(id) => api.completeTask(id).then(refresh)} />
             <CheckIn meta={meta} onSaved={refresh} />
           </aside>
