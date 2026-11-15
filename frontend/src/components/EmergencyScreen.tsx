@@ -15,7 +15,7 @@ const STEPS = [
 ]
 
 function minutes(s: number): string {
-  return s >= 60 ? `${Math.round(s / 60)} min` : `${s} s`
+  return s >= 60 ? `${Math.round(s / 60)} min` : `${Math.round(s * 10) / 10} s`
 }
 
 export function EmergencyScreen({ insights, meta, delayS, onClose }: {
@@ -44,10 +44,16 @@ export function EmergencyScreen({ insights, meta, delayS, onClose }: {
           ))}
         </div>
 
-        <p className="em-delay">
-          A message reaches Earth in <strong>{minutes(delayS)}</strong>. The earliest reply is
-          in <strong>{minutes(delayS * 2)}</strong>. Until then the crew acts on board.
-        </p>
+        {delayS >= 1 ? (
+          <p className="em-delay">
+            A message reaches Earth in <strong>{minutes(delayS)}</strong>. The earliest reply is
+            in <strong>{minutes(delayS * 2)}</strong>. Until then the crew acts on board.
+          </p>
+        ) : (
+          <p className="em-delay">
+            <strong>Live link to Earth.</strong> Call the flight surgeon now and follow their lead.
+          </p>
+        )}
 
         <ol className="em-steps">
           {STEPS.map((s, k) => (
