@@ -15,7 +15,7 @@ from pydantic import BaseModel
 
 from . import analytics, rules
 from .config import BOUNDS, CONTENT, DATA_DIR, ENVIRONMENTS, INDICATORS, SYSTEMS
-from .demo import blood_reference, demo_mission
+from .demo import blood_reference, demo_mission, wellbeing_forecast
 from .mission import MISSION
 from .models import Measurement, MissionContext, Task
 
@@ -284,6 +284,12 @@ def reference_blood(crew: str = "C001"):
     if crew not in {"C001", "C002", "C003", "C004"}:
         raise HTTPException(404, "Unknown crew member")
     return blood_reference(crew)
+
+
+@app.get("/wellbeing")
+def wellbeing():
+    """Real-data demo: chance that tomorrow's mood or energy is below this person's usual, with the reasons."""
+    return wellbeing_forecast()
 
 
 @app.get("/insights")

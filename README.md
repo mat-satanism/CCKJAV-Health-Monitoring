@@ -24,6 +24,7 @@ Working now:
 - **Week trends and support**: each card shows what has been going one way for a week (e.g. Maria's sleep going down before her sleep problem), a kind message (take it easier / you're doing well) and demo food tips.
 - **Patient file**: a fictional biography turned into an exposure history (e.g. years as a jet pilot, outdoor work, previous long flights) and from it sourced risks and checks, as NASA's lifetime surveillance of astronaut health does.
 - **Crew-wide signal and daily brief**: when 3+ crew members move the worrying way on the same day, the app points to a shared cause (air, noise, schedule) instead of treating people one by one; the CMO gets one short brief written by fixed rules from the data.
+- **Tomorrow's outlook (real-data demo)**: the chance that tomorrow's mood or energy is below the person's usual, with the reasons (SHAP) and a 30-day strip of forecast vs what really happened. Learned from other real people only (PMData), and shown only because it beats "same as today" on people it never saw (mood 0.68 vs 0.61). See `docs/wellbeing-model.md`.
 - **Risk model**: one random forest per event, trained on simulated missions, with SHAP explanations (which signs pushed the risk up). Chosen over logistic regression and LightGBM, see `docs/model-comparison.md`.
 
 Planned:
@@ -57,6 +58,7 @@ docs/            api contract, sources
 - Notebooks go to `notebooks/`, raw data to `data/raw/` (keep large files out of git).
 - **Cleaned data:** `python -m pipeline.get_data` then `python -m pipeline.build` fills `data/processed/` (daily wearable table, Inspiration4 blood tests, NHANES reference ranges). Columns and cleaning rules: [docs/data.md](docs/data.md).
 - **Simulation and model:** `python -m pipeline.build` also writes the simulated crew mission to `data/processed/sim/`; `python -m pipeline.model` trains the risk model (`models/risk_model.json`) and writes the demo predictions. Design, assumptions and results: [docs/simulation.md](docs/simulation.md).
+- **Wellbeing forecast on real people:** `python -m pipeline.wellbeing` predicts a worse mood, fatigue or readiness tomorrow on PMData and LifeSnaps, scored within each person on people the model never saw against "same as today". `python -m pipeline.wellbeing export` writes the app's forecasts to `data/processed/wellbeing_demo.json`. Results: [docs/wellbeing-model.md](docs/wellbeing-model.md).
 
 ## Quick start
 Backend:

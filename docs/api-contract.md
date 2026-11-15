@@ -76,6 +76,7 @@ One rule for every view (`backend/app/status.py`), personal norm first:
 | GET | /mission/astronaut/{id}/history | every mission day per indicator: value, status, personal `norm`, `low`/`high` = 95% prediction band, `z` = distance from the norm in prediction scales, `entered` |
 | POST | /mission/astronaut/{id}/entries?day=N | `{"values": {"temp": 39.2}, "symptoms": ["fever"]}` replaces that day's simulated values; statuses and tasks follow, risks stay the model's. Saved to `data/local/mission_entries.json`, removed by `/demo/reset` |
 | POST | /mission/astronaut/{id}/readiness?day=N | `{"ready": true, "note": ""}` morning readiness check; returns a short `reply` |
+| GET | /wellbeing | real-data demo: `{available, person, source, note, models: {mood, fatigue}: {question, inputs, usual_rate, within_person_auc, same_as_today_auc}, days: [{mission_day, for_date, mood, fatigue}]}`; each forecast is `{probability, times_usual, reasons[], happened}` for the next day. Made by `python -m pipeline.wellbeing export`; `available: false` if the file is missing. See docs/wellbeing-model.md |
 | GET | /reference/blood?crew=C001 | BloodRow[]: NASA Inspiration4 blood tests, reference only, not daily status |
 | POST | /demo/reset | reload the demo (real PMData days plus synthetic pressure, glucose and temperature; see demo.py) and delete the saved check-ins |
 

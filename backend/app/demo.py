@@ -10,6 +10,7 @@ If the CSV is missing, the demo falls back to a synthetic mission for all indica
 The data team can replace either source by returning `Measurement` objects from `demo_mission()`.
 """
 import csv
+import json
 import random
 from datetime import UTC, datetime, timedelta
 
@@ -82,3 +83,22 @@ def blood_reference(crew: str = "C001") -> list[dict]:
         }
         for r in rows
     ]
+
+
+WELLBEING_JSON = DATA_DIR / "processed" / "wellbeing_demo.json"
+
+
+def wellbeing_forecast() -> dict:
+    """Real-data demo: will tomorrow be a worse day? Made by `python -m pipeline.wellbeing export`.
+
+    Models trained on other PMData people only. Day N is mission day N of the real-data demo; its forecast is
+    for day N + 1. Dates follow the demo shift: the last day is yesterday, so its forecast is for today.
+    """
+    if not WELLBEING_JSON.exists():
+        return {"available": False, "models": {}, "days": []}
+    data = json.loads(WELLBEING_JSON.read_text(encoding="utf-8"))
+    yesterday = datetime.now(UTC).date() - timedelta(days=1)
+    last = max(d["mission_day"] for d in data["days"])
+    for d in data["days"]:
+        d["for_date"] = (yesterday + timedelta(days=d["mission_day"] - last + 1)).isoformat()
+    return {"available": True, **data}
