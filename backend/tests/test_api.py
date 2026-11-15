@@ -1,10 +1,14 @@
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 
 from fastapi.testclient import TestClient
 
 from app.main import app
 
 client = TestClient(app)
+
+
+def _now():
+    return datetime.now(UTC).isoformat()
 
 
 def setup_function():
@@ -21,21 +25,59 @@ def test_status_has_all_systems():
         "cardiovascular", "musculoskeletal", "behavioral", "immune", "metabolic", "sleep"}
 
 
-def test_red_value_escalates_to_ground():
-    client.post("/measurements", json=[
-        {"ts": "2099-01-01T08:00:00Z", "type": "temp", "value": 39.5, "unit": "°C"}])
+def test_one_red_reading_asks_to_remeasure_a_second_calls_the_ground():
+    client.post("/measurements", json=[{"ts": _now(), "type": "temp", "value": 39.5, "unit": "°C"}])
+    ins = client.get("/insights").json()
+    assert ins["level"] == "crew" and any(i["recheck"] and i["type"] == "temp" for i in ins["items"])
+    client.post("/measurements", json=[{"ts": _now(), "type": "temp", "value": 39.4, "unit": "°C"}])
     assert client.get("/insights").json()["level"] == "ground"
+
+
+def test_an_old_value_is_grey_not_red():
+    old = (datetime.now(UTC) - timedelta(days=10)).isoformat()
+    client.post("/demo/reset")
+    status = {i["type"]: i for i in client.get("/status").json()["indicators"]}
+    assert status["temp"]["status"] != "grey"          # demo temperature is from yesterday
+    from app import main
+    for m in main.MEASUREMENTS:
+        if m.type == "temp":
+            m.ts = datetime.fromisoformat(old)
+    t = _status("temp")
+    assert t["status"] == "grey" and "No fresh value" in t["message"] and t["age_days"] >= 9
+
+
+def test_bad_inputs_are_rejected_with_a_reason():
+    def post(**kw):
+        return client.post("/measurements", json=[{"ts": _now(), "type": "temp", "value": 37.0, "unit": "°C", **kw}])
+    assert post(unit="°F").status_code == 422
+    assert post(ts="2099-01-01T08:00:00Z").status_code == 422
+    assert client.post("/measurements", json=[{"ts": _now(), "type": "mood", "value": 2.5, "unit": "1-5"}]).status_code == 422
+    assert client.post("/measurements", json=[{"ts": _now(), "type": "mood", "value": 3, "unit": "1-5"}] * 101).status_code == 422
+    assert client.get("/forecast/mood", params={"days": 1000}).status_code == 422
+    assert client.put("/context", json={"environment": "moon_base", "mission_day": 1}).status_code == 422
+
+
+def test_time_without_zone_is_utc_and_status_still_works():
+    naive = datetime.now(UTC).replace(tzinfo=None).isoformat()
+    assert client.post("/measurements", json=[{"ts": naive, "type": "heart_rate", "value": 52, "unit": "bpm"}]).status_code == 200
+    assert client.get("/status").status_code == 200
+    assert client.get("/measurements", params={"type": "heart_rate", "start": "2000-01-01T00:00:00"}).status_code == 200
+
+
+def test_values_typed_in_the_app_are_stored_as_self_reports():
+    r = client.post("/measurements", json=[{"ts": _now(), "type": "heart_rate", "value": 52, "unit": "bpm", "source": "sensor"}])
+    assert r.json()[0]["source"] == "manual"
 
 
 def test_unknown_indicator_rejected():
     r = client.post("/measurements", json=[
-        {"ts": "2099-01-01T08:00:00Z", "type": "nope", "value": 1, "unit": "x"}])
+        {"ts": _now(), "type": "nope", "value": 1, "unit": "x"}])
     assert r.status_code == 422
 
 
 def _post(type_, value, unit):
     return client.post("/measurements", json=[
-        {"ts": "2099-01-01T08:00:00Z", "type": type_, "value": value, "unit": unit}])
+        {"ts": _now(), "type": type_, "value": value, "unit": unit}])
 
 
 def test_skipped_workout_is_not_a_ground_emergency():

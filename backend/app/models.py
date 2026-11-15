@@ -1,8 +1,8 @@
-from datetime import datetime
+from datetime import UTC, datetime
 from typing import Literal
 from uuid import uuid4
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 
 # Keep in sync with config.INDICATORS. To add one (e.g. spo2), add it in both places.
 IndicatorType = Literal[
@@ -21,9 +21,15 @@ class Measurement(BaseModel):
     astronaut_id: str = "a1"
     ts: datetime
     type: IndicatorType
-    value: float
-    unit: str
+    value: float = Field(allow_inf_nan=False)
+    unit: str = Field(max_length=20)
     source: Literal["manual", "sensor", "synthetic"] = "manual"
+
+    @field_validator("ts")
+    @classmethod
+    def _utc(cls, ts: datetime) -> datetime:
+        """A time without a time zone is taken as UTC; every stored time is UTC, so times always compare."""
+        return ts.replace(tzinfo=UTC) if ts.tzinfo is None else ts.astimezone(UTC)
 
 
 class IndicatorStatus(BaseModel):
@@ -36,6 +42,8 @@ class IndicatorStatus(BaseModel):
     source: Literal["manual", "sensor", "synthetic"] | None = None  # where the latest value came from
     message: str = ""
     actions: list[str] = []
+    age_days: float | None = None     # how old the latest value is
+    recheck: bool = False             # red on a single reading: re-measure to confirm before calling the ground
 
 
 class BodySystemStatus(BaseModel):

@@ -17,6 +17,14 @@ INDICATORS: dict[str, dict] = {
     "reaction_ms":  {"label": "Reaction time",  "unit": "ms",    "system": "behavioral"},
 }
 
+# How long a value stays "fresh", in days. Daily signals are measured every day; blood pressure, glucose and
+# temperature are measured at planned check-ups or when something is wrong, not every day (team doc, NASA practice).
+# An older value is shown grey ("no fresh data"), never red.
+FRESH_DAYS: dict[str, float] = {
+    "heart_rate": 2, "sleep_hours": 2, "mood": 2, "exercise_min": 2, "hrv_ms": 2, "reaction_ms": 2,
+    "bp_sys": 7, "bp_dia": 7, "glucose": 7, "temp": 7,
+}
+
 # Plausible input range (not medical limits): values outside are rejected as
 # typos/sensor errors, and forecasts are clamped to it.
 BOUNDS: dict[str, tuple[float, float]] = {

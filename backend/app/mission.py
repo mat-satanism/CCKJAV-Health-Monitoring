@@ -107,8 +107,11 @@ class Mission:
     # ---------- values entered in the app ----------
     def _load_saved(self) -> None:
         if MISSION_SAVED_PATH.exists():
-            saved = json.loads(MISSION_SAVED_PATH.read_text(encoding="utf-8"))
-            self.entries, self.readiness = saved.get("entries", {}), saved.get("readiness", {})
+            try:
+                saved = json.loads(MISSION_SAVED_PATH.read_text(encoding="utf-8"))
+                self.entries, self.readiness = saved.get("entries", {}), saved.get("readiness", {})
+            except (ValueError, AttributeError):   # a broken file is set aside so the app still starts
+                MISSION_SAVED_PATH.replace(MISSION_SAVED_PATH.with_suffix(".broken"))
         for key, e in self.entries.items():
             aid, day = key.split("|")
             self._apply(aid, int(day), e)
