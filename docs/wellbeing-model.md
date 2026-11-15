@@ -102,6 +102,33 @@ scored on the held-out ones. This number includes the cost of our own searching.
 Both stay above "same as today" even after paying for the search. The model in `pipeline/wellbeing.py` keeps the
 simple start version: the variants are equivalent, and the simpler one is easier to explain.
 
+### Tried for the crew, not shipped (2026-11-15)
+
+Idea: show "Tomorrow's outlook" on every crew member's card, not only for the real-data person. The crew has no
+fatigue, stress or readiness answers, so the model reads only what the crew has: mood, sleep, resting pulse and
+exercise against the Bayesian norm, trained on all real PMData people. Run: `python -m pipeline.wellbeing crew`.
+
+| Within-person AUC, worse mood tomorrow | Crew-input model | Same as today |
+|---|---|---|
+| Real people (scored out of person) | **0.675** (+0.032..+0.106) | 0.608 |
+| Simulated crew (30 missions) | 0.651 | **0.693** |
+
+On real people the reduced model still beats "same as today". On the simulated crew it does not: the simulator's
+mood only copies each person's level, spread and day-to-day persistence (`docs/simulation.md`), so "same as today"
+is the best possible rule there, and the patterns the model learned on real people (stress, several low days in a
+row) do not exist in the crew data. It is the mirror image of the risk model, which learned on the simulation and
+does not carry over to real people (`docs/personal-norm.md`).
+
+Second try: a per-indicator "tomorrow likely between X and Y" for the crew, from the chart forecast
+(`docs/forecast.md`). Its point forecast beats "same as today" on the crew for pulse, sleep, exercise and HRV
+(7% overall) but not for mood, and its 80% band holds only 53-78% of the crew's values, because events from day 16
+move values more than real days do. Not honest enough to show (`python -m pipeline.forecast_eval sim`).
+
+**What would make it work:** build the crew's ordinary days from real days of real people (replay a PMData
+person's 30 days, then lay the events on top), instead of a statistical copy. Then real patterns exist in the
+crew data, and the real-trained model can be checked on it. This changes the simulator, the risk model and the
+demo story, so it is left for after the hackathon.
+
 ## What this means
 
 - **A worse mood tomorrow can be predicted better than "same as today" for the same person**: within-person AUC

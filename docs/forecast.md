@@ -48,3 +48,6 @@ Error = mean |forecast − real| over the 7 days, divided by the person's spread
 - One value per day; the band says nothing about events (an infection is a jump no forecast of this kind predicts:
   that is the risk model's job, `docs/simulation.md`).
 - `trend()` (the arrow next to the value) is unchanged.
+- Tried on the simulated crew for a per-astronaut "tomorrow" view: the point forecast is 7% better than "same as
+  today" there, but the 80% band holds only 53-78% of crew values (events move them more than real days), so it
+  was not shipped (`python -m pipeline.forecast_eval sim`; `docs/wellbeing-model.md`, "Tried for the crew").
