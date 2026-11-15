@@ -54,3 +54,26 @@ def test_check_in_only_drops_every_wearable_input():
     kept = wellbeing.check_in_only(cols)
     assert "steps_z" not in kept and "heart_rate_z" not in kept and "sleep_hours_device_z" not in kept
     assert "mood_z" in kept and "sleep_hours_z" in kept   # self-reported sleep stays
+
+
+def test_last_days_features_use_only_the_past():
+    f = _table(n_people=2, days=20)
+    for c in ["stress", "sleep_quality", "soreness", "sleep_hours"]:
+        f[c] = 3.0
+    a = wellbeing.add_history(f)
+    changed = f.copy()
+    future = changed["date"] > "2020-01-10"
+    changed.loc[future, ["mood", "fatigue", "readiness"]] = 1.0      # rewrite the future
+    b = wellbeing.add_history(changed)
+    past = a["date"] <= "2020-01-10"
+    cols = [c for c in a.columns if c.endswith(wellbeing.HISTORY)]
+    pd.testing.assert_frame_equal(a.loc[past, cols], b.loc[past, cols])
+    p0 = a[a["person_id"] == "p1"].iloc[0]
+    assert np.isnan(p0["mood_lag1"])                                 # no yesterday borrowed from another person
+
+
+def test_within_person_auc_ignores_who_is_who():
+    people = np.array(["a"] * 4 + ["b"] * 4)
+    y = np.array([0, 0, 1, 1, 0, 0, 1, 1])
+    s = np.array([0.1, 0.2, 0.3, 0.4, 0.6, 0.7, 0.8, 0.9])          # b always scores higher than a
+    assert wellbeing.within_person_auc(people, y, s) == {"a": 1.0, "b": 1.0}

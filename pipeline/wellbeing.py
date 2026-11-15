@@ -22,7 +22,7 @@ import pandas as pd
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.impute import SimpleImputer
 from sklearn.linear_model import LogisticRegression
-from sklearn.metrics import roc_auc_score
+from sklearn.metrics import average_precision_score, roc_auc_score
 from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import StandardScaler
 
@@ -53,6 +53,8 @@ TASKS = [
 PM_SIGNALS = ["heart_rate", "sleep_hours_device", "exercise_min", "steps", "sleep_hours", "mood", "fatigue", "stress"]
 DEVICE = ("heart_rate", "sleep_hours_device", "exercise_min", "steps", "stress_score", "temp_skin")  # wearable, not self-report
 LS_SIGNALS = ["heart_rate", "sleep_hours_device", "exercise_min", "steps", "stress_score", "temp_skin"]
+CHECK_IN = ["mood", "fatigue", "stress", "readiness", "sleep_quality", "soreness", "sleep_hours"]
+HISTORY = ("_lag1", "_d1", "_min3")   # yesterday's answer, change since yesterday, worst of the last 3 days
 
 
 def add_pmdata_targets(f: pd.DataFrame) -> pd.DataFrame:
@@ -64,6 +66,21 @@ def add_pmdata_targets(f: pd.DataFrame) -> pd.DataFrame:
         tomorrow = g.shift(-1)
         f[f"y_{col}"] = (tomorrow < usual).astype(float).where(tomorrow.notna() & usual.notna())
         f[f"ref_{col}"] = usual - f[col]          # how far below usual today: "same as today" as a score
+    return f
+
+
+def add_history(f: pd.DataFrame) -> pd.DataFrame:
+    """Last days of the check-in. Only days up to today; rows are a full daily calendar per person.
+
+    Tried and left out (docs/wellbeing-model.md): how jumpy a person usually is and their share of bad days.
+    They raise the pooled AUC by telling people apart, not by spotting the bad day of one person.
+    """
+    f = f.sort_values(["person_id", "date"]).copy()
+    g = f.groupby("person_id")
+    for c in CHECK_IN:
+        f[f"{c}_lag1"] = g[c].shift(1)
+        f[f"{c}_d1"] = f[c] - f[f"{c}_lag1"]
+        f[f"{c}_min3"] = g[c].transform(lambda x: x.rolling(3, min_periods=2).min())
     return f
 
 
@@ -81,7 +98,7 @@ def feature_columns(dataset: str, f: pd.DataFrame) -> list[str]:
 def load(dataset: str) -> pd.DataFrame:
     f = pd.read_csv(PROCESSED / f"features_{dataset}.csv")
     if dataset == "pmdata":
-        f = add_pmdata_targets(f)
+        f = add_history(add_pmdata_targets(f))
     f["weekend"] = (f["dow"] >= 5).astype(float)
     return f
 
@@ -112,6 +129,27 @@ def out_of_person_scores(f: pd.DataFrame, cols: list[str], target: str) -> dict[
     return out
 
 
+def within_person_auc(people: np.ndarray, y: np.ndarray, s: np.ndarray) -> dict[str, float]:
+    """AUC inside each person (people with both kinds of days): does it find the bad day of this person?"""
+    out = {}
+    for p in np.unique(people):
+        i = people == p
+        if len(np.unique(y[i])) == 2:
+            out[p] = float(roc_auc_score(y[i], s[i]))
+    return out
+
+
+def within_bootstrap(a: dict[str, float], b: dict[str, float] | None = None,
+                     n: int = N_BOOT, seed: int = SEED) -> tuple[float, float]:
+    """95% interval of the mean within-person AUC (or of its difference), resampling people."""
+    ids = sorted(a)
+    diff = np.array([a[p] - (b[p] if b else 0.0) for p in ids])
+    rng = np.random.default_rng(seed)
+    means = [diff[rng.integers(0, len(ids), len(ids))].mean() for _ in range(n)]
+    lo, hi = np.percentile(means, [2.5, 97.5])
+    return round(float(lo), 3), round(float(hi), 3)
+
+
 def person_bootstrap(people: np.ndarray, y: np.ndarray, a: np.ndarray, b: np.ndarray | None = None,
                      n: int = N_BOOT, seed: int = SEED) -> tuple[float, float]:
     """95% interval of AUC(a), or of AUC(a) - AUC(b), resampling whole people."""
@@ -137,16 +175,26 @@ def evaluate(task: Task, f: pd.DataFrame) -> pd.DataFrame:
     y, people = d[task.target].to_numpy(int), d["person_id"].to_numpy()
     ref = d[task.reference].to_numpy(float)
     scores = {"same as today (reference)": ref} | out_of_person_scores(d, cols, task.target)
-    no_device = out_of_person_scores(d, check_in_only(cols), task.target)
-    scores["random forest, check-in only"] = no_device["random forest"]
+    check_in = check_in_only(cols)
+    scores["random forest, check-in only"] = out_of_person_scores(d, check_in, task.target)["random forest"]
+    if task.dataset == "pmdata":
+        history = [c for c in d.columns if c.endswith(HISTORY)]
+        scores["random forest, check-in + last days"] = out_of_person_scores(
+            d, check_in + history, task.target)["random forest"]
+    ref_within = within_person_auc(people, y, ref)
     rows = []
     for name, s in scores.items():
         auc = round(float(roc_auc_score(y, s)), 3)
         lo, hi = person_bootstrap(people, y, s)
-        row = {"task": task.name, "dataset": task.dataset, "method": name, "auc": auc, "auc_95": f"{lo}-{hi}"}
+        within = within_person_auc(people, y, s)
+        row = {"task": task.name, "dataset": task.dataset, "method": name, "auc": auc, "auc_95": f"{lo}-{hi}",
+               "pr_auc": round(float(average_precision_score(y, s)), 3),
+               "within_auc": round(float(np.mean(list(within.values()))), 3)}
         if name != "same as today (reference)":
             dlo, dhi = person_bootstrap(people, y, s, ref)
             row["vs_reference_95"] = f"{dlo:+.3f}..{dhi:+.3f}"
+            wlo, whi = within_bootstrap(within, ref_within)
+            row["within_vs_reference_95"] = f"{wlo:+.3f}..{whi:+.3f}"
         rows.append(row)
     out = pd.DataFrame(rows)
     out["days"], out["people"], out["positive_rate"] = len(d), d["person_id"].nunique(), round(float(y.mean()), 3)
