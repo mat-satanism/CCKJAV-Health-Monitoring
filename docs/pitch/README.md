@@ -29,8 +29,8 @@ tried (nested check, run with the earlier median-norm inputs) the gain holds: mo
 demo, for a person the model never saw, with the reasons (`docs/wellbeing-model.md`).
 
 **3. Early warning before symptoms** (`3-early-warning-before-fever.png`, simulated mission).
-The risk model flags John's infection on day 16, at 22× the usual risk, 2 days before the fever, while his pulse
-and temperature are still inside the safe limits. It also gives false alarms (Maria day 16, Kenji days 20-21, Stefan days 26-27), which is why a prediction only asks the CMO to confirm and never moves a task by itself
+The risk model flags John's infection on day 16, at 31× the usual risk, 2 days before the fever, while his pulse
+and temperature are still inside the safe limits. It also gives false alarms (Maria day 16, Kenji day 20, Stefan days 26-27), which is why a prediction only asks the CMO to confirm and never moves a task by itself
 (`docs/simulation.md`).
 
 ## All charts (pick for the slides)

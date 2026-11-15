@@ -47,21 +47,42 @@
  },
  "events": {
   "sleep_disruption": {
-   "base_rate": 0.0315
+   "base_rate": 0.0315,
+   "platt": [
+    1.0368,
+    0.0523
+   ]
   },
   "infection": {
-   "base_rate": 0.0206
+   "base_rate": 0.0206,
+   "platt": [
+    1.4626,
+    0.9247
+   ]
   },
   "deconditioning": {
-   "base_rate": 0.0187
+   "base_rate": 0.0187,
+   "platt": [
+    1.4261,
+    1.0402
+   ]
   },
   "low_mood": {
-   "base_rate": 0.0191
+   "base_rate": 0.0191,
+   "platt": [
+    1.1205,
+    0.435
+   ]
   },
   "co2_buildup": {
-   "base_rate": 0.0288
+   "base_rate": 0.0288,
+   "platt": [
+    0.9325,
+    -0.1848
+   ]
   }
  },
  "trained_on": "400 simulated missions, seed 7",
- "note": "Synthetic training data calibrated on PMData and NHANES. Not a medical device."
+ "note": "Synthetic training data calibrated on PMData and NHANES. Not a medical device.",
+ "calibrated_on": "100 simulated missions, seed 99"
 }

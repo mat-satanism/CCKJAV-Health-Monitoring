@@ -43,7 +43,7 @@ backend/app/
   status.py      one status rule for every view (personal norm first, then safe limits)
   rules.py       status per indicator/system, advice, escalation level
   mission.py     simulated crew mission: crew, tasks, alerts, doctors' view
-  analytics.py   baseline / deviation / trend / forecast  <- plug ML models in here
+  analytics.py   trend arrow and the 7-day chart forecast (fitted: docs/forecast.md)
   demo.py        Check-in real-data demo: 30 real PMData days + synthetic BP, glucose, temp
 backend/tests/   pytest
 frontend/        React + Vite + TypeScript UI (see frontend/README.md)
@@ -52,11 +52,12 @@ docs/            api contract, sources
 ```
 
 ## For the data / ML team
-- **Models:** implement the functions in `backend/app/analytics.py`. The chart forecast is fitted by `python -m pipeline.forecast_eval` ([docs/forecast.md](docs/forecast.md)). Keep the signatures; each gets a time-ordered list of floats for one indicator.
+- **Models:** the personal norm and statuses are in `backend/app/status.py` (Bayesian, `docs/personal-norm.md`); the chart forecast and trend arrow in `backend/app/analytics.py`, fitted by `python -m pipeline.forecast_eval` ([docs/forecast.md](docs/forecast.md)); the risk model and the wellbeing forecast are trained in `pipeline/` and the app reads their precomputed files.
 - **Data:** to show real/cleaned data in the app, make `demo_mission()` in `backend/app/demo.py` return your records as `Measurement` objects.
 - **Thresholds:** edit `data/thresholds.json` and add the source to `docs/sources.md`.
 - Notebooks go to `notebooks/`, raw data to `data/raw/` (keep large files out of git).
 - **Cleaned data:** `python -m pipeline.get_data` then `python -m pipeline.build` fills `data/processed/` (daily wearable table, Inspiration4 blood tests, NHANES reference ranges). Columns and cleaning rules: [docs/data.md](docs/data.md). Which days have data, per person: [docs/data-completeness.md](docs/data-completeness.md).
+- **Can the percentages be trusted:** `python -m pipeline.calibration` checks both models; the risk model understated high risks, so it is recalibrated on separate missions (stored in `models/risk_model.json`). See [docs/calibration.md](docs/calibration.md).
 - **How many days the norm needs:** `python -m pipeline.norm_days` checks the calibration week (6 days) and the 14-day window on real people and the simulation: both hold up. See [docs/norm-days.md](docs/norm-days.md).
 - **Simulation and model:** `python -m pipeline.build` also writes the simulated crew mission to `data/processed/sim/`; `python -m pipeline.model` trains the risk model (`models/risk_model.json`) and writes the demo predictions. Design, assumptions and results: [docs/simulation.md](docs/simulation.md).
 - **Wellbeing forecast on real people:** `python -m pipeline.wellbeing` predicts a worse mood, fatigue or readiness tomorrow on PMData and LifeSnaps, scored within each person on people the model never saw against "same as today". Pitch charts and the one-page ML summary: `python -m pipeline.pitch_charts` -> [docs/pitch/](docs/pitch/README.md). `python -m pipeline.wellbeing export` writes the app's forecasts to `data/processed/wellbeing_demo.json`. Results: [docs/wellbeing-model.md](docs/wellbeing-model.md).
