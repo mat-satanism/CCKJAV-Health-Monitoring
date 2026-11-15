@@ -648,3 +648,24 @@ kbd { font-size: .72rem; padding: 1px 5px; border-radius: 5px; border: 1px solid
   100% { opacity: 0; transform: translate(-50%, 8px); } }
 .delay.live { color: var(--green); }
 .guidance.delayed:has(.delay.live) { border-left-color: var(--green); }
+
+/* who enters what: the astronaut's short check-in, the medic's forms */
+textarea { font: inherit; color: var(--text); background: var(--surface-2); border: 1px solid var(--border-hi);
+  border-radius: 10px; padding: .4rem .6rem; width: 100%; resize: vertical; }
+.arrives { margin: .2rem 0 .6rem; padding-left: 1.1rem; display: grid; gap: 2px; }
+.medic-entry { margin: .6rem 0; }
+.medic-entry summary { cursor: pointer; color: var(--accent); }
+.checkin label.reason, .medic-form label.wide { display: grid; gap: 4px; font-size: .8rem; color: var(--muted); margin-top: 8px; }
+.medic-panel { display: grid; gap: 14px; }
+.medic-form { display: grid; gap: 6px; padding-top: 12px; border-top: 1px solid var(--border); }
+.medic-form h3 { margin: 0; font-size: .95rem; }
+.medic-form .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.medic-form .grid label { display: grid; gap: 4px; font-size: .8rem; color: var(--muted); }
+.medic-form input, .medic-form select { width: 100%; }
+.medic-form .primary { justify-self: start; margin-top: .3rem; }
+.notes { display: grid; gap: 8px; padding-top: 12px; border-top: 1px solid var(--border); }
+.notes h3 { margin: 0; font-size: .95rem; }
+.note { padding: .5rem .7rem; border-radius: 10px; background: var(--surface-2); font-size: .86rem; }
+.note p { margin: .15rem 0; }
+.tabbed-head { flex-wrap: wrap; }
+textarea { background: var(--surface); }

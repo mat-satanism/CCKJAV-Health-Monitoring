@@ -12,6 +12,7 @@ export interface Measurement {
   value: number
   unit: string
   source?: 'manual' | 'sensor' | 'synthetic'
+  reason?: string   // why a value that normally comes from a device or the medic was typed by hand
 }
 
 export interface IndicatorStatus {
@@ -36,9 +37,12 @@ export interface MissionInfo {
   day: number; days_total: number; crew: CrewMember[]; source: 'synthetic'; note: string
   environment?: EnvironmentId; environments?: string[]
 }
+/** Who provides a value: the wearable, the in-app test, the crew medical officer, or the astronaut. */
+export type CollectedBy = 'device' | 'test' | 'medic' | 'self'
 export interface MissionIndicator {
   type: string; label: string; unit: string; value: number
   norm: number | null; z: number | null; status: Status; message: string
+  collected_by?: CollectedBy; entered_by?: 'astronaut' | 'medic' | null; entry_reason?: string | null
 }
 export interface EventRisk {
   event: string; label: string; risk: number; multiple: number
@@ -51,7 +55,15 @@ export interface AstronautState {
   isolated: boolean; contact_of: string[]
 }
 // ---------- one crew member's card (synthetic) ----------
-export interface Medication { drug: string; dose: string; schedule?: string; reason: string; day?: number; given_by?: string }
+export interface Medication {
+  drug: string; dose: string; schedule?: string; reason: string; day?: number; given_by?: string
+  note?: string; logged_at?: string
+}
+/** The medic's note in SOAP form: what the person says, what was measured, assessment, plan. */
+export interface ClinicalNote {
+  subjective: string; objective: string; assessment: string; plan: string
+  day: number; author: string; logged_at: string
+}
 export interface Anamnesis {
   age: number; sex: string; conditions: string[]; allergies: string[]; medications: Medication[]
   family_history: string[]; genetic: string[]; notes: string
@@ -62,6 +74,7 @@ export interface AstronautCard extends AstronautState {
   systems: BodySystemStatus[]
   anamnesis: Anamnesis
   medication_today: Medication[]
+  notes: ClinicalNote[]
   readiness: Readiness | null
   trends: Trend[]
   support: { level: 'good' | 'watch' | 'low'; message: string; nutrition: string[] }
@@ -166,7 +179,7 @@ export interface PlanItem { what: string; how: string; how_often: string; why: s
 export interface SystemContent { what: string; in_space: string; hazards: string[]; sources: string[] }
 
 export interface Meta {
-  indicators: Record<string, { label: string; unit: string; system: SystemId }>
+  indicators: Record<string, { label: string; unit: string; system: SystemId; collected_by: CollectedBy }>
   systems: Record<SystemId, { label: string }>
   environments: Record<EnvironmentId, { label: string; gravity_g: number; comm_delay_s: number; note?: string }>
   content: {

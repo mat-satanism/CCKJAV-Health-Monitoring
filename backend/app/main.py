@@ -8,14 +8,22 @@ import json
 import os
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
-from typing import Annotated
+from typing import Annotated, Literal
 
 from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field, StringConstraints
 
 from . import analytics, rules
-from .config import BOUNDS, CONTENT, DATA_DIR, ENVIRONMENTS, INDICATORS, SYSTEMS
+from .config import (
+    BOUNDS,
+    COLLECTED_BY_TEXT,
+    CONTENT,
+    DATA_DIR,
+    ENVIRONMENTS,
+    INDICATORS,
+    SYSTEMS,
+)
 from .demo import blood_reference, demo_mission, wellbeing_forecast
 from .mission import MISSION, available_environments, saved_path
 from .models import Measurement, MissionContext, Task, TaskFeedback
@@ -134,6 +142,10 @@ def add_measurements(items: list[Measurement]):
             raise HTTPException(422, f"{label} must be in {expected}, not {m.unit}")
         if m.ts > now + FUTURE_SLACK:
             raise HTTPException(422, f"{label} has a time in the future ({m.ts:%Y-%m-%d %H:%M} UTC)")
+        how = INDICATORS[m.type]["collected_by"]
+        if how != "self" and not (m.reason or "").strip():
+            raise HTTPException(422, f"{label}: {COLLECTED_BY_TEXT[how]}. Type it by hand only with a reason "
+                                     "(for example: the wearable was off)")
         if m.type in INTEGER_SCALES and m.value != int(m.value):
             raise HTTPException(422, f"{label} is a whole number, got {m.value:g}")
         lo, hi = BOUNDS[m.type]
@@ -215,8 +227,32 @@ Symptom = Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, 
 
 
 class CrewEntry(BaseModel):
+    """A check-in. The astronaut gives only what no device can (mood, symptoms); the crew medical officer can
+    also type a reading by hand, with a reason when it normally comes from the wearable or the test."""
     values: dict[str, float] = Field(default={}, max_length=20)
     symptoms: list[Symptom] | None = Field(default=None, max_length=10)
+    by: Literal["astronaut", "medic"] = "astronaut"
+    reason: str = Field(default="", max_length=200)
+
+
+Short = Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=80)]
+
+
+class MedicationEntry(BaseModel):
+    """A dose given or taken: the medication log the medic keeps (NASA's Dose Tracker idea)."""
+    drug: Short
+    dose: Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=40)]
+    reason: Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=120)]
+    given_by: Literal["medic", "self"] = "medic"
+    note: str = Field(default="", max_length=300)
+
+
+class ClinicalNote(BaseModel):
+    """The medic's note in SOAP form: what the person says, what was measured, assessment, plan."""
+    subjective: str = Field(default="", max_length=1000)
+    objective: str = Field(default="", max_length=1000)
+    assessment: str = Field(default="", max_length=1000)
+    plan: str = Field(default="", max_length=1000)
 
 
 class Readiness(BaseModel):
@@ -254,10 +290,34 @@ def mission_astronaut_entry(aid: str, entry: CrewEntry, day: int | None = None):
     for ind, value in entry.values.items():
         if ind not in INDICATORS:
             raise HTTPException(422, f"Unknown indicator {ind}")
+        label, how = INDICATORS[ind]["label"], INDICATORS[ind]["collected_by"]
+        if entry.by == "astronaut" and how != "self":
+            raise HTTPException(422, f"{label}: {COLLECTED_BY_TEXT[how]}, so it is not part of the astronaut's check-in")
+        if entry.by == "medic" and how in ("device", "test") and not entry.reason.strip():
+            raise HTTPException(422, f"{label}: {COLLECTED_BY_TEXT[how]}. Say why it is typed by hand "
+                                     "(for example: the wearable was off)")
         lo, hi = BOUNDS[ind]
         if not lo <= value <= hi:
-            raise HTTPException(422, f"{ind}={value} is outside the plausible range {lo}-{hi}")
-    m.enter(aid, day, entry.values, entry.symptoms)
+            raise HTTPException(422, f"{label} {value:g} is not possible: expected {lo:g} to {hi:g}")
+    m.enter(aid, day, entry.values, entry.symptoms, by=entry.by, reason=entry.reason.strip())
+    return m.astronaut(aid, day, with_card=True)
+
+
+@app.post("/mission/astronaut/{aid}/medications")
+def mission_astronaut_medication(aid: str, med: MedicationEntry, day: int | None = None):
+    """Add a dose to the medication log for this mission day."""
+    m, day = _crew_member(aid, day)
+    m.log_medication(aid, day, med.model_dump())
+    return m.astronaut(aid, day, with_card=True)
+
+
+@app.post("/mission/astronaut/{aid}/notes")
+def mission_astronaut_note(aid: str, note: ClinicalNote, day: int | None = None):
+    """Add the medic's SOAP note for this mission day."""
+    if not any(v.strip() for v in note.model_dump().values()):
+        raise HTTPException(422, "Write at least one part of the note")
+    m, day = _crew_member(aid, day)
+    m.add_note(aid, day, {k: v.strip() for k, v in note.model_dump().items()})
     return m.astronaut(aid, day, with_card=True)
 
 

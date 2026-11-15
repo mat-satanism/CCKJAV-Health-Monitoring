@@ -37,8 +37,9 @@ Every simulated value is labelled "synthetic" in the app. On simulated missions 
 ## What is in the app
 - **Crew mission** (simulation): 5 astronauts over 30 days, mission clock, crew status, risks for the next 48 hours, tasks that move to a fit crewmate, isolation of close contacts, week trends, kind messages. The same crew can be moved to a Mars base, Moon base, space station, deep-space transit or Mars rover; each place has its own mission ([docs/environments.md](docs/environments.md)).
 - **Doctors**: onboard medical officer or flight surgeon on Earth, an overnight report to save as PDF, a chart of the whole crew's distance from their own norm.
-- **Check-in per person**: body map coloured by status, values and symptoms for a chosen day, morning readiness check, history with the usual range, a fictional patient file turned into an exposure history with sourced checks.
+- **Check-in per person**: body map coloured by status, how the person feels and their symptoms for a chosen day, a medic tab, morning readiness check, history with the usual range, a fictional patient file turned into an exposure history with sourced checks.
 - **Real-data demo**: 30 real days of one PMData participant (blood pressure, glucose and temperature are synthetic and labelled), with tomorrow's outlook and its reasons.
+- **Who enters what**: as on the space station, the wearable and the 3-minute test provide most values by themselves, the astronaut's check-in is only how they feel and symptoms, and the medic's tab holds the medication log, SOAP notes and readings typed by hand with a reason ([docs/data-entry.md](docs/data-entry.md)).
 - **Tasks** with points and "how do you feel after it?"; **sourced limits** (each limit in `data/thresholds.json` names its source and which numbers are our own choice); **two themes** (the light one meets WCAG 2.2 AA contrast and never shows status by colour alone).
 
 Planned: streaks and badges; sleep quality on a sourced scale (no source found yet for the 1-7 scale).

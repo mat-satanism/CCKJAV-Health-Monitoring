@@ -24,6 +24,7 @@ class Measurement(BaseModel):
     value: float = Field(allow_inf_nan=False)
     unit: str = Field(max_length=20)
     source: Literal["manual", "sensor", "synthetic"] = "manual"
+    reason: str | None = Field(default=None, max_length=200)   # why a device/medic value was typed by hand
 
     @field_validator("ts")
     @classmethod

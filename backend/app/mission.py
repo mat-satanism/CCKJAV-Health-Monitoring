@@ -12,6 +12,7 @@ import copy
 import csv
 import json
 import os
+from datetime import UTC, datetime
 from math import comb
 from pathlib import Path
 
@@ -118,6 +119,8 @@ class Mission:
         self.simulated = copy.deepcopy(self.values)
         self.entries: dict[str, dict] = {}        # "aid|day" -> {"values": {...}, "symptoms": [...]}
         self.readiness: dict[str, dict] = {}      # "aid|day" -> {"ready": bool, "note": str}
+        self.medications: dict[str, list] = {}    # "aid|day" -> doses given or taken that day (medication log)
+        self.notes: dict[str, list] = {}          # "aid|day" -> the medic's SOAP notes
         self.day = 15
         self._load_saved()
 
@@ -133,6 +136,7 @@ class Mission:
             try:
                 saved = json.loads(self.saved_path.read_text(encoding="utf-8"))
                 self.entries, self.readiness = saved.get("entries", {}), saved.get("readiness", {})
+                self.medications, self.notes = saved.get("medications", {}), saved.get("notes", {})
             except (ValueError, AttributeError):   # a broken file is set aside so the app still starts
                 self.saved_path.replace(self.saved_path.with_suffix(".broken"))
         for key, e in self.entries.items():
@@ -146,17 +150,31 @@ class Mission:
 
     def _persist(self) -> None:
         self.saved_path.parent.mkdir(parents=True, exist_ok=True)
-        self.saved_path.write_text(json.dumps({"entries": self.entries, "readiness": self.readiness}, indent=1),
-                                      encoding="utf-8")
+        saved = {"entries": self.entries, "readiness": self.readiness, "medications": self.medications,
+                 "notes": self.notes}
+        self.saved_path.write_text(json.dumps(saved, indent=1), encoding="utf-8")
 
-    def enter(self, aid: str, day: int, values: dict[str, float], symptoms: list[str] | None = None) -> None:
-        """Values for one crew member on one mission day, entered in the check-in."""
+    def enter(self, aid: str, day: int, values: dict[str, float], symptoms: list[str] | None = None,
+              by: str = "astronaut", reason: str = "") -> None:
+        """Values for one crew member on one mission day: the astronaut's check-in or the medic's reading."""
         key = f"{aid}|{day}"
         entry = self.entries.setdefault(key, {"values": {}})
         entry["values"].update(values)
+        for ind in values:
+            entry.setdefault("by", {})[ind] = {"by": by, "reason": reason}
         if symptoms is not None:
             entry["symptoms"] = symptoms
         self._apply(aid, day, entry)
+        self._persist()
+
+    def log_medication(self, aid: str, day: int, med: dict) -> None:
+        stamp = datetime.now(UTC).isoformat(timespec="minutes")
+        self.medications.setdefault(f"{aid}|{day}", []).append({**med, "day": day, "logged_at": stamp})
+        self._persist()
+
+    def add_note(self, aid: str, day: int, note: dict) -> None:
+        stamp = datetime.now(UTC).isoformat(timespec="minutes")
+        self.notes.setdefault(f"{aid}|{day}", []).append({**note, "day": day, "author": "CMO", "logged_at": stamp})
         self._persist()
 
     def set_readiness(self, aid: str, day: int, ready: bool, note: str = "") -> dict:
@@ -181,7 +199,7 @@ class Mission:
 
     def reset(self) -> None:
         self.values = copy.deepcopy(self.simulated)
-        self.entries, self.readiness = {}, {}
+        self.entries, self.readiness, self.medications, self.notes = {}, {}, {}, {}
         self.saved_path.unlink(missing_ok=True)
         self.day = 15
 
@@ -228,9 +246,13 @@ class Mission:
                "fit_for_high_demand": not reasons, "unfit_reasons": reasons, "cautions": cautions,
                "isolated": isolated, "contact_of": contact_of, "source": "synthetic"}
         if with_card:
-            entered = self.entries.get(f"{aid}|{day}", {}).get("values", {})
+            entry = self.entries.get(f"{aid}|{day}", {})
+            entered, by = entry.get("values", {}), entry.get("by", {})
             for i in indicators:
                 i["entered"] = i["type"] in entered
+                i["collected_by"] = INDICATORS[i["type"]]["collected_by"]
+                i["entered_by"] = by.get(i["type"], {}).get("by") if i["entered"] else None
+                i["entry_reason"] = by.get(i["type"], {}).get("reason") or None if i["entered"] else None
             history = self.anamnesis[aid]
             out.update(
                 systems=[{"system": s, "indicators": inds,
@@ -239,7 +261,10 @@ class Mission:
                 anamnesis={k: v for k, v in history.items() if k != "medication_log"},
                 medication_today=[{**m, "day": day, "given_by": "self"} for m in history["medications"]
                                   if m["schedule"].startswith("daily")]
-                                 + [m for m in history.get("medication_log", []) if m["day"] == day],
+                                 + [m for m in history.get("medication_log", []) if m["day"] == day]
+                                 + self.medications.get(f"{aid}|{day}", []),
+                notes=sorted((n for d in range(1, day + 1) for n in self.notes.get(f"{aid}|{d}", [])),
+                             key=lambda n: (n["day"], n["logged_at"]), reverse=True),
                 readiness=self.readiness_reply(aid, day))
             out["trends"] = self.trends(aid, day)
             out["support"] = self.support(aid, day, out, out["trends"])

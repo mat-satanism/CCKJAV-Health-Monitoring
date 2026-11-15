@@ -107,18 +107,18 @@ def test_history_has_every_day_with_a_norm_band_after_the_first_week():
 
 def test_entered_value_replaces_the_simulated_one_and_can_take_someone_off_a_task():
     _day(19)
-    r = client.post("/mission/astronaut/stefan/entries", json={"values": {"temp": 39.4}})
+    r = client.post("/mission/astronaut/stefan/entries", json={"values": {"temp": 39.4}, "by": "medic"})
     temp = next(i for i in r.json()["indicators"] if i["type"] == "temp")
     assert temp["value"] == 39.4 and temp["status"] == "red" and temp["entered"]
     assert not r.json()["fit_for_high_demand"]
     eva = _task("EVA: antenna repair")
     assert eva["status"] == "needs decision"            # John is ill and Stefan now too
-    assert client.post("/mission/astronaut/stefan/entries", json={"values": {"temp": 50}}).status_code == 422
+    assert client.post("/mission/astronaut/stefan/entries", json={"values": {"temp": 50}, "by": "medic"}).status_code == 422
 
 
 def test_reset_restores_the_simulated_day():
     _day(19)
-    client.post("/mission/astronaut/stefan/entries", json={"values": {"temp": 39.4}})
+    client.post("/mission/astronaut/stefan/entries", json={"values": {"temp": 39.4}, "by": "medic"})
     client.post("/demo/reset")
     _day(19)
     temp = next(i for i in client.get("/mission/astronaut/stefan").json()["indicators"] if i["type"] == "temp")
@@ -135,7 +135,7 @@ def test_readiness_check_answers_kindly():
 
 def test_card_and_entries_use_the_day_the_screen_shows():
     _day(15)                                    # e.g. the backend restarted and went back to day 15
-    r = client.post("/mission/astronaut/maria/entries", params={"day": 20}, json={"values": {"sleep_hours": 7.5}})
+    r = client.post("/mission/astronaut/maria/entries", params={"day": 20}, json={"values": {"sleep_hours": 7.5}, "by": "medic", "reason": "wearable off"})
     assert r.json()["day"] == 20
     sleep = next(i for i in client.get("/mission/astronaut/maria", params={"day": 20}).json()["indicators"]
                  if i["type"] == "sleep_hours")
@@ -228,7 +228,7 @@ def test_brief_puts_the_crew_signal_first_and_says_all_clear_on_a_quiet_day():
 
 
 def test_entered_values_feed_the_brief_the_same_day():
-    client.post("/mission/astronaut/stefan/entries", params={"day": 4}, json={"values": {"temp": 39.4}})
+    client.post("/mission/astronaut/stefan/entries", params={"day": 4}, json={"values": {"temp": 39.4}, "by": "medic"})
     lines = client.get("/mission/brief", params={"day": 4}).json()["lines"]
     assert any(line.startswith("Stefan") for line in lines)
 
@@ -238,3 +238,42 @@ def test_private_medical_conference_is_never_moved_to_someone_else():
         for t in client.get("/mission/tasks").json() if _day(day) is None else []:
             if t["kind"] == "pmc":
                 assert t["status"] == "planned"
+
+
+def test_astronaut_checks_in_only_how_they_feel():
+    client.post("/demo/reset")
+    r = client.post("/mission/astronaut/kenji/entries", json={"values": {"heart_rate": 60}})
+    assert r.status_code == 422 and "wearable" in r.json()["detail"]
+    r = client.post("/mission/astronaut/kenji/entries", json={"values": {"mood": 4}, "symptoms": ["fatigue"]})
+    assert r.status_code == 200
+    mood = next(i for i in r.json()["indicators"] if i["type"] == "mood")
+    assert mood["entered_by"] == "astronaut" and mood["collected_by"] == "self"
+
+
+def test_medic_types_a_device_value_only_with_a_reason():
+    client.post("/demo/reset")
+    no_reason = client.post("/mission/astronaut/kenji/entries", json={"values": {"heart_rate": 60}, "by": "medic"})
+    assert no_reason.status_code == 422
+    r = client.post("/mission/astronaut/kenji/entries",
+                    json={"values": {"heart_rate": 60}, "by": "medic", "reason": "wearable off"})
+    hr = next(i for i in r.json()["indicators"] if i["type"] == "heart_rate")
+    assert hr["entered_by"] == "medic" and hr["entry_reason"] == "wearable off"
+    temp = client.post("/mission/astronaut/kenji/entries", json={"values": {"temp": 37.1}, "by": "medic"})
+    assert temp.status_code == 200   # temperature is the medic's own measurement: no reason needed
+
+
+def test_medication_log_and_soap_notes_are_kept_with_the_day():
+    client.post("/demo/reset")
+    r = client.post("/mission/astronaut/john/medications", params={"day": 18},
+                    json={"drug": "Paracetamol", "dose": "500 mg", "reason": "fever"})
+    assert any(m["drug"] == "Paracetamol" and m["given_by"] == "medic" for m in r.json()["medication_today"])
+    assert client.post("/mission/astronaut/john/medications", json={"drug": "", "dose": "1", "reason": "x"}).status_code == 422
+    r = client.post("/mission/astronaut/john/notes", params={"day": 18},
+                    json={"subjective": "feels hot", "objective": "temp 38.9", "assessment": "fever", "plan": "isolate"})
+    note = r.json()["notes"][0]
+    assert note["assessment"] == "fever" and note["author"] == "CMO" and note["day"] == 18
+    assert client.post("/mission/astronaut/john/notes", json={"subjective": " "}).status_code == 422
+    later = client.get("/mission/astronaut/john", params={"day": 19}).json()
+    assert later["notes"][0]["assessment"] == "fever"            # earlier notes stay visible on later days
+    client.post("/demo/reset")
+    assert client.get("/mission/astronaut/john", params={"day": 19}).json()["notes"] == []

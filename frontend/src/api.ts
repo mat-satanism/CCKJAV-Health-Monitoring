@@ -61,8 +61,13 @@ export const api = {
   missionAlerts: () => req<CrewAlert[]>('/mission/alerts'),
   astronaut: (aid: string, day: number) => req<AstronautCard>(`/mission/astronaut/${aid}?day=${day}`),
   astronautHistory: (aid: string) => req<AstronautHistory>(`/mission/astronaut/${aid}/history`),
-  enterForAstronaut: (aid: string, day: number, values: Record<string, number>, symptoms?: string[]) =>
-    req<AstronautCard>(`/mission/astronaut/${aid}/entries?day=${day}`, { method: 'POST', body: JSON.stringify({ values, symptoms }) }),
+  enterForAstronaut: (aid: string, day: number, values: Record<string, number>, symptoms?: string[],
+    by: 'astronaut' | 'medic' = 'astronaut', reason = '') =>
+    req<AstronautCard>(`/mission/astronaut/${aid}/entries?day=${day}`, { method: 'POST', body: JSON.stringify({ values, symptoms, by, reason }) }),
+  logMedication: (aid: string, day: number, med: { drug: string; dose: string; reason: string; given_by: 'medic' | 'self'; note: string }) =>
+    req<AstronautCard>(`/mission/astronaut/${aid}/medications?day=${day}`, { method: 'POST', body: JSON.stringify(med) }),
+  addNote: (aid: string, day: number, note: { subjective: string; objective: string; assessment: string; plan: string }) =>
+    req<AstronautCard>(`/mission/astronaut/${aid}/notes?day=${day}`, { method: 'POST', body: JSON.stringify(note) }),
   setReadiness: (aid: string, day: number, ready: boolean, note = '') =>
     req<Readiness>(`/mission/astronaut/${aid}/readiness?day=${day}`, { method: 'POST', body: JSON.stringify({ ready, note }) }),
   patientFile: (aid: string, day: number) => req<PatientFile>(`/mission/astronaut/${aid}/file?day=${day}`),
