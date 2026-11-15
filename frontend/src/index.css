@@ -276,6 +276,11 @@ footer { margin-top: 32px; font-size: .78rem; color: var(--muted); font-family: 
 .insights ul { margin: 0; padding-left: 1.1rem; font-size: .9rem; }
 .tasks label { display: flex; gap: .5rem; align-items: center; padding: .25rem 0; }
 .tasks label.done { color: var(--muted); text-decoration: line-through; }
+.task-feedback { display: flex; flex-wrap: wrap; gap: .3rem; align-items: center; padding: 0 0 .4rem 1.6rem; }
+.task-feedback .fb { font: inherit; font-size: .74rem; padding: .1rem .6rem; border-radius: 999px; cursor: pointer;
+  border: 1px solid var(--border, currentColor); background: transparent; color: inherit; }
+.task-feedback .fb.on { background: var(--surface-2, transparent); font-weight: 600; }
+.task-feedback .fb:focus-visible { outline: 2px solid currentColor; outline-offset: 2px; }
 .progress { height: 5px; background: var(--grid); border-radius: 3px; margin-bottom: .5rem; overflow: hidden; }
 .progress div { height: 100%; background: linear-gradient(90deg, var(--green), var(--accent)); box-shadow: 0 0 10px var(--green); transition: width .3s; }
 

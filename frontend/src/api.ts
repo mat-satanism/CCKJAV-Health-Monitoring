@@ -1,6 +1,6 @@
 import type {
   Alarm, AstronautCard, Brief, PatientFile, AstronautHistory, AstronautState, BloodRow, CrewAlert, DoctorView, Insights, Measurement, Meta, MissionContext, MissionInfo,
-  Forecast, MissionTask, NowLine, Readiness, Report, StatusResponse, Task, TimelineDay, Wellbeing,
+  Forecast, MissionTask, NowLine, Readiness, Report, StatusResponse, Task, TaskOutcome, TimelineDay, Wellbeing,
 } from './types'
 
 const BASE = import.meta.env.VITE_API_URL ?? 'http://127.0.0.1:8000'
@@ -24,6 +24,8 @@ export const api = {
     req<Measurement[]>('/measurements', { method: 'POST', body: JSON.stringify(items) }),
   tasks: () => req<Task[]>('/tasks'),
   completeTask: (id: string) => req<Task>(`/tasks/${id}/complete`, { method: 'POST' }),
+  taskFeedback: (id: string, outcome: TaskOutcome) =>
+    req<Task>(`/tasks/${id}/feedback`, { method: 'POST', body: JSON.stringify({ outcome }) }),
   context: () => req<MissionContext>('/context'),
   setContext: (ctx: MissionContext) =>
     req<MissionContext>('/context', { method: 'PUT', body: JSON.stringify(ctx) }),

@@ -225,3 +225,10 @@ def test_wellbeing_forecast_for_the_real_data_demo():
             assert 0 <= f["probability"] <= 1 and f["times_usual"] >= 0
             assert len(f["reasons"]) <= 3
     assert days[17]["mood"]["times_usual"] >= 1.5         # day 18: mood already low, tomorrow is worse too
+
+
+def test_task_feedback_is_kept_with_the_task():
+    r = client.post("/tasks/sleep/feedback", json={"outcome": "better"})
+    assert r.status_code == 200 and r.json()["feedback"] == "better" and r.json()["feedback_ts"]
+    assert client.post("/tasks/sleep/feedback", json={"outcome": "great"}).status_code == 422
+    assert client.post("/tasks/nope/feedback", json={"outcome": "same"}).status_code == 404

@@ -57,6 +57,12 @@ class Task(BaseModel):
     title: str
     points: int
     done: bool = False
+    feedback: Literal["better", "same", "worse", "gone"] | None = None   # how the person feels after it
+    feedback_ts: datetime | None = None
+
+
+class TaskFeedback(BaseModel):
+    outcome: Literal["better", "same", "worse", "gone"]
 
 
 class MissionContext(BaseModel):

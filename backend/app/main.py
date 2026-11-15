@@ -18,7 +18,7 @@ from . import analytics, rules
 from .config import BOUNDS, CONTENT, DATA_DIR, ENVIRONMENTS, INDICATORS, SYSTEMS
 from .demo import blood_reference, demo_mission, wellbeing_forecast
 from .mission import MISSION
-from .models import Measurement, MissionContext, Task
+from .models import Measurement, MissionContext, Task, TaskFeedback
 
 app = FastAPI(title="CCKJAV Health Monitoring API")
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
@@ -360,6 +360,16 @@ def complete_task(task_id: str):
     if task is None:
         raise HTTPException(404, "Unknown task")
     task.done = True
+    return task
+
+
+@app.post("/tasks/{task_id}/feedback", response_model=Task)
+def task_feedback(task_id: str, body: TaskFeedback):
+    """Did it help? The answer is kept with the task, so the next advice can learn from it (mentors' idea)."""
+    task = next((t for t in TASKS if t.id == task_id), None)
+    if task is None:
+        raise HTTPException(404, "Unknown task")
+    task.feedback, task.feedback_ts = body.outcome, datetime.now(UTC)
     return task
 
 
