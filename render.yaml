@@ -1,0 +1,11 @@
+# Render Blueprint: the whole app (API and website) as one free web service built from the Dockerfile.
+# On render.com: New -> Blueprint -> pick this repository. It redeploys by itself after every merge to main.
+services:
+  - type: web
+    name: crew-health-navigator
+    runtime: docker
+    plan: free
+    region: frankfurt
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /health
+    autoDeployTrigger: commit

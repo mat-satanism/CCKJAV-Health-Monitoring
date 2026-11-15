@@ -1,5 +1,6 @@
-# The whole app in one container: the API and the built website on one address (port 7860, as Hugging Face
-# Spaces expect). Build and run locally: docker build -t chn . && docker run -p 7860:7860 chn
+# The whole app in one container: the API and the built website on one address. The port comes from the PORT
+# variable that hosts such as Render set (7860 when it is not set). Build and run locally:
+#   docker build -t chn . && docker run -p 7860:7860 chn
 
 # 1. Build the website. An empty API address makes it call the same address it was opened from.
 FROM node:20-slim AS web
@@ -27,4 +28,4 @@ RUN mkdir -p data/local && chown user data/local
 USER user
 ENV CHN_STATIC_DIR=/app/frontend/dist
 EXPOSE 7860
-CMD ["uvicorn", "app.main:app", "--app-dir", "backend", "--host", "0.0.0.0", "--port", "7860"]
+CMD ["sh", "-c", "exec uvicorn app.main:app --app-dir backend --host 0.0.0.0 --port ${PORT:-7860}"]
