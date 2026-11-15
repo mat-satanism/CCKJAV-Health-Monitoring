@@ -34,8 +34,50 @@ def trend(values: list[float], n: int = 5) -> str | None:
     return "up" if step > spread else "down" if step < -spread else "flat"
 
 
-def forecast(values: list[float], days: int = 7) -> list[float]:
-    """Next `days` values. Default: linear extrapolation of the last 7 points."""
+# Forecast settings per indicator, fitted on real people (PMData, LifeSnaps; training people only) by
+# `python -m pipeline.forecast_eval`, which also checks that these numbers still match. See docs/forecast.md.
+# persistence: share of today's distance from the norm left tomorrow (0 = back to usual at once).
+# band: width of the 80% band in units of the person's spread, so that 80% of real values fall inside.
+FORECAST = {
+    "heart_rate":   {"persistence": 0.9, "band": 2.52},
+    "sleep_hours":  {"persistence": 0.0, "band": 1.43},
+    "mood":         {"persistence": 0.0, "band": 1.19},
+    "exercise_min": {"persistence": 0.2, "band": 1.14},
+    "hrv_ms":       {"persistence": 0.6, "band": 1.65},
+}
+# No open daily data for pressure, glucose, temperature, reaction time: an ASSUMPTION, between the fitted ones.
+FORECAST_DEFAULT = {"persistence": 0.5, "band": 1.5}
+
+
+def forecast_band(values: list[float], days: int = 7, indicator: str | None = None) -> list[tuple[float, float, float]]:
+    """Next `days` values as (forecast, low, high); low-high is the 80% band.
+
+    Back to the person's own norm: today's distance from the usual level (median of the last 14 values) shrinks
+    by `persistence` every day. The band grows from one day's spread towards the person's full spread.
+    """
+    window = values[-BASELINE_DAYS:]
+    if len(window) < 3:
+        return []
+    cfg = FORECAST.get(indicator or "", FORECAST_DEFAULT)
+    phi, k = cfg["persistence"], cfg["band"]
+    norm = median(window)
+    spread = pstdev(window)
+    gap = values[-1] - norm
+    out = []
+    for h in range(1, days + 1):
+        mid = norm + gap * phi ** h
+        half = k * spread * ((1 - phi ** (2 * h)) + 1 / BASELINE_DAYS) ** 0.5
+        out.append((round(mid, 2), round(mid - half, 2), round(mid + half, 2)))
+    return out
+
+
+def forecast(values: list[float], days: int = 7, indicator: str | None = None) -> list[float]:
+    """Next `days` values: back to the person's own norm (see forecast_band)."""
+    return [mid for mid, _, _ in forecast_band(values, days, indicator)]
+
+
+def linear_forecast(values: list[float], days: int = 7) -> list[float]:
+    """The old forecast, kept for comparison: linear extrapolation of the last 7 points."""
     tail = values[-7:]
     if len(tail) < 2:
         return []

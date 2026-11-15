@@ -72,8 +72,26 @@ def test_impossible_value_rejected():
 
 
 def test_forecast_stays_in_range():
-    values = client.get("/forecast/mood").json()["values"]
-    assert all(1 <= v <= 5 for v in values)
+    body = client.get("/forecast/mood").json()
+    assert all(1 <= v <= 5 for v in body["values"] + body["low"] + body["high"])
+
+
+def test_forecast_band_holds_the_forecast():
+    body = client.get("/forecast/heart_rate?days=7").json()
+    assert len(body["values"]) == len(body["low"]) == len(body["high"]) == 7
+    assert all(lo <= v <= hi for v, lo, hi in zip(body["values"], body["low"], body["high"]))
+    widths = [hi - lo for lo, hi in zip(body["low"], body["high"])]
+    assert widths == sorted(widths)                       # less sure further ahead
+
+
+def test_forecast_goes_back_to_the_norm_not_off_a_cliff():
+    from app import analytics
+    rising = [60.0] * 14 + [62.0, 64.0, 66.0, 68.0, 70.0]  # five days up in a row
+    old = analytics.linear_forecast(rising, 7)
+    new = analytics.forecast(rising, 7, "heart_rate")
+    assert old[-1] > 80                                    # the old straight line keeps climbing
+    assert 60 <= new[-1] < 70                              # the new one bends back towards the usual 60-62
+    assert new == sorted(new, reverse=True)
 
 
 def test_complete_task():

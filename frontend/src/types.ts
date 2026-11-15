@@ -171,6 +171,15 @@ export interface Meta {
   }
 }
 
+// GET /forecast/{indicator}: back to the person's own norm, with an 80% band (docs/forecast.md)
+export interface Forecast {
+  type: string
+  values: number[]
+  low: number[]
+  high: number[]
+  coverage: number
+}
+
 // Real-data demo: wellbeing forecast for tomorrow (GET /wellbeing, made by `python -m pipeline.wellbeing export`)
 export interface WellbeingForecast {
   probability: number
