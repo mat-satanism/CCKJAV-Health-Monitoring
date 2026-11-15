@@ -17,27 +17,27 @@ own norm**, with an **80% band**, and checked both on real people. Run: `python 
 | Indicator | Persistence | Band (× spread) | Data |
 |---|---|---|---|
 | Resting pulse | 0.9 | 2.52 | PMData + LifeSnaps |
-| Sleep | 0.0 | 1.43 | PMData (self-report) + LifeSnaps (wristband) |
-| Mood | 0.0 | 1.19 | PMData |
-| Exercise | 0.2 | 1.14 | PMData + LifeSnaps |
-| HRV | 0.6 | 1.65 | LifeSnaps |
+| Sleep | 0.0 | 1.51 | PMData (self-report) + LifeSnaps (wristband) |
+| Mood | 0.0 | 1.3 | PMData |
+| Exercise | 0.0 | 1.32 | PMData + LifeSnaps |
+| HRV | 0.5 | 1.59 | LifeSnaps |
 | Pressure, glucose, temperature, reaction time | 0.5 | 1.5 | **assumption**: no open daily data |
 
-## Results on people the settings never saw (17 people, 18 989 forecasts in total)
+## Results on people the settings never saw (16 people; re-run 2026-11-15 after the data cleaning)
 
 Error = mean |forecast − real| over the 7 days, divided by the person's spread; relative to "same as today"
 (last value repeated). Below 1 is better.
 
 | Indicator | Old straight line | Same as today | Usual level (median) | **Back to own norm (new)** | Real values inside the 80% band |
 |---|---|---|---|---|---|
-| Resting pulse | 1.38 | 1.00 | 1.15 | **0.97** | 80% |
-| Sleep | 1.48 | 1.00 | 0.76 | **0.76** | 79% |
-| Mood | 1.67 | 1.00 | 0.78 | **0.78** | 78% |
-| Exercise | 1.36 | 1.00 | 0.87 | **0.87** | 76% |
-| HRV | 1.43 | 1.00 | 0.83 | **0.82** | 83% |
-| **All** | **1.44** | 1.00 | 0.89 | **0.85** | |
+| Resting pulse | 1.36 | 1.00 | 1.16 | **0.97** | 81% |
+| Sleep | 1.48 | 1.00 | 0.75 | **0.75** | 82% |
+| Mood | 1.66 | 1.00 | 0.78 | **0.78** | 81% |
+| Exercise | 1.47 | 1.00 | 0.78 | **0.78** | 73% |
+| HRV | 1.36 | 1.00 | 0.89 | **0.88** | 78% |
+| **All** | **1.44** | 1.00 | 0.89 | **0.84** | |
 
-- **The old straight line was 44% worse than simply repeating today.** The new forecast is 15% better than that.
+- **The old straight line was 44% worse than simply repeating today.** The new forecast is 16% better than that.
 - One rule does not fit all: "usual level" is right for mood and sleep and wrong for pulse (1.15), because a pulse
   change lasts. Per-indicator persistence handles both.
 - The band is honest: 76-83% of real values fall inside an 80% band on new people.

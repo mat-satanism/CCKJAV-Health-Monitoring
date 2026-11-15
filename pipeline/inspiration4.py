@@ -62,6 +62,7 @@ def tidy(raw: pd.DataFrame, panel: str) -> pd.DataFrame:
     units = long[long["kind"] == "value"].drop_duplicates("analyte").set_index("analyte")["unit"]
     wide["unit"] = wide["analyte"].map(units)
     wide["unit"] = [UNIT_FIX.get((a, u), u) for a, u in zip(wide["analyte"], wide["unit"])]
+    wide.loc[wide["unit"].isna() & wide["analyte"].str.endswith("_ratio"), "unit"] = "ratio"   # no unit in the source
 
     meta = pd.DataFrame([parse_sample(s) for s in wide["Sample Name"]])
     out = pd.concat([meta, wide.drop(columns="Sample Name")], axis=1)

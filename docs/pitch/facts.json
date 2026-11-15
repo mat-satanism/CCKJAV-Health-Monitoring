@@ -13,21 +13,27 @@
  },
  "blood": {
   "glucose": {
-   "crew_up_minus_down_at_R+1": 4,
+   "R+1_above_own_preflight_range": 3,
+   "R+1_below_own_preflight_range": 0,
+   "crew": 4,
    "lab_range": [
     65.0,
     99.0
    ]
   },
   "white_blood_cell_count": {
-   "crew_up_minus_down_at_R+1": -4,
+   "R+1_above_own_preflight_range": 0,
+   "R+1_below_own_preflight_range": 2,
+   "crew": 4,
    "lab_range": [
     3.8,
     10.8
    ]
   },
   "monocytes": {
-   "crew_up_minus_down_at_R+1": 4,
+   "R+1_above_own_preflight_range": 3,
+   "R+1_below_own_preflight_range": 0,
+   "crew": 4,
    "lab_range": [
     0.0,
     13.0
@@ -36,38 +42,61 @@
  },
  "before_bad_mood": {
   "any_day": 0.147,
+  "pulse_effect": -0.04,
   "signals": [
    {
-    "label": "Stressed day\n(calm 1+ below usual)",
-    "rate": 0.215,
-    "lo": 0.138,
-    "hi": 0.299,
-    "other": 0.126,
+    "label": "Stressed day (calm 1+ below usual)",
+    "effect": 0.037,
+    "lo": -0.064,
+    "hi": 0.137,
+    "people": 12,
+    "positive": 7,
     "days": 256
    },
    {
-    "label": "Short sleep\n(1+ h below usual, self-report)",
-    "rate": 0.178,
-    "lo": 0.115,
-    "hi": 0.235,
-    "other": 0.131,
+    "label": "Short sleep (1+ h below usual, self-report)",
+    "effect": 0.041,
+    "lo": -0.007,
+    "hi": 0.084,
+    "people": 15,
+    "positive": 9,
     "days": 343
    },
    {
-    "label": "Tired day\n(energy 1+ below usual)",
-    "rate": 0.168,
-    "lo": 0.118,
-    "hi": 0.232,
-    "other": 0.137,
+    "label": "Tired day (energy 1+ below usual)",
+    "effect": 0.039,
+    "lo": 0.006,
+    "hi": 0.072,
+    "people": 14,
+    "positive": 10,
     "days": 292
    },
    {
-    "label": "Short sleep\n(1+ h below usual, wristband)",
-    "rate": 0.162,
-    "lo": 0.105,
-    "hi": 0.215,
-    "other": 0.142,
-    "days": 216
+    "label": "Short sleep (1+ h below usual, wristband)",
+    "effect": 0.031,
+    "lo": -0.015,
+    "hi": 0.071,
+    "people": 14,
+    "positive": 9,
+    "days": 209
+   },
+   {
+    "label": "Fewer steps (3000+ below usual)",
+    "effect": 0.037,
+    "lo": -0.015,
+    "hi": 0.088,
+    "people": 15,
+    "positive": 9,
+    "days": 354
+   },
+   {
+    "label": "Resting pulse 2+ bpm above usual",
+    "effect": -0.04,
+    "lo": -0.089,
+    "hi": 0.006,
+    "people": 12,
+    "positive": 4,
+    "days": 164
    }
   ]
  },
@@ -105,6 +134,41 @@
   "other_days": 21,
   "other_then_bad": 4
  },
+ "blood_panel": {
+  "outside_lab_range": {
+   "glucose": 4,
+   "calcium": 0,
+   "white_blood_cell_count": 0,
+   "hemoglobin": 2,
+   "platelet_count": 1,
+   "creatinine": 1
+  }
+ },
+ "completeness": {
+  "people": 87,
+  "pmdata_top5": [
+   {
+    "person_id": "pm_p06",
+    "best_30_days_complete": 1.0
+   },
+   {
+    "person_id": "pm_p07",
+    "best_30_days_complete": 1.0
+   },
+   {
+    "person_id": "pm_p01",
+    "best_30_days_complete": 0.97
+   },
+   {
+    "person_id": "pm_p04",
+    "best_30_days_complete": 0.97
+   },
+   {
+    "person_id": "pm_p10",
+    "best_30_days_complete": 0.97
+   }
+  ]
+ },
  "forecast": [
   {
    "label": "Lower mood tomorrow",
@@ -117,30 +181,30 @@
   },
   {
    "label": "Less energy tomorrow",
-   "model": 0.648,
+   "model": 0.649,
    "reference": 0.59,
    "lo": 0.009,
-   "hi": 0.121,
+   "hi": 0.127,
    "people": 16,
-   "gain": 0.058
+   "gain": 0.059
   },
   {
    "label": "Less ready to train",
-   "model": 0.648,
+   "model": 0.639,
    "reference": 0.627,
-   "lo": -0.01,
-   "hi": 0.051,
+   "lo": -0.023,
+   "hi": 0.05,
    "people": 16,
-   "gain": 0.021
+   "gain": 0.012
   },
   {
    "label": "Sad, tense or tired (LifeSnaps)",
-   "model": 0.545,
+   "model": 0.515,
    "reference": 0.53,
-   "lo": -0.027,
-   "hi": 0.054,
+   "lo": -0.061,
+   "hi": 0.028,
    "people": 58,
-   "gain": 0.015
+   "gain": -0.015
   }
  ]
 }
