@@ -128,16 +128,17 @@ def add_measurements(items: list[Measurement]):
         raise HTTPException(422, f"At most {MAX_ITEMS} measurements per request")
     now = datetime.now(UTC)
     for m in items:
-        expected = INDICATORS[m.type]["unit"]
+        # The reason is shown in the check-in as it is, so it names the indicator the way the app does.
+        label, expected = INDICATORS[m.type]["label"], INDICATORS[m.type]["unit"]
         if m.unit != expected:
-            raise HTTPException(422, f"{m.type} must be in {expected}, got {m.unit!r}")
+            raise HTTPException(422, f"{label} must be in {expected}, not {m.unit}")
         if m.ts > now + FUTURE_SLACK:
-            raise HTTPException(422, f"{m.type} has a time in the future ({m.ts.isoformat()})")
+            raise HTTPException(422, f"{label} has a time in the future ({m.ts:%Y-%m-%d %H:%M} UTC)")
         if m.type in INTEGER_SCALES and m.value != int(m.value):
-            raise HTTPException(422, f"{m.type} is a whole-number scale, got {m.value}")
+            raise HTTPException(422, f"{label} is a whole number, got {m.value:g}")
         lo, hi = BOUNDS[m.type]
         if not lo <= m.value <= hi:
-            raise HTTPException(422, f"{m.type}={m.value} is outside the plausible range {lo}-{hi}")
+            raise HTTPException(422, f"{label} {m.value:g} {expected} is not possible: expected {lo:g} to {hi:g}")
     items = [m.model_copy(update={"source": "manual"}) for m in items]
     MEASUREMENTS.extend(items)
     _save(items)
@@ -386,3 +387,11 @@ def task_feedback(task_id: str, body: TaskFeedback):
 def demo_reset():
     reset()
     return {"ok": True, "measurements": len(MEASUREMENTS)}
+
+
+# One-address deploy (the Hugging Face Space, see Dockerfile): the built frontend is served from the same place as
+# the API, so the site needs no second server. Mounted last, so every API route above still wins.
+STATIC_DIR = os.environ.get("CHN_STATIC_DIR")
+if STATIC_DIR and Path(STATIC_DIR).is_dir():
+    from fastapi.staticfiles import StaticFiles
+    app.mount("/", StaticFiles(directory=STATIC_DIR, html=True), name="site")

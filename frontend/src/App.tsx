@@ -4,6 +4,7 @@ import { BloodReference } from './components/BloodReference'
 import { BodyMap } from './components/BodyMap'
 import { CheckIn } from './components/CheckIn'
 import { DoctorView } from './components/DoctorView'
+import { EmergencyScreen } from './components/EmergencyScreen'
 import { MissionStrip } from './components/MissionStrip'
 import { MissionView } from './components/MissionView'
 import { PatientFile } from './components/PatientFile'
@@ -13,9 +14,45 @@ import { WellbeingCard } from './components/WellbeingCard'
 import { EnvSwitch } from './components/EnvSwitch'
 import { SystemPanel } from './components/SystemPanel'
 import { Tabbed } from './components/Tabbed'
+import { applyTheme, savedTheme, type Theme } from './theme'
 import type {
   EnvironmentId, Insights, Meta, MissionContext, MissionInfo, StatusResponse, SystemId, Task,
 } from './types'
+
+/** The planet-with-orbit logo: glowing and moving in the space theme, flat and still in the paper theme. */
+function Logo({ theme }: { theme: Theme }) {
+  if (theme === 'paper') {
+    return (
+      <svg viewBox="0 0 40 40" aria-hidden="true">
+        <g transform="rotate(-28 20 20)">
+          <ellipse cx="20" cy="20" rx="17" ry="7" fill="none" stroke="var(--accent)" strokeWidth="1.6" />
+          <circle cx="37" cy="20" r="2.2" fill="var(--accent)" />
+        </g>
+        <circle cx="20" cy="20" r="8.5" fill="var(--accent)" />
+        <path d="M15.5 20h2.5l1.5-3 2 6 1.5-3h2.5" fill="none" stroke="#fff" strokeWidth="1.6"
+          strokeLinecap="round" strokeLinejoin="round" />
+      </svg>
+    )
+  }
+  return (
+    <svg viewBox="0 0 40 40" aria-hidden="true">
+      <defs>
+        <linearGradient id="logo-g" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0" stopColor="#6cc9ff" /><stop offset="1" stopColor="#a78bfa" />
+        </linearGradient>
+      </defs>
+      <g transform="rotate(-28 20 20)">
+        <ellipse cx="20" cy="20" rx="17" ry="7" fill="none" stroke="url(#logo-g)" strokeWidth="1.6" opacity=".9" />
+        <circle r="1.9" fill="#fff" className="logo-sat">
+          <animateMotion dur="6s" repeatCount="indefinite" path="M37 20 A17 7 0 1 1 3 20 A17 7 0 1 1 37 20" />
+        </circle>
+      </g>
+      <circle cx="20" cy="20" r="8" fill="url(#logo-g)" />
+      <path d="M15.5 20h2.5l1.5-3 2 6 1.5-3h2.5" fill="none" stroke="#071022" strokeWidth="1.6"
+        strokeLinecap="round" strokeLinejoin="round" className="logo-beat" />
+    </svg>
+  )
+}
 
 type Tab = 'mission' | 'doctor' | 'astronaut'
 const TABS: { id: Tab; label: string }[] = [
@@ -38,6 +75,11 @@ export default function App() {
   const [selected, setSelected] = useState<SystemId | null>('cardiovascular')
   const [error, setError] = useState<string | null>(null)
   const [version, setVersion] = useState(0)
+  const [theme, setTheme] = useState<Theme>(savedTheme)
+  const switchTheme = () => { const next = theme === 'space' ? 'paper' : 'space'; applyTheme(next); setTheme(next) }
+  const [sideTab, setSideTab] = useState('outlook')
+  const [measure, setMeasure] = useState<string | null>(null)       // field to re-measure in the check-in
+  const [emergencySeen, setEmergencySeen] = useState<string | null>(null)
   const [toast, setToast] = useState<string | null>(null)
   useEffect(() => {
     if (!toast) return
@@ -98,6 +140,10 @@ export default function App() {
     setToast(`Now: ${m.label}. ${m.note ?? ''} Days 1-15 are the calm calibration weeks everywhere; the place shows from day 16.`)
   }
   const patient = chosen ?? mission?.crew[0]?.astronaut_id ?? 'real'
+  // The emergency screen opens once per set of confirmed reds; closing it keeps it closed until something new turns red.
+  const confirmedReds = insights.items.filter((i) => i.status === 'red' && !i.recheck).map((i) => i.type).join(',')
+  const showEmergency = insights.level === 'ground' && confirmedReds !== '' && emergencySeen !== confirmedReds
+  const measureNow = (type: string) => { setSideTab('checkin'); setMeasure(type) }
   const openPerson = (aid: string) => { setPatient(aid); setFileOpen(false); setTab('astronaut') }
   const strip = mission && (
     <MissionStrip day={mission.day} total={mission.days_total} note={mission.note} onDay={changeDay} reloadKey={version} />
@@ -107,22 +153,7 @@ export default function App() {
     <div className="app">
       <header className="topbar">
         <div className="brand">
-          <svg viewBox="0 0 40 40" aria-hidden="true">
-            <defs>
-              <linearGradient id="logo-g" x1="0" y1="0" x2="1" y2="1">
-                <stop offset="0" stopColor="#6cc9ff" /><stop offset="1" stopColor="#a78bfa" />
-              </linearGradient>
-            </defs>
-            <g transform="rotate(-28 20 20)">
-              <ellipse cx="20" cy="20" rx="17" ry="7" fill="none" stroke="url(#logo-g)" strokeWidth="1.6" opacity=".9" />
-              <circle r="1.9" fill="#fff" className="logo-sat">
-                <animateMotion dur="6s" repeatCount="indefinite" path="M37 20 A17 7 0 1 1 3 20 A17 7 0 1 1 37 20" />
-              </circle>
-            </g>
-            <circle cx="20" cy="20" r="8" fill="url(#logo-g)" />
-            <path d="M15.5 20h2.5l1.5-3 2 6 1.5-3h2.5" fill="none" stroke="#071022" strokeWidth="1.6"
-              strokeLinecap="round" strokeLinejoin="round" className="logo-beat" />
-          </svg>
+          <Logo theme={theme} />
           <div>
             <h1>Crew Health Navigator</h1>
             <span className="brand-sub">Mission medical console</span>
@@ -144,6 +175,10 @@ export default function App() {
               : ctx.comm_delay_s >= 60 ? `${Math.round(ctx.comm_delay_s / 60)} min signal delay` : `${ctx.comm_delay_s} s signal delay`}
           </span>
           <button onClick={() => api.resetDemo().then(refresh)}>Reset demo</button>
+          <button className="theme-switch" onClick={switchTheme} aria-pressed={theme === 'paper'}
+            title={theme === 'space' ? 'Switch to the light theme' : 'Switch to the dark theme'}>
+            {theme === 'space' ? 'Light theme' : 'Dark theme'}
+          </button>
         </div>
       </header>
 
@@ -205,20 +240,27 @@ export default function App() {
               </p>
             </details>
             {selected && (
-              <SystemPanel key={`${selected}-${version}`} system={selected} meta={meta} indicators={status.indicators} />
+              <SystemPanel key={`${selected}-${version}`} system={selected} meta={meta} indicators={status.indicators}
+                onMeasure={measureNow} />
             )}
             {selected === 'metabolic' && <BloodReference />}
           </div>
 
           <aside className="side sticky-col">
-            <Tabbed label="Outlook, tasks and check-in" tabs={[
+            <Tabbed label="Outlook, tasks and check-in" active={sideTab}
+              onActive={(id) => { setSideTab(id); setMeasure(null) }} tabs={[
               { id: 'outlook', label: 'Tomorrow', content: <WellbeingCard /> },
               { id: 'tasks', label: 'Tasks', badge: tasks.filter((t) => !t.done).length || undefined,
                 content: <TasksCard tasks={tasks} onDone={(id) => api.completeTask(id).then(refresh)}
                   onFeedback={(id, o) => api.taskFeedback(id, o).then(refresh)} /> },
-              { id: 'checkin', label: 'Check-in', content: <CheckIn meta={meta} onSaved={refresh} /> },
+              { id: 'checkin', label: 'Check-in',
+                content: <CheckIn meta={meta} focus={measure} onSaved={() => { setMeasure(null); refresh() }} /> },
             ]} />
           </aside>
+          {showEmergency && (
+            <EmergencyScreen insights={insights} meta={meta} delayS={ctx.comm_delay_s ?? 0}
+              onClose={() => setEmergencySeen(confirmedReds)} />
+          )}
         </main>
       )}
       </div>

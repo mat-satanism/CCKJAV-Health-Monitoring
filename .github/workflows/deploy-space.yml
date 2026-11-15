@@ -1,0 +1,22 @@
+# After every merge to main, update the public site (a Hugging Face Space). See deploy/push_space.py for the
+# two repo settings it needs; without them the job is skipped, so forks and PRs never deploy.
+name: Deploy to Hugging Face Space
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+concurrency: deploy-space
+jobs:
+  deploy:
+    if: ${{ vars.HF_SPACE != '' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install huggingface_hub==0.26.2
+      - run: python deploy/push_space.py
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+          HF_SPACE: ${{ vars.HF_SPACE }}
