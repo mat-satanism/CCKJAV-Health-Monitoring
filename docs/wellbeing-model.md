@@ -63,13 +63,50 @@ Scored on three different splits of people (seeds 42, 1, 2) before choosing:
 
 The first two ideas are the lesson: they lift the headline number by 0.04 and change nothing for one person.
 
+### Round 2: composite features (`python -m pipeline.wellbeing_search mood|fatigue`)
+
+Within-person AUC, mean of 3 splits of people (min-max in brackets). Start: the best forest above for each target.
+
+| Variant | Mood | Fatigue |
+|---|---|---|
+| Same as today | 0.608 | 0.590 |
+| Start (current best) | 0.675 (0.670-0.680) | 0.640 (0.637-0.644) |
+| + wellbeing index (mean of today's answers against norm, its 3-day mean and change) | 0.670 | 0.635 |
+| + sleep debt (shortfall against own norm over 3 days) | 0.679 | 0.632 |
+| + training load (acute 7 days / chronic 28 days, ACWR) | 0.667 | 0.636 |
+| + interactions (pulse up × short sleep, stress × fatigue) | 0.676 | 0.636 |
+| + days since the last bad day | 0.678 | 0.645 |
+| + all composites | 0.674 | 0.640 |
+| Regression on "tomorrow minus usual" instead of yes/no | 0.665 | 0.606 |
+| Score centred on the person's own past scores | 0.684 | 0.646 |
+
+Every variant lands within ±0.01 of the start, inside the spread between splits. With 16 people the data seem to
+hold about this much signal: **0.67-0.68 for mood and 0.64 for fatigue**, and more feature work does not move it.
+
+### The honest number: nested check
+
+Comparing many variants and keeping the best one flatters the result. So we also ran the whole search inside a
+nested check: for each fold of people, the best variant is chosen on the other people only (inner folds), then
+scored on the held-out ones. This number includes the cost of our own searching.
+
+| Target | Same as today | Search, scored nested | Difference, 95% interval | Variants picked in the 5 folds |
+|---|---|---|---|---|
+| Worse mood | 0.608 | **0.666** | **+0.023..+0.094** | all composites, days since ×3, centred |
+| More tired | 0.590 | **0.644** | **+0.006..+0.119** | centred ×3, days since ×2 |
+
+Both stay above "same as today" even after paying for the search. The model in `pipeline/wellbeing.py` keeps the
+simple start version: the variants are equivalent, and the simpler one is easier to explain.
+
 ## What this means
 
 - **A worse mood tomorrow can be predicted better than "same as today" for the same person**: within-person AUC
-  0.68 against 0.61, interval entirely above 0, on people the model never saw. It is the first real-data result
+  0.68 against 0.61 (0.67 after paying for our search in the nested check), interval entirely above 0, on people
+  the model never saw. It is the first real-data result
   in the project that beats the simple reference instead of matching it.
-- **Fatigue**: the forest with all inputs beats the reference within person (0.64 vs 0.59); steps are among its
-  top signals, so here the wristband helps.
+- **Fatigue**: the forest with all inputs beats the reference within person (0.64 vs 0.59, also in the nested
+  check); steps are among its top signals, so here the wristband helps.
+- **More features do not help further**: sleep debt, training load, interactions and a wellbeing index all land
+  within ±0.01. The ceiling is the data (16 people), not the model.
 - **Readiness and LifeSnaps feelings**: nothing beats "same as today".
 - **Linear models fail**: what matters is a drop against the person's own norm combined with the last days, which
   trees pick up and a straight line does not.

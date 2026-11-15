@@ -77,3 +77,20 @@ def test_within_person_auc_ignores_who_is_who():
     y = np.array([0, 0, 1, 1, 0, 0, 1, 1])
     s = np.array([0.1, 0.2, 0.3, 0.4, 0.6, 0.7, 0.8, 0.9])          # b always scores higher than a
     assert wellbeing.within_person_auc(people, y, s) == {"a": 1.0, "b": 1.0}
+
+
+def test_composite_features_use_only_the_past():
+    from pipeline import wellbeing_search as ws
+    rng = np.random.default_rng(1)
+    f = _table(n_people=2, days=40)
+    for c in ["stress", "sleep_quality", "soreness", "sleep_hours", "sleep_hours_device", "exercise_min"]:
+        f[c] = rng.normal(5, 1, len(f))
+    for c in ["mood_z", "fatigue_z", "stress_z", "sleep_hours_device_z"]:
+        f[c] = rng.normal(size=len(f))
+    a = ws.composites(f, "mood")
+    changed = f.copy()
+    changed.loc[changed["date"] > "2020-01-20", ["mood", "sleep_hours", "exercise_min", "heart_rate_z"]] = 0.0
+    b = ws.composites(changed, "mood")
+    past = a["date"] <= "2020-01-20"
+    cols = [c for group in ws.COMPOSITE.values() for c in group]
+    pd.testing.assert_frame_equal(a.loc[past, cols], b.loc[past, cols])
