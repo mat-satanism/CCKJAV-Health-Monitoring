@@ -158,3 +158,9 @@ def test_loose_watch_values_are_unknown():
                        "sleep_hours_device": [0.9, 7.2, 14.8]})
     out = drop_impossible(df)
     assert out.isna().sum().tolist() == [1, 1, 2] and out.iloc[1].notna().all()
+
+
+def test_people_told_they_have_high_blood_pressure_are_left_out():
+    bp = pd.DataFrame({"SEQN": [1, 2, 3], "BPXOSY1": [120, 150, 135]})
+    bpq = pd.DataFrame({"SEQN": [1, 2, 3], "BPQ020": [2.0, 1.0, np.nan]})
+    assert nhanes.without_hypertension(bp, bpq)["SEQN"].tolist() == [1, 3]

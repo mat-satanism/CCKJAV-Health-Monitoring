@@ -22,7 +22,7 @@ pytest pipeline/tests
 | `lifesnaps/` | [LifeSnaps](https://zenodo.org/records/7229547) v2: Fitbit Sense, 2021-2022. Only the CSV files are extracted | 71 | CC BY 4.0 |
 | `mmash/` | [MMASH](https://physionet.org/content/mmash/1.0.0/): about 24 h of wearable data per person | 22 | ODbL |
 | `bigideas/` | [BIG IDEAs Lab Glycemic Variability](https://physionet.org/content/big-ideas-glycemic-wearable/1.1.2/) (PhysioNet): Dexcom G6 glucose every 5 min for 8-10 days, adults 35-65 with HbA1c 5.2-6.4%. Only the glucose files are downloaded | 16 | ODC Attribution 1.0 |
-| `nhanes/` | [NHANES 2021-2023](https://wwwn.cdc.gov/nchs/nhanes/): `DEMO_L`, `BPXO_L` (blood pressure, pulse), `GLU_L` (fasting glucose), `DIQ_L` (diabetes questionnaire), `GHB_L` (HbA1c) | ~12k | US public domain |
+| `nhanes/` | [NHANES 2021-2023](https://wwwn.cdc.gov/nchs/nhanes/): `DEMO_L`, `BPXO_L` (blood pressure, pulse), `BPQ_L` (blood pressure questionnaire), `GLU_L` (fasting glucose), `DIQ_L` (diabetes questionnaire), `GHB_L` (HbA1c) | ~12k | US public domain |
 
 None of the daily datasets are astronauts. The model learns "deviation from a person's own norm" on people on Earth; Inspiration4 gives real spaceflight examples.
 
@@ -91,6 +91,10 @@ Fixes: hemoglobin is labelled "percent" in the source but is g/dL; ALT/AST max c
 ## `data/processed/nhanes_reference.csv`
 
 Population percentiles for adults aged 20-60, using NHANES survey weights (`WTMEC2YR` for blood pressure and pulse, `WTSAF2YR` for fasting glucose). Blood pressure and pulse are each person's mean of three readings.
+Since 2026-11-15 blood pressure and pulse leave out people a doctor has told they have high blood pressure
+(`BPQ_L`, BPQ020 = yes, which includes everyone on blood-pressure medicine), as glucose already left out diabetes:
+astronauts are selected healthy. 2513 of 3327 adults remain; systolic 95th percentile 143 -> 137 mmHg, 99th
+164 -> 152 mmHg. People with high readings but no diagnosis stay, so the upper tail is not cut by hand.
 
 Glucose is computed for adults **without diabetes** (not told by a doctor they have diabetes, `DIQ010 != 1`, and HbA1c below 6.5%), because astronauts are selected healthy. With everyone included the 99th percentile is 310 mg/dL; without diabetes it is 128.
 

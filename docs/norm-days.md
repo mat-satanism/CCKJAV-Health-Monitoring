@@ -38,15 +38,15 @@ the first signs and the start.
 | Real: next value inside the 95% band | 94.5% | 93.4% | 93.2% | 93.2% | 93.3% |
 | Real: band width (spreads) | 4.3 | 4.2 | 4.1 | 4.0 | 4.0 |
 | Real: days with yellow (per indicator) | 1.7% | 2.5% | 2.7% | 2.9% | 2.8% |
-| Simulation: calm days with any yellow | 15.1% | 17.3% | 17.5% | 18.4% | 18.5% |
-| Simulation: **events flagged early** | 88.1% | 91.7% | **93.1%** | 92.2% | 91.3% |
-| ... sleep disruption | 74.2% | 82.3% | 85.5% | 85.5% | 85.5% |
+| Simulation: calm days with any yellow | 15.0% | 17.5% | 17.9% | 18.8% | 18.9% |
+| Simulation: **events flagged early** | 87.6% | 92.2% | **93.1%** | 92.2% | 91.7% |
+| ... sleep disruption | 72.6% | 83.9% | 85.5% | 85.5% | 87.1% |
 | ... low mood | 84.6% | 87.2% | 92.3% | 89.7% | 87.2% |
 | ... deconditioning | 93.9% | 98.0% | 93.9% | 91.8% | 89.8% |
 
-- A 7-day window gives fewer yellows (1.6% of days instead of 2.6%) because it follows the person closely, and
-  that is the problem: it also follows the start of a problem and misses more events (89% vs 93%; sleep problems
-  76% vs 86%). In space the slow changes are the ones to catch.
+- A 7-day window gives fewer yellows (1.7% of days instead of 2.7%) because it follows the person closely, and
+  that is the problem: it also follows the start of a problem and misses more events (88% vs 93%; sleep problems
+  73% vs 86%). In space the slow changes are the ones to catch.
 - Longer than 14 days gives nothing: slightly narrower bands, slightly fewer events caught.
 - Resting pulse is the weak spot on real data: its 95% band holds 89% of next values with 14 days (93% with 7),
   because pulse drifts. A shorter window for pulse only is an option to test with real astronaut data, not a

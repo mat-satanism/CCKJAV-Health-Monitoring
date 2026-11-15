@@ -132,11 +132,11 @@ The rule is "the biggest |z| of any indicator today". "Top 5%" = alerts on the 5
 
 | Event | Share of days | AUC model | AUC rule | Caught with top-5% alerts | Precision of those alerts |
 |---|---|---|---|---|---|
-| Sleep disruption | 3.0% | 0.830 | 0.675 | 24.7% | 14.9% |
-| Infection | 2.0% | 0.945 | 0.798 | 69.3% | 27.3% |
-| Deconditioning | 1.9% | 0.960 | 0.648 | 75.5% | 29.2% |
-| Low mood | 1.8% | 0.857 | 0.675 | 31.5% | 11.5% |
-| CO2 build-up | 2.4% | 0.805 | 0.644 | 28.7% | 13.6% |
+| Sleep disruption | 3.0% | 0.828 | 0.675 | 23.0% | 13.9% |
+| Infection | 2.0% | 0.944 | 0.796 | 69.3% | 27.3% |
+| Deconditioning | 1.9% | 0.960 | 0.648 | 76.6% | 29.6% |
+| Low mood | 1.8% | 0.856 | 0.675 | 33.3% | 12.1% |
+| CO2 build-up | 2.4% | 0.802 | 0.644 | 28.7% | 13.6% |
 
 **Update 2026-11-15:** the risk model now reads the Bayesian norm, like the statuses; numbers and the real-mood
 correction are in `docs/personal-norm.md` ("The models read the same norm"). The paragraphs below are the
@@ -202,5 +202,6 @@ Rebuilt after cleaning the daily table (`docs/data.md`, "Cleaning update"). Two 
 - **Glucose**: the day-to-day change is now real (BIG IDEAs morning glucose, 16 people): spread 8.2 mg/dL,
   no carry-over from day to day. It was assumed: 6.0 mg/dL with persistence 0.2.
 
-The risk-model table above is the re-run. Demo story: John's infection risk is 23× usual on day 16 (0.3× or less
+The risk-model table above is the re-run. Blood pressure levels now come from NHANES adults without diagnosed high blood pressure (`docs/data.md`).
+Demo story: John's infection risk is 22× usual on day 16 (0.3× or less
 on days 1-15); false alarms: Maria day 16, Stefan days 26-27.
