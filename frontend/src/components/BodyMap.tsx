@@ -11,8 +11,12 @@ const ZONES: { system: SystemId; label: string; shapes: ReactElement[] }[] = [
   { system: 'behavioral', label: 'Mind & mood', shapes: [<circle key="head" cx="100" cy="40" r="23" />] },
   {
     system: 'sleep', label: 'Sleep',
-    shapes: [  // a crescent moon beside the helmet
-      <path key="moon" d="M166 14 A15 15 0 1 0 181 36 A12 12 0 1 1 166 14 Z" />,
+    shapes: [  // a bed beside the helmet: headboard, pillow, sleeper under a blanket, mattress, foot
+      <rect key="bed-head" x="146" y="12" width="5" height="30" rx="2" />,
+      <rect key="bed-pillow" x="153" y="21" width="11" height="7" rx="3.5" />,
+      <path key="bed-blanket" d="M166 28 C166 21 172 19 177 21 L186 24 C189 25 190 27 190 29 L190 30 L166 30 Z" />,
+      <rect key="bed-mattress" x="146" y="31" width="46" height="7" rx="2.5" />,
+      <rect key="bed-foot" x="187" y="27" width="5" height="15" rx="2" />,
     ],
   },
   { system: 'immune', label: 'Immune system', shapes: [<path key="neck" d="M89 64 L111 64 L113 78 L87 78 Z" />] },
@@ -87,6 +91,10 @@ export function BodyMap({ systems, selected, onSelect }: Props) {
         <figcaption className={`body-caption status-${statusOf(current.system)}`}>
           <span className="dot" />{current.label}<small>{WORD[statusOf(current.system)]}</small>
         </figcaption>
+      )}
+      {!current && <figcaption className="body-caption muted">Tap a body part</figcaption>}
+      {current && (
+        <p className="body-hint">Tap another body part to switch</p>
       )}
     </figure>
   )

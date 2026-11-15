@@ -45,33 +45,35 @@ export function DoctorView({ day, mission, meta }: { day: number; mission: Missi
 
   return (
     <div className="doctor">
-      <div className="role-switch" role="tablist" aria-label="Medical role">
-        <button role="tab" aria-selected={role === 'cmo'} className={role === 'cmo' ? 'on' : ''}
-          onClick={() => setRole('cmo')}>Crew medical officer (onboard)</button>
-        <button role="tab" aria-selected={role === 'ground'} className={role === 'ground' ? 'on' : ''}
-          onClick={() => setRole('ground')}>Flight surgeon (Earth)</button>
-      </div>
-
       <section className={`panel guidance ${view.role === 'ground' ? 'delayed' : ''}`}>
-        <h2>{view.title}</h2>
-        {view.role === 'ground' && (
-          <p className="delay">
-            Data arrives {view.data_delay_min} min late · your advice reaches the crew {view.reply_round_trip_min} min after this data was taken
-          </p>
-        )}
-        <p className="muted">{view.guidance}</p>
+        <div className="guidance-head">
+          <div className="role-switch" role="tablist" aria-label="Medical role">
+            <button role="tab" aria-selected={role === 'cmo'} className={role === 'cmo' ? 'on' : ''}
+              onClick={() => setRole('cmo')}>Crew medical officer · onboard</button>
+            <button role="tab" aria-selected={role === 'ground'} className={role === 'ground' ? 'on' : ''}
+              onClick={() => setRole('ground')}>Flight surgeon · Earth</button>
+          </div>
+          {view.role === 'ground' && (
+            <p className="delay">
+              Data arrives {view.data_delay_min} min late · your advice reaches the crew {view.reply_round_trip_min} min after this data was taken
+            </p>
+          )}
+        </div>
+        <p className="muted small">{view.guidance}</p>
       </section>
 
       <AlertList alerts={view.alerts} />
 
-      {brief && (
-        <section className={`panel brief ${brief.all_clear ? 'status-green' : ''}`}>
-          <h2>Today in brief</h2>
-          <ul>{brief.lines.map((l) => <li key={l} className={l.startsWith('Crew-wide') ? 'crew-wide' : ''}>{l}</li>)}</ul>
-          <p className="small muted">Written from the data by fixed rules, no AI text: every line can be traced to a number.</p>
-        </section>
-      )}
-      {view.role === 'cmo' && <NowList lines={now} />}
+      <div className={view.role === 'cmo' ? 'doc-cols now-cols' : ''}>
+        {view.role === 'cmo' && <NowList lines={now} />}
+        {brief && (
+          <section className={`panel brief ${brief.all_clear ? 'status-green' : ''}`}>
+            <h2>Today in brief</h2>
+            <ul>{brief.lines.map((l) => <li key={l} className={l.startsWith('Crew-wide') ? 'crew-wide' : ''}>{l}</li>)}</ul>
+            <p className="small muted">Written from the data by fixed rules, no AI text: every line can be traced to a number.</p>
+          </section>
+        )}
+      </div>
       {view.role === 'ground' && <Report day={day} />}
       <CrewChart mission={mission} meta={meta} day={day} />
 

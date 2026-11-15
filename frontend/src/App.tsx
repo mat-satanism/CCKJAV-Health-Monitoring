@@ -11,6 +11,7 @@ import { PersonView } from './components/PersonView'
 import { InsightsCard, TasksCard } from './components/Sidebar'
 import { WellbeingCard } from './components/WellbeingCard'
 import { SystemPanel } from './components/SystemPanel'
+import { Tabbed } from './components/Tabbed'
 import type {
   Insights, Meta, MissionContext, MissionInfo, StatusResponse, SystemId, Task,
 } from './types'
@@ -148,7 +149,7 @@ export default function App() {
 
       {tab === 'astronaut' && patient === 'real' && (
         <main className="layout">
-          <section className="panel map">
+          <aside className="panel map sticky-col">
             <BodyMap systems={status.systems} selected={selected} onSelect={setSelected} />
             <p className="legend">
               <span className="status-green"><span className="dot" />ok</span>
@@ -156,26 +157,32 @@ export default function App() {
               <span className="status-red"><span className="dot" />act</span>
               <span className="status-grey"><span className="dot" />no data</span>
             </p>
-          </section>
+            <InsightsCard insights={insights} meta={meta} />
+          </aside>
 
           <div className="detail">
-            <p className="muted demo-note">
-              Demo: heart rate, sleep, mood and exercise are 30 real days of one PMData participant
-              (device or self-report). This person never measured blood pressure, glucose or temperature,
-              so those are synthetic: a typical level from NHANES with simulated day-to-day changes,
-              marked "synthetic".
-            </p>
+            <details className="panel demo-note learn">
+              <summary><span className="badge-synthetic">real data + some synthetic</span> 30 real days of one PMData participant</summary>
+              <p className="small muted">
+                Heart rate, sleep, mood and exercise are 30 real days of one PMData participant
+                (device or self-report). This person never measured blood pressure, glucose or temperature,
+                so those are synthetic: a typical level from NHANES with simulated day-to-day changes,
+                marked "synthetic".
+              </p>
+            </details>
             {selected && (
               <SystemPanel key={`${selected}-${version}`} system={selected} meta={meta} indicators={status.indicators} />
             )}
             {selected === 'metabolic' && <BloodReference />}
           </div>
 
-          <aside className="side">
-            <InsightsCard insights={insights} meta={meta} />
-            <WellbeingCard />
-            <TasksCard tasks={tasks} onDone={(id) => api.completeTask(id).then(refresh)} />
-            <CheckIn meta={meta} onSaved={refresh} />
+          <aside className="side sticky-col">
+            <Tabbed label="Outlook, tasks and check-in" tabs={[
+              { id: 'outlook', label: 'Tomorrow', content: <WellbeingCard /> },
+              { id: 'tasks', label: 'Tasks', badge: tasks.filter((t) => !t.done).length || undefined,
+                content: <TasksCard tasks={tasks} onDone={(id) => api.completeTask(id).then(refresh)} /> },
+              { id: 'checkin', label: 'Check-in', content: <CheckIn meta={meta} onSaved={refresh} /> },
+            ]} />
           </aside>
         </main>
       )}
