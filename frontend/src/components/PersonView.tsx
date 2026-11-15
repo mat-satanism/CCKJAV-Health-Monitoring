@@ -166,7 +166,15 @@ export function PersonView({ aid, day, meta, onDay, onChanged, onOpenFile }: Pro
   }, [aid, day, version])
 
   if (error) return <p className="err">{error}</p>
-  if (!card || !hist) return <p className="muted">Loading…</p>
+  if (!card || !hist) {
+    return (
+      <main className="layout" aria-busy="true" aria-label="Loading">
+        <div className="skeleton" style={{ height: 520 }} />
+        <div className="detail"><div className="skeleton" style={{ height: 120 }} /><div className="skeleton" style={{ height: 380 }} /></div>
+        <div className="skeleton" style={{ height: 460 }} />
+      </main>
+    )
+  }
 
   const reload = () => { setVersion((v) => v + 1); onChanged() }
   const mine = card.indicators.filter((i) => selected && meta.indicators[i.type]?.system === selected)

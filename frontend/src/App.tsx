@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { api } from './api'
 import { BloodReference } from './components/BloodReference'
 import { BodyMap } from './components/BodyMap'
@@ -54,6 +54,25 @@ export default function App() {
 
   useEffect(() => { refresh() }, [refresh])
 
+  // ← / → move the mission day (handy while presenting); ignored while typing in a field
+  const missionRef = useRef<MissionInfo | null>(null)
+  useEffect(() => { missionRef.current = mission }, [mission])
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      const t = e.target as HTMLElement
+      if (e.altKey || e.metaKey || e.ctrlKey || e.shiftKey || t.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName)) return
+      const m = missionRef.current
+      const step = e.key === 'ArrowLeft' ? -1 : e.key === 'ArrowRight' ? 1 : 0
+      if (!m || !step) return
+      const next = Math.min(m.days_total, Math.max(1, m.day + step))
+      if (next === m.day) return
+      e.preventDefault()
+      api.setMissionDay(next).then(() => setMission({ ...m, day: next }))
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [])
+
   if (error) return <main className="center"><p className="err">{error}</p></main>
   if (!meta || !status || !insights || !ctx) {
     return <main className="center"><div className="loader" role="status"><span /><p className="muted">Connecting to the crew…</p></div></main>
@@ -99,7 +118,7 @@ export default function App() {
         <nav className="tabs" role="tablist">
           {TABS.map((t) => (
             <button key={t.id} role="tab" aria-selected={tab === t.id} className={tab === t.id ? 'on' : ''}
-              onClick={() => setTab(t.id)}>{t.label}</button>
+              onClick={() => { setTab(t.id); window.scrollTo({ top: 0, behavior: 'smooth' }) }}>{t.label}</button>
           ))}
         </nav>
         <div className="context">

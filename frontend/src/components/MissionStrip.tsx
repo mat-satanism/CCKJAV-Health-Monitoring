@@ -25,6 +25,7 @@ export function MissionStrip({ day, total, note, onDay, reloadKey }: Props) {
         <div className="strip-nav">
           <button onClick={() => onDay(day - 1)} disabled={day <= 1} aria-label="Previous day">◀</button>
           <button onClick={() => onDay(day + 1)} disabled={day >= total} aria-label="Next day">▶</button>
+          <span className="kbd-hint" aria-hidden="true"><kbd>←</kbd><kbd>→</kbd> keys work too</span>
         </div>
         <span className="badge-synthetic">{note}</span>
       </div>

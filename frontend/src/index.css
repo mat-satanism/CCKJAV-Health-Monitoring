@@ -34,6 +34,8 @@
 }
 
 * { box-sizing: border-box; }
+/* the full-bleed header line reaches past the edges on purpose; clip (not hidden) keeps sticky working */
+html, body { overflow-x: clip; }
 body {
   margin: 0; min-height: 100vh; background-color: var(--bg);
   /* nebula glow + three layers of stars, all CSS, nothing to download */
@@ -594,3 +596,47 @@ details.more[open] > *:not(summary) { animation: rise .35s ease-out both; }
 .brief ul { font-size: .9rem; }
 .now-cols .now-row.status-green .do { display: none; }
 .now-cols .now-row.status-green { padding: .4rem 0; }
+
+/* ================= polish pass ================= */
+
+/* hover tooltip for the crew lamps: readable, instant, no native grey box */
+.lamp[data-tip] { cursor: help; outline: none; }
+.lamp[data-tip]::before { content: attr(data-tip); white-space: pre-line; position: absolute; z-index: 20; bottom: calc(100% + 8px);
+  left: 50%; transform: translate(-50%, 4px); width: max-content; max-width: 220px; padding: 8px 10px; border-radius: 10px;
+  font-family: var(--font-body); font-size: .76rem; line-height: 1.35; letter-spacing: 0; text-align: left; color: var(--text);
+  background: var(--surface-solid); border: 1px solid var(--border-hi); box-shadow: 0 12px 30px -10px rgba(0,0,0,.9);
+  opacity: 0; pointer-events: none; transition: opacity .15s, transform .15s; }
+.lamp[data-tip]:hover::before, .lamp[data-tip]:focus-visible::before { opacity: 1; transform: translate(-50%, 0); }
+.crew-card .lamps > :nth-child(5n+1)::before { left: 0; transform: translate(0, 4px); }
+.crew-card .lamps > :nth-child(5n+1):hover::before, .crew-card .lamps > :nth-child(5n+1):focus-visible::before { transform: none; }
+.crew-card .lamps > :nth-child(5n)::before { left: auto; right: 0; transform: translate(0, 4px); }
+.crew-card .lamps > :nth-child(5n):hover::before, .crew-card .lamps > :nth-child(5n):focus-visible::before { transform: none; }
+.lamp:focus-visible { box-shadow: 0 0 0 2px var(--accent); }
+
+/* skeletons while data loads */
+.skeleton { border-radius: var(--radius); border: 1px solid var(--border);
+  background: linear-gradient(100deg, rgba(255,255,255,.02) 30%, rgba(108,201,255,.07) 50%, rgba(255,255,255,.02) 70%) 0 0 / 300% 100%, var(--surface);
+  animation: shimmer 1.4s ease-in-out infinite; }
+@keyframes shimmer { from { background-position: 100% 0, 0 0; } to { background-position: -50% 0, 0 0; } }
+
+/* keyboard hint next to the day arrows */
+.strip-nav { align-items: center; }
+.kbd-hint { margin-left: 6px; font-size: .7rem; color: var(--muted); display: inline-flex; align-items: center; gap: 3px; }
+kbd { font-family: var(--font-mono); font-size: .66rem; padding: 1px 5px; border-radius: 5px; border: 1px solid var(--border);
+  border-bottom-width: 2px; background: rgba(255,255,255,.04); color: var(--text); }
+@media (hover: none), (max-width: 720px) { .kbd-hint { display: none; } }
+
+/* phones: a slimmer header, standard 16px gutter */
+@media (max-width: 720px) {
+  .app { padding: 12px 16px 24px; }
+  .topbar { margin: -12px -16px 14px; padding: 10px 16px; gap: 8px; }
+  .brand-sub { display: none; }
+  .brand svg { width: 28px; height: 28px; }
+  .tabs { width: 100%; }
+  .tabs button { flex: 1; padding: .35rem .5rem; }
+  .context { gap: 6px; font-size: .72rem; }
+  .context > span { padding: .15rem .5rem; }
+  .strip-day b { font-size: 1.9rem; }
+  .tile-value { font-size: 1.8rem; }
+}
+.crew-card:hover, .crew-card:focus-within { z-index: 5; }

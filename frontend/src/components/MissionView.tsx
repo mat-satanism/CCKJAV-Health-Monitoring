@@ -36,8 +36,9 @@ function CrewCard({ a, onOpen, i }: { a: AstronautState; onOpen: (aid: string) =
       </button>
       <div className="lamps" aria-label="Indicators">
         {a.indicators.map((x) => (
-          <span key={x.type} className={`lamp status-${x.status}`}
-            title={`${x.label}: ${x.value} ${x.unit}. ${x.message}`}>{LAMP_LABEL[x.type] ?? x.label}</span>
+          <span key={x.type} className={`lamp status-${x.status}`} tabIndex={0}
+            aria-label={`${x.label}: ${x.value} ${x.unit}. ${x.message}`}
+            data-tip={`${x.label}: ${x.value} ${x.unit}\n${x.message}`}>{LAMP_LABEL[x.type] ?? x.label}</span>
         ))}
       </div>
       <div className="crew-note">
@@ -106,7 +107,14 @@ export function MissionView({ day, onOpen }: { day: number; onOpen: (aid: string
   }, [day])
 
   if (error) return <p className="err">{error}</p>
-  if (!crew) return <p className="muted">Loading the crew…</p>
+  if (!crew) {
+    return (
+      <div className="mission" aria-busy="true" aria-label="Loading the crew">
+        <div className="overview">{[0, 1, 2, 3].map((i) => <div key={i} className="skeleton" style={{ height: 104 }} />)}</div>
+        <div className="crew-grid">{[0, 1, 2, 3, 4].map((i) => <div key={i} className="skeleton" style={{ height: 230 }} />)}</div>
+      </div>
+    )
+  }
 
   return (
     <div className="mission">
