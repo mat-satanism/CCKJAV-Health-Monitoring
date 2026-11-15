@@ -26,6 +26,10 @@ Working now:
 - **Crew-wide signal and daily brief**: when 3+ crew members move the worrying way on the same day, the app points to a shared cause (air, noise, schedule) instead of treating people one by one; the CMO gets one short brief written by fixed rules from the data.
 - **Tomorrow's outlook (real-data demo)**: the chance that tomorrow's mood or energy is below the person's usual, with the reasons (SHAP) and a 30-day strip of forecast vs what really happened. Learned from other real people only (PMData), and shown only because it beats "same as today" on people it never saw (mood 0.70 vs 0.61). Both models read the same Bayesian personal norm as the statuses. See `docs/wellbeing-model.md`.
 - **Risk model**: one random forest per event, trained on simulated missions, with SHAP explanations (which signs pushed the risk up). Chosen over logistic regression and LightGBM, see `docs/model-comparison.md`.
+- **Re-measure before calling Earth**: one red reading asks to re-measure that value (a button opens the check-in on it); only a red confirmed by the next reading calls the flight surgeon, on a full screen with yes/no steps and the signal delay. An old value is grey ("no fresh value"), never red. Each value says when it was measured.
+- **Feedback on tasks**: once a task is done, "how do you feel after it?" (better / same / worse / gone) is saved with it.
+- **Sourced limits**: each limit in `data/thresholds.json` names its source (CDC fever line, AHA/ACC blood pressure stages, NASA exercise time) and which numbers are our own choice.
+- **Two themes**: the original dark console and a light one that meets WCAG 2.2 AA contrast and never shows status by colour alone; a header button switches, the choice is remembered.
 
 Planned:
 - How-to-measure instructions in the check-in and body system descriptions.
