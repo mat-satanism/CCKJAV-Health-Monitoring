@@ -1,6 +1,6 @@
 # Wellbeing forecast on real people (2026-11-15)
 
-The team's main ML task: from today's wearable data and morning check-in, predict that tomorrow will be a worse
+The main ML task: from today's wearable data and morning check-in, predict that tomorrow will be a worse
 day than usual. Unlike the risk model (`docs/model-comparison.md`), which learns on our simulated crew, this one
 learns and is scored **only on real people**. Run: `python -m pipeline.wellbeing` (about 2 minutes).
 

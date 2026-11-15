@@ -146,6 +146,6 @@ PMData columns with norm and deviation: `heart_rate`, `sleep_hours_device`, `exe
 
 A model is only interesting if it beats "same as today" on the test people. Test sets are small (3 PMData people), so differences of a few points are noise.
 
-**Decisions that are provisional** (change them in `pipeline/features.py`): norm = 14 days with at least 7 values; minimum spread = 10th percentile of the training spreads; test fold = 1 of 5. The backend still uses its own norm (first 14 values), see the analysis of 7 / 14 / 21 days in the team document.
+**Decisions that are provisional** (change them in `pipeline/features.py`): norm = 14 days with at least 7 values; minimum spread = 10th percentile of the training spreads; test fold = 1 of 5. The app's own norm (6 days to start, then the last 14) is checked in [norm-days.md](norm-days.md).
 
 **Leakage rules, tested in `pipeline/tests/test_features.py`:** the norm uses only days before today; changing values after day t does not change any feature of day t; "tomorrow" is the next calendar day; each person is in exactly one fold; z-score floors come from training people only.

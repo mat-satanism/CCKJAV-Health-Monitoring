@@ -1,6 +1,6 @@
 # How many days does the personal norm need? (2026-11-15)
 
-Task from the team doc: the code learns the norm from 14 days, the NASA decision-support concept (HRP-48033)
+The question: the code learns the norm from 14 days, the NASA decision-support concept (HRP-48033)
 talks about a first week. Which is right? The Bayesian norm (`backend/app/status.py`) has two numbers:
 `BAYES_MIN = 6` (days of the person's own data before the norm is used: the calibration week) and
 `NORM_DAYS = 14` (the window it keeps learning from). Run: `python -m pipeline.norm_days` (5 s).
