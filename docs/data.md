@@ -21,7 +21,8 @@ pytest pipeline/tests
 | `pmdata/` | [PMData](https://datasets.simula.no/pmdata): Fitbit + daily self-report, Nov 2019 - Mar 2020 | 16 | CC BY-NC 4.0 (non-commercial, cite the paper) |
 | `lifesnaps/` | [LifeSnaps](https://zenodo.org/records/7229547) v2: Fitbit Sense, 2021-2022. Only the CSV files are extracted | 71 | CC BY 4.0 |
 | `mmash/` | [MMASH](https://physionet.org/content/mmash/1.0.0/): about 24 h of wearable data per person | 22 | ODbL |
-| `nhanes/` | [NHANES 2021-2023](https://wwwn.cdc.gov/nchs/nhanes/): `DEMO_L`, `BPXO_L` (blood pressure, pulse), `GLU_L` (fasting glucose), `DIQ_L` (diabetes questionnaire), `GHB_L` (HbA1c) | ~12k | US public domain |
+| `bigideas/` | [BIG IDEAs Lab Glycemic Variability](https://physionet.org/content/big-ideas-glycemic-wearable/1.1.2/) (PhysioNet): Dexcom G6 glucose every 5 min for 8-10 days, adults 35-65 with HbA1c 5.2-6.4%. Only the glucose files are downloaded | 16 | ODC Attribution 1.0 |
+| `nhanes/` | [NHANES 2021-2023](https://wwwn.cdc.gov/nchs/nhanes/): `DEMO_L`, `BPXO_L` (blood pressure, pulse), `BPQ_L` (blood pressure questionnaire), `GLU_L` (fasting glucose), `DIQ_L` (diabetes questionnaire), `GHB_L` (HbA1c) | ~12k | US public domain |
 
 None of the daily datasets are astronauts. The model learns "deviation from a person's own norm" on people on Earth; Inspiration4 gives real spaceflight examples.
 
@@ -54,6 +55,22 @@ Cleaning rules:
 - PMData sleep counts only the main sleep of the night, not naps.
 - Values outside `VALID_RANGES` in `pipeline/common.py` are set to empty, never clipped: 0 on a 1-5 scale, device sleep over 16 h, LifeSnaps nights with 0 minutes asleep.
 - MMASH rows with day = -29 (two users) are dropped.
+- **No steps = not worn** (since 2026-11-15): a day with missing or 0 steps is a day the watch was not worn, so its
+  steps and exercise are empty, not 0. Before, 2301 LifeSnaps and 217 PMData days counted as "0 minutes of
+  exercise", and the crew simulation copied them (Maria's real person: 28% of days with no exercise, now 9%).
+- **Loose watch** (since 2026-11-15), set to empty: nightly skin temperature below 30 deg C (18 nights), Fitbit stress
+  score 0, which means "not computed" (296 days), main sleep under 2 h measured by the watch (81 nights).
+- **Device sleep over 11 h** (since 2026-11-15) is set to empty: on those 73 nights people themselves reported a
+  median of 5.5-7 h, and for some the artifact repeats every 30 days. Nights of 9-11 h agree with the self-report
+  (median 9 h) and stay.
+
+## `data/processed/glucose_morning.csv`
+
+Real day-to-day glucose (BIG IDEAs, 16 people, 129 days). One row per person per day: the median sensor glucose
+from 05:00 to 07:00, before breakfast, when at least 12 readings exist. Used for one thing: how much a person's
+morning glucose changes from day to day (median spread 8.2 mg/dL, no carry-over), which the crew simulation now uses
+instead of an assumption. The level still comes from NHANES: these 16 people have high-normal to prediabetic
+HbA1c and a sensor in the skin, not a fasting blood test. Code: `pipeline/bigideas.py`.
 
 ## `data/processed/inspiration4_blood.csv`
 
@@ -74,6 +91,10 @@ Fixes: hemoglobin is labelled "percent" in the source but is g/dL; ALT/AST max c
 ## `data/processed/nhanes_reference.csv`
 
 Population percentiles for adults aged 20-60, using NHANES survey weights (`WTMEC2YR` for blood pressure and pulse, `WTSAF2YR` for fasting glucose). Blood pressure and pulse are each person's mean of three readings.
+Since 2026-11-15 blood pressure and pulse leave out people a doctor has told they have high blood pressure
+(`BPQ_L`, BPQ020 = yes, which includes everyone on blood-pressure medicine), as glucose already left out diabetes:
+astronauts are selected healthy. 2513 of 3327 adults remain; systolic 95th percentile 143 -> 137 mmHg, 99th
+164 -> 152 mmHg. People with high readings but no diagnosis stay, so the upper tail is not cut by hand.
 
 Glucose is computed for adults **without diabetes** (not told by a doctor they have diabetes, `DIQ010 != 1`, and HbA1c below 6.5%), because astronauts are selected healthy. With everyone included the 99th percentile is 310 mg/dL; without diabetes it is 128.
 

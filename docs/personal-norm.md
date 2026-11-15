@@ -29,8 +29,8 @@ Test: 30 new simulated missions (seed 1234), 218 events, statuses exactly as the
 
 | Rule | Calm days with any yellow | Events with a yellow from the early signs to the first day |
 |---|---|---|
-| Median, 3 spreads (old) | 13.8% | 87.6% |
-| Bayesian norm (new) | 17.2% | 93.1% |
+| Median, 3 spreads (old) | 13.9% | 87.6% |
+| Bayesian norm (new) | 17.8% | 93.1% |
 
 Per indicator the Bayesian rule flags 1-3% of calm days, which is what a 99% band plus "two days outside
 95%" should give; with 10 indicators that adds up to about 1 calm day in 6 for a person. **Trade-off:** it

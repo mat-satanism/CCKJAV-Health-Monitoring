@@ -142,3 +142,25 @@ def test_demo_adds_synthetic_vitals_only_when_asked():
     synth = full[full["source"] == "synthetic"]
     assert set(synth["type"]) == {"bp_sys", "bp_dia", "glucose", "temp"} and len(synth) == 8
     assert synth.loc[synth["type"] == "temp", "value"].between(35.5, 37.5).all()
+
+
+def test_a_day_without_steps_has_unknown_exercise_not_zero():
+    from pipeline.common import mark_non_wear
+    df = pd.DataFrame({"steps": [5000, 0, np.nan], "exercise_min": [30.0, 0.0, 0.0]})
+    out = mark_non_wear(df)
+    assert out["exercise_min"].tolist()[0] == 30.0
+    assert out["exercise_min"].iloc[1:].isna().all() and out["steps"].iloc[1:].isna().all()
+
+
+def test_loose_watch_values_are_unknown():
+    from pipeline.common import drop_impossible
+    df = pd.DataFrame({"temp_skin": [25.5, 33.8, 34.0], "stress_score": [0, 70, 50],
+                       "sleep_hours_device": [0.9, 7.2, 14.8]})
+    out = drop_impossible(df)
+    assert out.isna().sum().tolist() == [1, 1, 2] and out.iloc[1].notna().all()
+
+
+def test_people_told_they_have_high_blood_pressure_are_left_out():
+    bp = pd.DataFrame({"SEQN": [1, 2, 3], "BPXOSY1": [120, 150, 135]})
+    bpq = pd.DataFrame({"SEQN": [1, 2, 3], "BPQ020": [2.0, 1.0, np.nan]})
+    assert nhanes.without_hypertension(bp, bpq)["SEQN"].tolist() == [1, 3]

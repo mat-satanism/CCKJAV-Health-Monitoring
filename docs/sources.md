@@ -37,6 +37,7 @@ Details and licenses: [data.md](data.md).
 - NHANES 2021-2023, CDC: https://wwwn.cdc.gov/nchs/nhanes/ — population percentiles for blood pressure, pulse, fasting glucose (`data/processed/nhanes_reference.csv`).
 - PMData (Simula): https://datasets.simula.no/pmdata — daily wearable + self-report data for models.
 - LifeSnaps (Zenodo 7229547): https://zenodo.org/records/7229547 — daily wearable data for models, skin temperature.
+- BIG IDEAs Lab Glycemic Variability (PhysioNet): https://physionet.org/content/big-ideas-glycemic-wearable/1.1.2/ — real day-to-day morning glucose for the simulation.
 - MMASH (PhysioNet): https://physionet.org/content/mmash/1.0.0/ — sleep and steps.
 
 ## Thresholds used

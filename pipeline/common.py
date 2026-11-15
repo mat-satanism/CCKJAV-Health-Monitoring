@@ -39,10 +39,16 @@ DAILY_COLUMNS = [
 VALID_RANGES = {
     "sleep_quality": (1, 5), "mood": (1, 5), "fatigue": (1, 5), "stress": (1, 5), "soreness": (1, 5),
     "readiness": (0, 10),
-    "sleep_hours": (0.5, 16), "sleep_hours_device": (0.5, 16),
+    "sleep_hours": (0.5, 16),
+    # Main sleep measured by the watch: under 2 h is a watch worn for part of the night (81 nights); over 11 h is a
+    # device artifact: on those 73 nights people reported 5.5-7 h themselves, and some repeat every 30 days
+    # (export boundaries). 9-11 h nights agree with the self-report (median 9 h), so they stay.
+    "sleep_hours_device": (2, 11),
     "heart_rate": (30, 220),
-    "stress_score": (0, 100),
-    "temp_skin": (20, 42),
+    # Fitbit stress score runs 1-100; 0 means "not computed" (296 LifeSnaps days), not "no stress".
+    "stress_score": (1, 100),
+    # Nightly skin temperature below 30 deg C is a loose watch, not a person (18 LifeSnaps nights).
+    "temp_skin": (30, 40),
     "hrv_ms": (5, 250),
 }
 
@@ -55,9 +61,25 @@ def drop_impossible(df: pd.DataFrame) -> pd.DataFrame:
     return df
 
 
+def mark_non_wear(df: pd.DataFrame) -> pd.DataFrame:
+    """A day with no steps (missing or 0) is a day the device was not worn: its activity is unknown, not zero.
+
+    Without this, 2301 LifeSnaps and 217 PMData days counted as "0 minutes of exercise", and the crew simulation
+    copied those false zeros (docs/data.md).
+    """
+    if "steps" not in df.columns:
+        return df
+    df = df.copy()
+    not_worn = df["steps"].isna() | (df["steps"] == 0)
+    df.loc[not_worn, "steps"] = float("nan")
+    if "exercise_min" in df.columns:
+        df.loc[not_worn, "exercise_min"] = float("nan")
+    return df
+
+
 def finish_daily(df: pd.DataFrame, dataset: str) -> pd.DataFrame:
-    """Drop impossible values, add dataset name and day index, put columns in the shared order."""
-    df = drop_impossible(df)
+    """Drop impossible values and non-wear activity, add dataset name and day index, put columns in order."""
+    df = mark_non_wear(drop_impossible(df))
     df["source_dataset"] = dataset
     if "day" not in df.columns:
         first = df.groupby("person_id")["date"].transform("min")
