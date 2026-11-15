@@ -4,6 +4,26 @@ The team's main ML task: from today's wearable data and morning check-in, predic
 day than usual. Unlike the risk model (`docs/model-comparison.md`), which learns on our simulated crew, this one
 learns and is scored **only on real people**. Run: `python -m pipeline.wellbeing` (about 2 minutes).
 
+## Update 2026-11-15: a leak fixed, one input added
+
+**Leak.** The norm priors for fatigue, stress and steps (and the LifeSnaps signals) were fitted once on folds 0-3,
+and cross-validation then scored those same folds: a scored person's own data shaped their inputs. Now the priors
+are refitted for every fold on the other folds' people only (`bayes_features.refit_for_fold`), also inside the
+nested search. Effect: mood 0.703 -> 0.675, fatigue 0.649 -> 0.627 (fatigue no longer clearly above the reference).
+
+**Added input: days since the last below-usual answer** (`<answer>_since_low`, part of "last days"). It was the
+addition the nested check picked most often. Only past and today's answers enter it (tested).
+
+| Within-person AUC (people the model never saw) | Same as today | Shipped in the app | Nested (variant chosen on training people only) |
+|---|---|---|---|
+| Worse mood | 0.608 | **0.699** (+0.045..+0.143) | **0.696** (+0.044..+0.130) |
+| Less energy | 0.590 | **0.641** (+0.008..+0.099), now check-in + last days | **0.643** (+0.002..+0.123) |
+| Less ready | 0.627 | no better | no better |
+| LifeSnaps feelings | 0.530 | no better | not run |
+
+The nested numbers are the honest headline: they include the price of trying several variants. The shipped and
+nested numbers agree, so the app's variants are not a lucky pick. Tables below this section are from before the fix.
+
 ## Setup
 
 - **Data.** PMData: 16 people, about 1300 days with an answer. LifeSnaps: 58 people, 2013 days.

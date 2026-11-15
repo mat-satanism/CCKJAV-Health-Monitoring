@@ -20,12 +20,12 @@ Trained and scored on real people only, each person scored by a model that never
 
 | Tomorrow | "Same as today" | Our forest | Gain, 95% interval |
 |---|---|---|---|
-| Lower mood | 0.61 | **0.70** | +0.06 .. +0.13 |
-| Less energy | 0.59 | **0.65** | +0.01 .. +0.12 |
+| Lower mood | 0.61 | **0.70** | +0.04 .. +0.14 |
+| Less energy | 0.59 | **0.64** | +0.01 .. +0.10 |
 | Readiness, LifeSnaps feelings | | no better | we show this too |
 
 AUC within a person (is tomorrow a bad day *for me?*), 0.5 = guessing. Even after paying for every variant we
-tried (nested check, run with the earlier median-norm inputs) the gain holds: mood 0.67, energy 0.64. In the app: "Tomorrow's outlook" in the real-data
+tried (nested check: the variant is chosen on training people only) the gain holds: mood 0.70, energy 0.64. These numbers are after a leak fix on 2026-11-15 (`docs/wellbeing-model.md`). In the app: "Tomorrow's outlook" in the real-data
 demo, for a person the model never saw, with the reasons (`docs/wellbeing-model.md`).
 
 **3. Early warning before symptoms** (`3-early-warning-before-fever.png`, simulated mission).
@@ -43,7 +43,7 @@ and temperature are still inside the safe limits. It also gives false alarms (Ma
 | `4-real-astronauts-blood.png` | the day after 3 days in space, glucose above their own pre-flight range in 3 of 4, white cells below it in 2 of 4 | real astronauts (Inspiration4) | why monitor in space at all |
 | `5-what-comes-before-a-worse-mood.png` | for the same person a short night, stress or a tired day add only 3-4 points to a worse mood tomorrow; a raised pulse adds none | real | why the forecast combines signs |
 | `6-crew-at-a-glance.png` | one person drifting vs the whole crew at once (CO2) | simulated | the crew-wide signal, doctors' view |
-| `7-forecast-for-an-unseen-person.png` | a person the model never saw: worse mood after 3 of 7 high-risk days vs 4 of 21 others | real, one person | the app card, as an illustration |
+| `7-forecast-for-an-unseen-person.png` | a person the model never saw: worse mood after 3 of 8 high-risk days vs 4 of 20 others | real, one person | the app card, as an illustration |
 
 | `8-inspiration4-six-blood-values.png` | six blood values of the four Inspiration4 astronauts over 7 time points: 8 of 165 results outside the lab range | real astronauts | backup slide, questions about real data |
 | `9-data-completeness.png` | which days have data; 2 of 16 PMData people have a fully complete 30-day stretch | real | for the team, not the pitch (table: `docs/data-completeness.md`) |

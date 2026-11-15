@@ -18,6 +18,9 @@ of that many by accident (binomial, 2.3% per person, the one-sided tail of a nor
 | 1.5 scales, 4 people | 57% | 0% |
 | 2.0 scales, 4 people | 35% | 0% |
 
+**Checked on fresh missions** (seed 555, never used for tuning; 2026-11-15): CO2 days caught 76%, calm days with
+a signal 0.7%. The thresholds were tuned on seed 1234 (above), so this is the honest number; it holds.
+
 We chose 2.0 / 3 people: a busy CMO should not learn to ignore it. The assumption "people are independent on a
 calm day" is ours; days in a row are not independent, so the "chance" is a guide, not an exact probability.
 
