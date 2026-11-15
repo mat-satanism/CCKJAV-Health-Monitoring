@@ -12,6 +12,7 @@ from .common import RAW
 
 OSDR = "https://osdr.nasa.gov/geode-py/ws/studies/{}/download?source=datamanager&file={}"
 NHANES = "https://wwwn.cdc.gov/Nchs/Data/Nhanes/Public/2021/DataFiles/{}.xpt"
+BIGIDEAS = "https://physionet-open.s3.amazonaws.com/big-ideas-glycemic-wearable/1.1.2"
 
 DATASETS = {
     "inspiration4": {
@@ -30,6 +31,9 @@ DATASETS = {
     "mmash": {"mmash-1.0.0.zip": "https://physionet-open.s3.amazonaws.com/mmash/mmash-1.0.0.zip"},
     "lifesnaps": {"rais_anonymized.zip": "https://zenodo.org/records/7229547/files/rais_anonymized.zip?download=1"},
     "pmdata": {"pmdata.zip": "https://datasets.simula.no/downloads/pmdata.zip"},
+    # Only the glucose sensor files (2 MB), not the wristband recordings.
+    "bigideas": {f"Dexcom_{i:03d}.csv": f"{BIGIDEAS}/{i:03d}/Dexcom_{i:03d}.csv" for i in range(1, 17)}
+                | {"Demographics.csv": f"{BIGIDEAS}/Demographics.csv"},
 }
 
 # From the LifeSnaps archive only the small CSV files are needed (the rest is ~10 GB of MongoDB dumps).

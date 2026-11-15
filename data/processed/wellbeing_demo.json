@@ -14,7 +14,7 @@
    "question": "Tomorrow: more tired (fatigue)?",
    "inputs": "all inputs",
    "usual_rate": 0.244,
-   "within_person_auc": 0.648,
+   "within_person_auc": 0.651,
    "same_as_today_auc": 0.59
   }
  },
@@ -31,7 +31,7 @@
     "happened": null
    },
    "fatigue": {
-    "probability": 0.139,
+    "probability": 0.147,
     "times_usual": 0.6,
     "reasons": [],
     "happened": null
@@ -49,7 +49,7 @@
     "happened": null
    },
    "fatigue": {
-    "probability": 0.19,
+    "probability": 0.198,
     "times_usual": 0.8,
     "reasons": [
      "readiness (0-10) today: 7",
@@ -71,7 +71,7 @@
     "happened": true
    },
    "fatigue": {
-    "probability": 0.195,
+    "probability": 0.194,
     "times_usual": 0.8,
     "reasons": [
      "readiness (0-10) today: 8"
@@ -92,7 +92,7 @@
     "happened": false
    },
    "fatigue": {
-    "probability": 0.326,
+    "probability": 0.33,
     "times_usual": 1.3,
     "reasons": [
      "energy (1-5, 5 = fresh) 1.0 below usual today",
@@ -115,7 +115,7 @@
     "happened": false
    },
    "fatigue": {
-    "probability": 0.279,
+    "probability": 0.277,
     "times_usual": 1.1,
     "reasons": [
      "energy (1-5, 5 = fresh) 1.0 below usual today",
@@ -142,8 +142,8 @@
     "times_usual": 0.9,
     "reasons": [
      "readiness (0-10) today: 8",
-     "exercise (min) 1.2 spreads below usual on average over the last 3 days",
-     "calm (1-5, 5 = relaxed) 1.1 spreads above usual today"
+     "calm (1-5, 5 = relaxed) 1.1 spreads above usual today",
+     "sleep, self-report (h) 0.1 spreads below usual today"
     ],
     "happened": false
    }
@@ -161,7 +161,7 @@
     "happened": true
    },
    "fatigue": {
-    "probability": 0.22,
+    "probability": 0.218,
     "times_usual": 0.9,
     "reasons": [
      "calm (1-5, 5 = relaxed) 1.1 spreads above usual on average over the last 3 days",
@@ -184,12 +184,12 @@
     "happened": true
    },
    "fatigue": {
-    "probability": 0.208,
+    "probability": 0.212,
     "times_usual": 0.9,
     "reasons": [
-     "calm (1-5, 5 = relaxed) 1.0 spreads above usual on average over the last 3 days",
+     "soreness (1-5, 5 = none) today: 2",
      "readiness (0-10) today: 7",
-     "soreness (1-5, 5 = none) today: 2"
+     "calm (1-5, 5 = relaxed) 1.0 spreads above usual on average over the last 3 days"
     ],
     "happened": true
    }
@@ -207,7 +207,7 @@
     "happened": true
    },
    "fatigue": {
-    "probability": 0.438,
+    "probability": 0.443,
     "times_usual": 1.8,
     "reasons": [
      "energy (1-5, 5 = fresh) 1.0 below usual today",
@@ -230,8 +230,8 @@
     "happened": false
    },
    "fatigue": {
-    "probability": 0.364,
-    "times_usual": 1.5,
+    "probability": 0.347,
+    "times_usual": 1.4,
     "reasons": [
      "energy (1-5, 5 = fresh) 1.0 below usual today",
      "energy (1-5, 5 = fresh) 1.3 spreads below usual today",
@@ -253,12 +253,12 @@
     "happened": false
    },
    "fatigue": {
-    "probability": 0.247,
+    "probability": 0.237,
     "times_usual": 1.0,
     "reasons": [
-     "steps 1.3 spreads above usual today",
      "calm (1-5, 5 = relaxed) 1.0 spreads above usual today",
-     "sleep, self-report (h) 0.2 spreads below usual today"
+     "steps 1.3 spreads above usual today",
+     "mood (1-5) 0.8 spreads above usual today"
     ],
     "happened": false
    }
@@ -276,7 +276,7 @@
     "happened": false
    },
    "fatigue": {
-    "probability": 0.257,
+    "probability": 0.266,
     "times_usual": 1.1,
     "reasons": [
      "readiness (0-10) 2.0 below usual today",
@@ -299,11 +299,11 @@
     "happened": false
    },
    "fatigue": {
-    "probability": 0.235,
+    "probability": 0.245,
     "times_usual": 1.0,
     "reasons": [
-     "calm (1-5, 5 = relaxed) 1.0 spreads above usual on average over the last 3 days",
      "calm (1-5, 5 = relaxed) 1.0 spreads above usual today",
+     "calm (1-5, 5 = relaxed) 1.0 spreads above usual on average over the last 3 days",
      "sleep, wristband (h) 0.7 spreads above usual on average over the last 3 days"
     ],
     "happened": false
@@ -322,12 +322,12 @@
     "happened": false
    },
    "fatigue": {
-    "probability": 0.256,
+    "probability": 0.248,
     "times_usual": 1.0,
     "reasons": [
      "readiness (0-10) 3.5 below usual today",
      "soreness (1-5, 5 = none) today: 2",
-     "calm (1-5, 5 = relaxed) 0.9 spreads above usual on average over the last 3 days"
+     "calm (1-5, 5 = relaxed) 0.9 spreads above usual today"
     ],
     "happened": false
    }
@@ -345,7 +345,7 @@
     "happened": false
    },
    "fatigue": {
-    "probability": 0.249,
+    "probability": 0.252,
     "times_usual": 1.0,
     "reasons": [
      "calm (1-5, 5 = relaxed) 0.9 spreads above usual on average over the last 3 days",
@@ -368,8 +368,8 @@
     "happened": false
    },
    "fatigue": {
-    "probability": 0.207,
-    "times_usual": 0.8,
+    "probability": 0.216,
+    "times_usual": 0.9,
     "reasons": [
      "readiness (0-10) 2.0 below usual today",
      "soreness (1-5, 5 = none) today: 2",
@@ -391,7 +391,7 @@
     "happened": true
    },
    "fatigue": {
-    "probability": 0.149,
+    "probability": 0.142,
     "times_usual": 0.6,
     "reasons": [],
     "happened": true
@@ -409,8 +409,8 @@
     "happened": true
    },
    "fatigue": {
-    "probability": 0.38,
-    "times_usual": 1.6,
+    "probability": 0.359,
+    "times_usual": 1.5,
     "reasons": [
      "energy (1-5, 5 = fresh) 2.0 below usual today",
      "readiness (0-10) 3.0 below usual today",
@@ -432,8 +432,8 @@
     "happened": false
    },
    "fatigue": {
-    "probability": 0.377,
-    "times_usual": 1.5,
+    "probability": 0.381,
+    "times_usual": 1.6,
     "reasons": [
      "energy (1-5, 5 = fresh) 1.0 below usual today",
      "energy (1-5, 5 = fresh) 1.2 spreads below usual today",
@@ -455,8 +455,8 @@
     "happened": false
    },
    "fatigue": {
-    "probability": 0.368,
-    "times_usual": 1.5,
+    "probability": 0.39,
+    "times_usual": 1.6,
     "reasons": [
      "energy (1-5, 5 = fresh) 2.0 below usual today",
      "readiness (0-10) 2.5 below usual today",
@@ -478,7 +478,7 @@
     "happened": false
    },
    "fatigue": {
-    "probability": 0.269,
+    "probability": 0.272,
     "times_usual": 1.1,
     "reasons": [
      "energy (1-5, 5 = fresh) 2.0 below usual today",
@@ -500,8 +500,8 @@
     "happened": false
    },
    "fatigue": {
-    "probability": 0.309,
-    "times_usual": 1.3,
+    "probability": 0.303,
+    "times_usual": 1.2,
     "reasons": [
      "energy (1-5, 5 = fresh) 0.5 below usual today",
      "energy (1-5, 5 = fresh) 2.0 spreads below usual on average over the last 3 days",
@@ -523,11 +523,12 @@
     "happened": false
    },
    "fatigue": {
-    "probability": 0.243,
+    "probability": 0.249,
     "times_usual": 1.0,
     "reasons": [
+     "soreness (1-5, 5 = none) today: 2",
      "calm (1-5, 5 = relaxed) 1.3 spreads below usual today",
-     "soreness (1-5, 5 = none) today: 2"
+     "mood (1-5) 0.6 spreads above usual on average over the last 3 days"
     ],
     "happened": true
    }
@@ -545,12 +546,12 @@
     "happened": false
    },
    "fatigue": {
-    "probability": 0.291,
+    "probability": 0.289,
     "times_usual": 1.2,
     "reasons": [
      "energy (1-5, 5 = fresh) 1.0 below usual today",
-     "steps 1.5 spreads above usual today",
-     "energy (1-5, 5 = fresh) 0.8 spreads below usual today"
+     "energy (1-5, 5 = fresh) 0.8 spreads below usual today",
+     "steps 1.5 spreads above usual today"
     ],
     "happened": false
    }
@@ -568,7 +569,7 @@
     "happened": false
    },
    "fatigue": {
-    "probability": 0.176,
+    "probability": 0.177,
     "times_usual": 0.7,
     "reasons": [
      "calm (1-5, 5 = relaxed) 1.2 spreads above usual today",
@@ -589,7 +590,7 @@
     "happened": false
    },
    "fatigue": {
-    "probability": 0.144,
+    "probability": 0.154,
     "times_usual": 0.6,
     "reasons": [
      "sleep, wristband (h) 1.4 spreads above usual on average over the last 3 days"
@@ -610,7 +611,7 @@
     "happened": false
    },
    "fatigue": {
-    "probability": 0.392,
+    "probability": 0.403,
     "times_usual": 1.6,
     "reasons": [
      "energy (1-5, 5 = fresh) 0.5 below usual today",
@@ -632,7 +633,7 @@
     "happened": true
    },
    "fatigue": {
-    "probability": 0.199,
+    "probability": 0.186,
     "times_usual": 0.8,
     "reasons": [
      "steps 1.4 spreads above usual today",
@@ -654,7 +655,7 @@
     "happened": false
    },
    "fatigue": {
-    "probability": 0.211,
+    "probability": 0.214,
     "times_usual": 0.9,
     "reasons": [
      "readiness (0-10) today: 7",
@@ -675,7 +676,7 @@
     "happened": false
    },
    "fatigue": {
-    "probability": 0.2,
+    "probability": 0.196,
     "times_usual": 0.8,
     "reasons": [
      "steps 1.1 spreads above usual today"

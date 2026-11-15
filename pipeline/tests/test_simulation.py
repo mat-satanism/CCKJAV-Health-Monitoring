@@ -86,3 +86,11 @@ def test_every_crew_member_has_a_weekly_private_medical_conference():
     for member in sim.DEMO_CREW:
         days = pmc.loc[pmc["assignee"] == member["astronaut_id"], "mission_day"].tolist()
         assert days and all(b - a == 7 for a, b in pairwise(days))
+
+
+def test_glucose_day_to_day_change_matches_the_real_data():
+    from pipeline import bigideas
+    table = pd.read_csv(PROCESSED / "glucose_morning.csv")
+    real = bigideas.day_to_day(table)
+    assert real["people"] == 16
+    assert sim.ASSUMED["glucose"] == {"sd": real["sd"], "phi": real["phi"]}

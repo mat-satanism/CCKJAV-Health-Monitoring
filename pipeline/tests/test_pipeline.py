@@ -142,3 +142,18 @@ def test_demo_adds_synthetic_vitals_only_when_asked():
     synth = full[full["source"] == "synthetic"]
     assert set(synth["type"]) == {"bp_sys", "bp_dia", "glucose", "temp"} and len(synth) == 8
     assert synth.loc[synth["type"] == "temp", "value"].between(35.5, 37.5).all()
+
+
+def test_a_day_without_steps_has_unknown_exercise_not_zero():
+    from pipeline.common import mark_non_wear
+    df = pd.DataFrame({"steps": [5000, 0, np.nan], "exercise_min": [30.0, 0.0, 0.0]})
+    out = mark_non_wear(df)
+    assert out["exercise_min"].tolist()[0] == 30.0
+    assert out["exercise_min"].iloc[1:].isna().all() and out["steps"].iloc[1:].isna().all()
+
+
+def test_loose_watch_values_are_unknown():
+    from pipeline.common import drop_impossible
+    df = pd.DataFrame({"temp_skin": [25.5, 33.8], "stress_score": [0, 70], "sleep_hours_device": [0.9, 7.2]})
+    out = drop_impossible(df)
+    assert out.isna().sum().tolist() == [1, 1, 1] and out.iloc[1].notna().all()

@@ -27,7 +27,9 @@ FROM_PMDATA = ["heart_rate", "sleep_hours", "mood", "exercise_min"]
 ASSUMED = {
     "bp_sys": {"sd": 5.0, "phi": 0.3},
     "bp_dia": {"sd": 4.0, "phi": 0.3},
-    "glucose": {"sd": 6.0, "phi": 0.2},
+    # Glucose day-to-day change is REAL since 2026-11-15: BIG IDEAs morning glucose, 16 people (pipeline/bigideas.py;
+    # a test checks these numbers against data/processed/glucose_morning.csv). Was assumed sd 6.0, phi 0.2.
+    "glucose": {"sd": 8.2, "phi": 0.0},
     "temp": {"mean": 36.6, "between_people_sd": 0.15, "sd": 0.15, "phi": 0.3},
     # mean of a 3-minute PVT, ms; slower after a short night (ms per hour of sleep below the person's usual)
     "reaction_ms": {"mean": 260.0, "between_people_sd": 20.0, "sd": 15.0, "phi": 0.3, "per_sleep_hour": -8.0},
