@@ -19,7 +19,7 @@ from .common import PROCESSED, ROOT
 from .features import TEST_FOLD, assign_folds
 
 sys.path.insert(0, str(ROOT / "backend"))
-from app import analytics
+from app import analytics  # pyright: ignore[reportMissingImports]  (backend/ is put on the path above)
 
 HORIZON = 7
 WINDOW = analytics.BASELINE_DAYS
@@ -80,9 +80,9 @@ def fit(o: pd.DataFrame) -> dict:
 
 
 METHODS = {
-    "current (straight line)": lambda past, ind: analytics.linear_forecast(list(past), HORIZON),
-    "same as today": lambda past, ind: [past[-1]] * HORIZON,
-    "usual level (median 14 d)": lambda past, ind: [float(np.median(past[-WINDOW:]))] * HORIZON,
+    "current (straight line)": lambda past, _ind: analytics.linear_forecast(list(past), HORIZON),
+    "same as today": lambda past, _ind: [past[-1]] * HORIZON,
+    "usual level (median 14 d)": lambda past, _ind: [float(np.median(past[-WINDOW:]))] * HORIZON,
     "back to own norm (new)": lambda past, ind: analytics.forecast(list(past), HORIZON, ind),
 }
 
