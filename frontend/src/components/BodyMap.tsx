@@ -51,12 +51,6 @@ export function BodyMap({ systems, selected, onSelect }: Props) {
   return (
     <figure className="body-wrap">
       <svg viewBox="0 0 200 330" className="body-map" role="group" aria-label="Body systems">
-        <defs>
-          <linearGradient id="scan-g" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0" stopColor="var(--accent)" stopOpacity="0" />
-            <stop offset="1" stopColor="var(--accent)" stopOpacity=".35" />
-          </linearGradient>
-        </defs>
         <g className="body-deco" aria-hidden="true">
           <ellipse cx="100" cy="320" rx="70" ry="7" className="body-floor" />
           <circle cx="100" cy="170" r="98" className="body-ring" />
@@ -81,10 +75,6 @@ export function BodyMap({ systems, selected, onSelect }: Props) {
         ))}
         <g className="body-deco" aria-hidden="true">
           <path d="M80 112 h10 l4 -8 l6 16 l4 -8 h16" className="heartbeat" />
-          <g className="scan">
-            <rect x="34" y="0" width="132" height="22" fill="url(#scan-g)" />
-            <rect x="34" y="22" width="132" height="1" fill="var(--accent)" opacity=".8" />
-          </g>
         </g>
       </svg>
       {current && (
