@@ -6,6 +6,7 @@
 Every number on a chart is computed here from data/processed and models/, nothing is typed in by hand.
 """
 import json
+import textwrap
 
 import matplotlib
 
@@ -39,9 +40,18 @@ plt.rcParams.update({
 
 
 def _titles(fig, title: str, subtitle: str, source: str) -> None:
-    fig.text(0.04, 0.95, title, fontsize=20, fontweight="bold", va="top")
-    fig.text(0.04, 0.885, subtitle, fontsize=13, color=INK_2, va="top")
-    fig.text(0.04, 0.03, source, fontsize=10, color=MUTED, va="bottom")
+    """Title, subtitle and source, wrapped to the figure width; the plot area starts below them."""
+    w_in, h_in = fig.get_size_inches()
+    t = textwrap.wrap(title, int(w_in * 6.9))
+    st = textwrap.wrap(subtitle, int(w_in * 11.3))
+    so = textwrap.wrap(source, int(w_in * 15))
+    y = 1 - 0.3 / h_in
+    fig.text(0.04, y, "\n".join(t), fontsize=20, fontweight="bold", va="top", linespacing=1.15)
+    y -= (len(t) * 0.36 + 0.1) / h_in
+    fig.text(0.04, y, "\n".join(st), fontsize=13, color=INK_2, va="top", linespacing=1.3)
+    y -= (len(st) * 0.25 + 0.45) / h_in
+    fig.text(0.04, 0.02, "\n".join(so), fontsize=10, color=MUTED, va="bottom")
+    fig.subplots_adjust(top=min(fig.subplotpars.top, y))
 
 
 # --- 1. The forecast beats "same as today" -----------------------------------------------------------------
@@ -206,21 +216,27 @@ def chart_blood() -> dict:
         lo, hi = a["ref_min"].iloc[0], a["ref_max"].iloc[0]
         ax.axhspan(lo, hi, color=GRID, alpha=0.6, lw=0)
         ax.axvspan(2.5, 3.5, color=BLUE, alpha=0.08, lw=0)
-        ups = 0
+        above = below = 0
         for crew, g in a.groupby("crew_id"):
             g = g.set_index("timepoint").reindex(order)
             x = np.arange(len(order))
             ax.plot(x, g["value"], color=BLUE, lw=1.6, alpha=0.75, marker="o", ms=4)
-            pre = g.loc[["L-92", "L-44", "L-3"], "value"].mean()
-            ups += int(np.sign(g.loc["R+1", "value"] - pre))
-        facts[analyte] = {"crew_up_minus_down_at_R+1": ups, "lab_range": [lo, hi]}
+            pre = g.loc[["L-92", "L-44", "L-3"], "value"]   # the person's own range before flight
+            above += int(g.loc["R+1", "value"] > pre.max())
+            below += int(g.loc["R+1", "value"] < pre.min())
+        facts[analyte] = {"R+1_above_own_preflight_range": above, "R+1_below_own_preflight_range": below,
+                          "crew": int(a["crew_id"].nunique()), "lab_range": [lo, hi]}
         ax.set_title(f"{label}\n", loc="left", fontsize=13, color=INK, fontweight="bold")
         ax.text(0, 1.02, unit, transform=ax.transAxes, fontsize=10, color=INK_2)
         ax.set_xticks(range(len(order)), order, rotation=45, fontsize=10)
         ax.grid(axis="x", visible=False)
     axes[0].text(3, axes[0].get_ylim()[1], "flight", ha="center", va="top", fontsize=10, color=BLUE)
-    _titles(fig, "After 3 days in space, all four came back with higher glucose and fewer white cells",
-            "Each line is one Inspiration4 astronaut; grey band = lab normal range. Real NASA data: 4 people, one sample each.",
+    g_up = facts["glucose"]["R+1_above_own_preflight_range"]
+    w_dn = facts["white_blood_cell_count"]["R+1_below_own_preflight_range"]
+    _titles(fig, f"The day after 3 days in space, glucose was above their own pre-flight range in {g_up} of 4, "
+                 f"white cells below it in {w_dn} of 4",
+            "Each line is one Inspiration4 astronaut; grey band = lab normal range. Real NASA data: 4 people, one sample "
+            "each; not known if the R+1 sample was fasting.",
             "NASA OSDR OSD-575 / OSD-569 (Inspiration4, 2021). L = days before launch, R = days after return. "
             "Suspect R+45 glucose samples left out. python -m pipeline.pitch_charts")
     fig.savefig(OUT / "4-real-astronauts-blood.png", dpi=160)
@@ -230,64 +246,74 @@ def chart_blood() -> dict:
 
 # --- 5. What comes before a worse-mood day (real people) -------------------------------------------------
 
-BEFORE = [   # (label, column, threshold): today's distance from the person's own norm
-    ("Stressed day\n(calm 1+ below usual)", "stress_dev", -1),
-    ("Short sleep\n(1+ h below usual, self-report)", "sleep_hours_dev", -1),
-    ("Tired day\n(energy 1+ below usual)", "fatigue_dev", -1),
-    ("Short sleep\n(1+ h below usual, wristband)", "sleep_hours_device_dev", -1),
+BEFORE = [   # (label, column, test on today's distance from the person's own norm)
+    ("Stressed day (calm 1+ below usual)", "stress_dev", lambda x: x <= -1),
+    ("Short sleep (1+ h below usual, self-report)", "sleep_hours_dev", lambda x: x <= -1),
+    ("Tired day (energy 1+ below usual)", "fatigue_dev", lambda x: x <= -1),
+    ("Short sleep (1+ h below usual, wristband)", "sleep_hours_device_dev", lambda x: x <= -1),
+    ("Fewer steps (3000+ below usual)", "steps_dev", lambda x: x <= -3000),
+    ("Resting pulse 2+ bpm above usual", "heart_rate_dev", lambda x: x >= 2),
 ]
+MIN_DAYS = 5     # a person counts for a sign when they have at least 5 days with it and 5 without
 
 
-def _rate_ci(d: pd.DataFrame, mask: pd.Series, n: int = 1000, seed: int = 7) -> tuple[float, float, float]:
-    """Share of next days with a worse mood, 95% interval resampling people."""
+def within_person(d: pd.DataFrame, mask: pd.Series, n: int = 2000, seed: int = 7) -> dict:
+    """How much a sign changes the chance of a worse mood tomorrow FOR THE SAME PERSON.
+
+    For each person: share of worse-mood next days after days with the sign, minus after days without it. The mean
+    over people (each person counts once), a 95% interval resampling people, and in how many people it is positive.
+    Pooling all days instead mixes in who is moody in general: e.g. "stressed" gave +9 points pooled, +4 within.
+    """
+    diffs = []
+    for _, g in d.assign(m=mask.to_numpy()).groupby("person_id"):
+        if g["m"].sum() >= MIN_DAYS and (~g["m"]).sum() >= MIN_DAYS:
+            diffs.append(g.loc[g["m"], "y_mood"].mean() - g.loc[~g["m"], "y_mood"].mean())
+    diffs = np.array(diffs)
     rng = np.random.default_rng(seed)
-    per = d.assign(m=mask.astype(int)).groupby("person_id").apply(
-        lambda g: pd.Series({"bad": g.loc[g["m"] == 1, "y_mood"].sum(), "n": (g["m"] == 1).sum()}),
-        include_groups=False)
-    ids = per.index.to_numpy()
-    boots = []
-    for _ in range(n):
-        s = per.loc[rng.choice(ids, len(ids))]
-        boots.append(s["bad"].sum() / max(s["n"].sum(), 1))
-    return float(per["bad"].sum() / per["n"].sum()), *np.percentile(boots, [2.5, 97.5])
+    boots = [rng.choice(diffs, len(diffs)).mean() for _ in range(n)]
+    lo, hi = np.percentile(boots, [2.5, 97.5])
+    return {"effect": float(diffs.mean()), "lo": float(lo), "hi": float(hi),
+            "people": len(diffs), "positive": int((diffs > 0).sum()), "days": int(mask.sum())}
 
 
 def chart_before_bad_mood() -> dict:
     f = w.load("pmdata")
     d = f[f["y_mood"].notna()].copy()
     rows = []
-    for label, col, thr in BEFORE:
+    for label, col, test in BEFORE:
         has = d[col].notna()
-        r, lo, hi = _rate_ci(d[has], d.loc[has, col] <= thr)
-        other, _, _ = _rate_ci(d[has], d.loc[has, col] > thr)
-        rows.append({"label": label, "rate": r, "lo": lo, "hi": hi, "other": other,
-                     "days": int((d.loc[has, col] <= thr).sum())})
+        rows.append({"label": label, **within_person(d[has], test(d.loc[has, col]))})
     overall = float(d["y_mood"].mean())
     fig, ax = plt.subplots(figsize=(12, 6.2))
-    fig.subplots_adjust(left=0.3, right=0.95, top=0.74, bottom=0.17)
+    fig.subplots_adjust(left=0.33, right=0.95, top=0.74, bottom=0.17)
     ys = np.arange(len(rows))[::-1]
     for y, r in zip(ys, rows):
-        c = BLUE if r["lo"] > r["other"] else MUTED
-        ax.barh(y, r["rate"] * 100, height=0.5, color=c, alpha=0.9)
-        ax.plot([r["lo"] * 100, r["hi"] * 100], [y, y], color=INK_2, lw=1.5)
-        ax.text(r["hi"] * 100 + 0.6, y, f"{r['rate']:.0%}  ({r['days']} days)", va="center", fontsize=12)
-    ax.axvline(overall * 100, color=INK_2, lw=1, ls=(0, (4, 3)))
-    ax.text(overall * 100, len(rows) - 0.45, f"any day: {overall:.0%}", ha="center", fontsize=11, color=INK_2,
-            bbox={"facecolor": SURFACE, "edgecolor": "none", "pad": 2})
+        c = BLUE if r["lo"] > 0 else MUTED
+        ax.plot([r["lo"] * 100, r["hi"] * 100], [y, y], color=c, lw=2.2, alpha=0.8)
+        ax.scatter([r["effect"] * 100], [y], s=70, color=c, zorder=3)
+        ax.text(max(r["hi"] * 100, 0) + 0.8, y, f"{r['effect'] * 100:+.0f} pts, in {r['positive']} of {r['people']} people",
+                va="center", fontsize=11.5, color=INK_2)
+    ax.axvline(0, color=INK_2, lw=1)
     ax.set_yticks(ys, [r["label"] for r in rows], fontsize=12, color=INK)
     ax.tick_params(axis="y", length=0)
-    ax.set_ylim(-0.6, len(rows) - 0.2)
-    ax.set_xlim(0, max(r["hi"] for r in rows) * 100 + 9)
-    ax.set_xlabel("Next day's mood below the person's usual, % of days (bar), 95% interval resampling people (line)")
+    ax.set_ylim(-0.6, len(rows) - 0.4)
+    ax.set_xlim(min(r["lo"] for r in rows) * 100 - 2, max(r["hi"] for r in rows) * 100 + 17)
+    ax.set_xlabel("Change in tomorrow's chance of a worse mood, % points (dot), 95% interval (line)")
     ax.grid(axis="y", visible=False)
-    top = max(rows, key=lambda r: r["rate"])
-    _titles(fig, f"After a stressed day, a worse mood follows {top['rate']:.0%} of the time, against {overall:.0%} on any day",
-            "Real people (PMData, 16): wide intervals, a tendency rather than a rule. The forecast combines such signs.",
-            "Each day compared with the person's own norm (last 14 days). Blue: interval clear of other days. "
-            "python -m pipeline.pitch_charts")
+    clear = [r["label"].split(" (")[0].lower() for r in rows if r["lo"] > 0]
+    pos = [r["effect"] * 100 for r in rows if r["effect"] > 0]
+    pulse = next(r for r in rows if r["label"].startswith("Resting pulse"))
+    title = (f"For the same person, a short night, stress or a tired day add only {min(pos):.0f}-{max(pos):.0f} points "
+             f"to tomorrow's chance of a worse mood; a raised pulse adds none")
+    _titles(fig, title,
+            f"Each person compared with themselves (worse mood on {overall:.0%} of days overall). Small, not in everyone"
+            + (f", clearly above zero only for: {', '.join(clear)}" if clear else "")
+            + ". That is why the forecast combines several signs.",
+            "Real people (PMData, 16); a person counts for a sign with 5+ days with and without it. Blue: interval clear "
+            "of 0. python -m pipeline.pitch_charts")
     fig.savefig(OUT / "5-what-comes-before-a-worse-mood.png", dpi=160)
     plt.close(fig)
-    return {"any_day": round(overall, 3),
+    return {"any_day": round(overall, 3), "pulse_effect": round(pulse["effect"], 3),
             "signals": [{k: (round(v, 3) if isinstance(v, float) else v) for k, v in r.items()} for r in rows]}
 
 
@@ -382,7 +408,113 @@ def chart_demo_person() -> dict:
     return {"high_days": hi_n, "high_then_bad": hi_bad, "other_days": lo_n, "other_then_bad": lo_bad}
 
 
-# --- 8. Early warning without crying wolf (simulated missions) ---------------------------------------------
+# --- 8. Inspiration4: six blood values per astronaut (real) -------------------------------------------------
+
+PANEL = [("glucose", "Glucose", "mg/dL"), ("calcium", "Calcium", "mg/dL"),
+         ("white_blood_cell_count", "White blood cells", "thousand per µL"), ("hemoglobin", "Hemoglobin", "g/dL"),
+         ("platelet_count", "Platelets", "thousand per µL"), ("creatinine", "Creatinine", "mg/dL")]
+CREW_STYLE = {"C001": "-", "C002": "--", "C003": ":", "C004": "-."}
+
+
+def chart_blood_panel() -> dict:
+    b = pd.read_csv(PROCESSED / "inspiration4_blood.csv")
+    b = b[b["quality_note"].isna()]
+    order = ["L-92", "L-44", "L-3", "R+1", "R+45", "R+82", "R+194"]
+    fig, axes = plt.subplots(2, 3, figsize=(13, 7.4), sharex=True)
+    fig.subplots_adjust(left=0.06, right=0.98, top=0.8, bottom=0.12, wspace=0.25, hspace=0.42)
+    outside = {}
+    for ax, (analyte, label, unit) in zip(axes.ravel(), PANEL):
+        a = b[b["analyte"] == analyte]
+        # Some ranges differ by sex: the band spans the lowest minimum to the highest maximum; "outside" uses each
+        # result's own lab flag.
+        ax.axhspan(a["ref_min"].min(), a["ref_max"].max(), color=GRID, alpha=0.6, lw=0)
+        ax.axvspan(2.5, 3.5, color=BLUE, alpha=0.08, lw=0)
+        for crew, g in a.groupby("crew_id"):
+            g = g.set_index("timepoint").reindex(order)
+            ax.plot(range(len(order)), g["value"], color=BLUE, lw=1.6, ls=CREW_STYLE.get(crew, "-"), alpha=0.8,
+                    marker="o", ms=3.5, label=crew)
+        outside[analyte] = int(a["flag"].isin(["low", "high"]).sum())
+        ax.set_title(f"{label} ({unit})", loc="left", fontsize=12, color=INK, fontweight="bold")
+        ax.set_xticks(range(len(order)), order, rotation=45, fontsize=9)
+        ax.grid(axis="x", visible=False)
+    axes[0, 0].legend(fontsize=9, frameon=False, ncol=2, loc="upper left")
+    n_out = sum(outside.values())
+    _titles(fig, f"Six blood values of the four Inspiration4 astronauts: {n_out} of "
+                 f"{int(b[b['analyte'].isin([p[0] for p in PANEL])]['value'].notna().sum())} results outside the lab range",
+            "Each line is one astronaut, grey band = lab normal range (widest if it differs by sex), blue band = the 3-day flight. Glucose, bone "
+            "(calcium), immune (white cells), blood (hemoglobin, platelets), kidneys (creatinine).",
+            "NASA OSDR OSD-575 / OSD-569 (Inspiration4, 2021). Suspect R+45 glucose samples left out. "
+            "python -m pipeline.pitch_charts")
+    fig.savefig(OUT / "8-inspiration4-six-blood-values.png", dpi=160)
+    plt.close(fig)
+    return {"outside_lab_range": outside}
+
+
+# --- 9. Data completeness: which days have values (real, for the team) ---------------------------------------
+
+COMPLETENESS = [("heart_rate", "Resting pulse"), ("sleep_hours", "Sleep (self)"), ("sleep_hours_device", "Sleep (watch)"),
+                ("mood", "Mood"), ("exercise_min", "Exercise"), ("steps", "Steps"), ("hrv_ms", "HRV"),
+                ("temp_skin", "Skin temp")]
+DEMO_SIGNALS = ["heart_rate", "sleep_hours", "mood", "exercise_min"]   # what the real-data demo needs every day
+
+
+def completeness() -> tuple[pd.DataFrame, pd.DataFrame]:
+    """Share of calendar days with a value, per person and indicator; and the best 30-day window per PMData person."""
+    d = pd.read_csv(PROCESSED / "daily.csv", parse_dates=["date"])
+    d = d[d["source_dataset"].isin(["pmdata", "lifesnaps"])]
+    rows = []
+    for pid, g in d.groupby("person_id"):
+        span = (g["date"].max() - g["date"].min()).days + 1
+        rows.append({"person_id": pid, "dataset": g["source_dataset"].iloc[0], "calendar_days": span,
+                     **{c: round(g[c].notna().sum() / span, 2) for c, _ in COMPLETENESS}})
+    table = pd.DataFrame(rows)
+    best = []
+    for pid, g in d[d["source_dataset"] == "pmdata"].groupby("person_id"):
+        full = g.set_index("date").sort_index().asfreq("D")[DEMO_SIGNALS].notna().all(axis=1).astype(float)
+        roll = full.rolling(30).mean()
+        best.append({"person_id": pid, "best_30_days_complete": round(float(roll.max()), 2),
+                     "from": roll.idxmax() - pd.Timedelta(days=29) if roll.notna().any() else None})
+    best = pd.DataFrame(best).sort_values("best_30_days_complete", ascending=False).reset_index(drop=True)
+    return table, best
+
+
+def chart_completeness() -> dict:
+    table, best = completeness()
+    cols = [c for c, _ in COMPLETENESS]
+    table = table.assign(order=table[cols].mean(axis=1)).sort_values(["dataset", "order"], ascending=[False, False])
+    fig, ax = plt.subplots(figsize=(12, 9))
+    fig.subplots_adjust(left=0.12, right=0.97, top=0.88, bottom=0.08)
+    ax.imshow(table[cols].to_numpy(), aspect="auto", cmap="Blues", vmin=0, vmax=1)
+    ax.set_xticks(range(len(cols)), [lab for _, lab in COMPLETENESS], fontsize=11)
+    split = int((table["dataset"] == "pmdata").sum())
+    ax.set_yticks(range(split), table["person_id"].iloc[:split], fontsize=6.5)
+    ax.set_ylabel(f"PMData: {split} people (named) | LifeSnaps: {len(table) - split} people", fontsize=11)
+    ax.grid(False)
+    ax.axhline(split - 0.5, color=INK, lw=1.2)
+    _titles(fig, f"Which days have data: {len(table)} people; {int((best['best_30_days_complete'] >= 0.98).sum())} of "
+                 f"{len(best)} PMData people have a 30-day stretch with pulse, sleep, mood and exercise every day",
+            "Share of each person's calendar days with a value (dark = every day). PMData above the line, LifeSnaps below; "
+            "white columns = not in that dataset.",
+            "data/processed/daily.csv after cleaning (no-steps days = watch not worn). python -m pipeline.pitch_charts")
+    fig.savefig(OUT / "9-data-completeness.png", dpi=160)
+    plt.close(fig)
+    md = ["# Data completeness (generated by `python -m pipeline.pitch_charts`)", "",
+          ("Share of each person's calendar days with a value, after cleaning (`docs/data.md`). "
+           "Picture: `docs/pitch/9-data-completeness.png`."), "",
+          "## PMData: best 30-day stretch with pulse, self-reported sleep, mood and exercise every day", "",
+          "| Person | Days complete in the best 30 | Window starts |", "|---|---|---|"]
+    md += [f"| {r.person_id} | {r.best_30_days_complete:.0%} | {r['from'].date() if pd.notna(r['from']) else '-'} |"
+           for _, r in best.iterrows()]
+    md += ["", "The real-data demo uses pm_p06 (complete, with a clear calm-then-short-sleep story; `docs/data.md`).", "",
+           "## Every person", "", "| Person | Dataset | Calendar days | " + " | ".join(lab for _, lab in COMPLETENESS) + " |",
+           "|---|---|---|" + "---|" * len(COMPLETENESS)]
+    md += [f"| {r.person_id} | {r.dataset} | {r.calendar_days} | " + " | ".join(f"{r[c]:.0%}" for c in cols) + " |"
+           for _, r in table.iterrows()]
+    (ROOT / "docs" / "data-completeness.md").write_text("\n".join(md) + "\n", encoding="utf-8")
+    return {"people": len(table), "pmdata_top5": best.head(5)[["person_id", "best_30_days_complete"]].to_dict("records")}
+
+
+# --- 10. Early warning without crying wolf (simulated missions) ---------------------------------------------
 
 def chart_alerts() -> dict:
     from . import early_warning as ew
@@ -412,7 +544,7 @@ def chart_alerts() -> dict:
             f"flags {m5['flagged_in_a_calm_week']:.0%}, and still {m5['flagged_before_events']:.0%} of problems ahead.",
             f"SIMULATED: 100 new missions, {int(rules['events'])} events. Risk model "
             f"{'recalibrated' if calibrated else 'raw forest'}. python -m pipeline.early_warning")
-    fig.savefig(OUT / "8-early-warning-without-crying-wolf.png", dpi=160)
+    fig.savefig(OUT / "10-early-warning-without-crying-wolf.png", dpi=160)
     plt.close(fig)
     return {"calibrated": calibrated, "rows": t.to_dict(orient="records")}
 
@@ -421,7 +553,9 @@ def main() -> None:
     OUT.mkdir(parents=True, exist_ok=True)
     facts = {"own_norm": chart_own_norm(), "early_warning": chart_early_warning(), "blood": chart_blood(),
              "before_bad_mood": chart_before_bad_mood(), "crew": chart_crew_heatmap(),
-             "demo_person": chart_demo_person(), "alerts": chart_alerts()}
+             "demo_person": chart_demo_person(), "blood_panel": chart_blood_panel(),
+             "completeness": chart_completeness(),
+             "alerts": chart_alerts()}
     gains = forecast_gains()
     chart_forecast(gains)
     facts["forecast"] = gains.round(3).to_dict(orient="records")

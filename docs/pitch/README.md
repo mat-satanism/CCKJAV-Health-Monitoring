@@ -40,11 +40,18 @@ and temperature are still inside the safe limits. It also gives false alarms (Ma
 | `1-forecast-beats-same-as-today.png` | mood and energy tomorrow: the model beats "same as today" | real | the ML result |
 | `2-everyone-has-their-own-normal.png` | usual pulse differs by 32 bpm; a fixed limit flags 9 of 79 | real | the problem, why a personal norm |
 | `3-early-warning-before-fever.png` | infection flagged 2 days before the fever | simulated | the demo story |
-| `4-real-astronauts-blood.png` | after 3 days in space all four came back with higher glucose, fewer white cells | real astronauts (Inspiration4) | why monitor in space at all |
-| `5-what-comes-before-a-worse-mood.png` | after a stressed day a worse mood follows 21% vs 15% on any day | real | what the forecast reads, explanations |
+| `4-real-astronauts-blood.png` | the day after 3 days in space, glucose above their own pre-flight range in 3 of 4, white cells below it in 2 of 4 | real astronauts (Inspiration4) | why monitor in space at all |
+| `5-what-comes-before-a-worse-mood.png` | for the same person a short night, stress or a tired day add only 3-4 points to a worse mood tomorrow; a raised pulse adds none | real | why the forecast combines signs |
 | `6-crew-at-a-glance.png` | one person drifting vs the whole crew at once (CO2) | simulated | the crew-wide signal, doctors' view |
 | `7-forecast-for-an-unseen-person.png` | a person the model never saw: worse mood after 3 of 7 high-risk days vs 4 of 21 others | real, one person | the app card, as an illustration |
-| `8-early-warning-without-crying-wolf.png` | the model warns as early as the rules, with far fewer false alarms (calm week: 73% rules vs 17% model at 5×) | simulated | why a model at all, the doctors' view |
+| `8-inspiration4-six-blood-values.png` | six blood values of the four Inspiration4 astronauts over 7 time points: 8 of 165 results outside the lab range | real astronauts | backup slide, questions about real data |
+| `9-data-completeness.png` | which days have data; 2 of 16 PMData people have a fully complete 30-day stretch | real | for the team, not the pitch (table: `docs/data-completeness.md`) |
+| `10-early-warning-without-crying-wolf.png` | the model warns as early as the rules, with far fewer false alarms (calm week: 73% rules vs 17% model at 5×) | simulated | why a model at all, the doctors' view |
+
+**Changed 2026-11-15.** Chart 5 used to pool all days of all people ("after a stressed day 21% vs 13%"). That mixes in
+who is moody in general; comparing each person with themselves the effect is +3-4 points and not in everyone, and a
+pulse above usual does not come before a worse mood at all (-4 points, in 4 of 12 people). Chart 4 used to say "all
+four"; against each astronaut's own pre-flight range it is 3 of 4 (glucose) and 2 of 4 (white cells).
 
 Strongest trio for a short pitch: **2 → 1 → 3** (problem, real result, demo story). Chart 4 is the only one with
 real astronauts; chart 7 is one person and should not be shown as proof.

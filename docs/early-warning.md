@@ -2,7 +2,7 @@
 
 A warning is only useful if it is rare when nothing is wrong. We compared the app's two ways of raising a flag on
 100 new simulated missions (717 events, seed never used in training). Run: `python -m pipeline.early_warning`
-(about 1 minute); chart: `docs/pitch/8-early-warning-without-crying-wolf.png`.
+(about 1 minute); chart: `docs/pitch/10-early-warning-without-crying-wolf.png`.
 
 - **Rules:** any indicator yellow or red that day (Bayesian personal norm and safety limits).
 - **Model:** any event risk at 3× the usual level or more (doctors see it), or 5× (the CMO is asked to confirm

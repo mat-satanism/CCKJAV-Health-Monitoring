@@ -56,7 +56,7 @@ docs/            api contract, sources
 - **Data:** to show real/cleaned data in the app, make `demo_mission()` in `backend/app/demo.py` return your records as `Measurement` objects.
 - **Thresholds:** edit `data/thresholds.json` and add the source to `docs/sources.md`.
 - Notebooks go to `notebooks/`, raw data to `data/raw/` (keep large files out of git).
-- **Cleaned data:** `python -m pipeline.get_data` then `python -m pipeline.build` fills `data/processed/` (daily wearable table, Inspiration4 blood tests, NHANES reference ranges). Columns and cleaning rules: [docs/data.md](docs/data.md).
+- **Cleaned data:** `python -m pipeline.get_data` then `python -m pipeline.build` fills `data/processed/` (daily wearable table, Inspiration4 blood tests, NHANES reference ranges). Columns and cleaning rules: [docs/data.md](docs/data.md). Which days have data, per person: [docs/data-completeness.md](docs/data-completeness.md).
 - **Early warning without crying wolf:** `python -m pipeline.early_warning` compares the model with the status rules on new simulated missions: as early, far fewer flags in a calm week. See [docs/early-warning.md](docs/early-warning.md).
 - **How many days the norm needs:** `python -m pipeline.norm_days` checks the calibration week (6 days) and the 14-day window on real people and the simulation: both hold up. See [docs/norm-days.md](docs/norm-days.md).
 - **Simulation and model:** `python -m pipeline.build` also writes the simulated crew mission to `data/processed/sim/`; `python -m pipeline.model` trains the risk model (`models/risk_model.json`) and writes the demo predictions. Design, assumptions and results: [docs/simulation.md](docs/simulation.md).
