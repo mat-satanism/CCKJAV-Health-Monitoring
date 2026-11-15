@@ -40,8 +40,10 @@ VALID_RANGES = {
     "sleep_quality": (1, 5), "mood": (1, 5), "fatigue": (1, 5), "stress": (1, 5), "soreness": (1, 5),
     "readiness": (0, 10),
     "sleep_hours": (0.5, 16),
-    # Main sleep under 2 h measured by the watch: almost always the watch worn for part of the night (81 days).
-    "sleep_hours_device": (2, 16),
+    # Main sleep measured by the watch: under 2 h is a watch worn for part of the night (81 nights); over 11 h is a
+    # device artifact: on those 73 nights people reported 5.5-7 h themselves, and some repeat every 30 days
+    # (export boundaries). 9-11 h nights agree with the self-report (median 9 h), so they stay.
+    "sleep_hours_device": (2, 11),
     "heart_rate": (30, 220),
     # Fitbit stress score runs 1-100; 0 means "not computed" (296 LifeSnaps days), not "no stress".
     "stress_score": (1, 100),

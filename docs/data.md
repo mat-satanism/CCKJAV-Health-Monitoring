@@ -60,6 +60,9 @@ Cleaning rules:
   exercise", and the crew simulation copied them (Maria's real person: 28% of days with no exercise, now 9%).
 - **Loose watch** (since 2026-11-15), set to empty: nightly skin temperature below 30 deg C (18 nights), Fitbit stress
   score 0, which means "not computed" (296 days), main sleep under 2 h measured by the watch (81 nights).
+- **Device sleep over 11 h** (since 2026-11-15) is set to empty: on those 73 nights people themselves reported a
+  median of 5.5-7 h, and for some the artifact repeats every 30 days. Nights of 9-11 h agree with the self-report
+  (median 9 h) and stay.
 
 ## `data/processed/glucose_morning.csv`
 

@@ -38,9 +38,9 @@ An interval entirely above 0 means the model beats "same as today" on people it 
 | Target | Same as today | Random forest (all inputs) | Forest, check-in only | Forest, check-in + last days |
 |---|---|---|---|---|
 | Worse mood (PMData) | 0.608 | 0.684 (+0.043..+0.108) | 0.720 (+0.072..+0.154) | **0.703 (+0.057..+0.134)** |
-| More tired (PMData) | 0.590 | **0.651 (+0.011..+0.126)** | 0.637 (+0.009..+0.088) | 0.627 (−0.010..+0.090) |
-| Less ready (PMData) | 0.627 | 0.648 (−0.010..+0.051) | 0.627 (−0.044..+0.051) | 0.620 (−0.052..+0.039) |
-| Negative feeling (LifeSnaps) | 0.530 | 0.525 (−0.048..+0.033) | 0.543 (−0.007..+0.036) | not built |
+| More tired (PMData) | 0.590 | **0.649 (+0.009..+0.127)** | 0.637 (+0.009..+0.088) | 0.627 (−0.010..+0.090) |
+| Less ready (PMData) | 0.627 | 0.639 (−0.023..+0.050) | 0.627 (−0.044..+0.051) | 0.620 (−0.052..+0.039) |
+| Negative feeling (LifeSnaps) | 0.530 | 0.515 (−0.061..+0.028) | 0.543 (−0.007..+0.036) | not built |
 
 Bold: the variant shipped in the app (chosen before the switch to the Bayesian norm and kept, so the choice is
 not tuned on this table). Logistic regression: mood 0.643, fatigue 0.624, readiness 0.653, none clearly above the

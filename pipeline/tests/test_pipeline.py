@@ -154,6 +154,7 @@ def test_a_day_without_steps_has_unknown_exercise_not_zero():
 
 def test_loose_watch_values_are_unknown():
     from pipeline.common import drop_impossible
-    df = pd.DataFrame({"temp_skin": [25.5, 33.8], "stress_score": [0, 70], "sleep_hours_device": [0.9, 7.2]})
+    df = pd.DataFrame({"temp_skin": [25.5, 33.8, 34.0], "stress_score": [0, 70, 50],
+                       "sleep_hours_device": [0.9, 7.2, 14.8]})
     out = drop_impossible(df)
-    assert out.isna().sum().tolist() == [1, 1, 1] and out.iloc[1].notna().all()
+    assert out.isna().sum().tolist() == [1, 1, 2] and out.iloc[1].notna().all()
