@@ -16,6 +16,7 @@ from sklearn.impute import SimpleImputer
 from sklearn.pipeline import make_pipeline
 
 warnings.filterwarnings("ignore")
+from . import bayes_features
 from . import wellbeing as w
 from .features import BASELINE_DAYS, MIN_BASELINE_OBS, assign_folds
 
@@ -76,9 +77,13 @@ COMPOSITE = {
 
 def fit_scores(d, cols, target, fold_col, kind="clf", centre=False):
     s = np.full(len(d), np.nan)
+    signals = sorted({c.rsplit("_bz", 1)[0] for c in cols if "_bz" in c})
+    refit = bool(bayes_features.fitted_signals(signals))
     x = d[cols].to_numpy(float)
     for k in sorted(d[fold_col].unique()):
         t = (d[fold_col] == k).to_numpy()
+        if refit:   # learned norm priors from the training people of this fold only (docs/wellbeing-model.md)
+            x = bayes_features.refit_for_fold(d, signals, d[fold_col] != k)[cols].to_numpy(float)
         if kind == "clf":
             m = make_pipeline(SimpleImputer(strategy="median", add_indicator=True), RandomForestClassifier(**w.FOREST))
             m.fit(x[~t], d[target].to_numpy(int)[~t])

@@ -124,11 +124,20 @@ def models() -> dict:
 
 
 def out_of_person_scores(f: pd.DataFrame, cols: list[str], target: str) -> dict[str, np.ndarray]:
-    """Each row scored by a model trained only on the other folds' people."""
+    """Each row scored by a model trained only on the other folds' people.
+
+    Inputs whose norm prior is learned from people (steps, fatigue, stress; LifeSnaps signals) are recomputed for
+    every fold with priors from the other folds only, so a scored person never shapes their own inputs.
+    """
     out = {name: np.full(len(f), np.nan) for name in models()}
-    x, y = f[cols].to_numpy(float), f[target].to_numpy(int)
+    y = f[target].to_numpy(int)
+    signals = sorted({c.rsplit("_bz", 1)[0] for c in cols if "_bz" in c})
+    refit = bool(bayes_features.fitted_signals(signals))
+    x = f[cols].to_numpy(float)
     for fold in sorted(f["fold"].unique()):
         test = (f["fold"] == fold).to_numpy()
+        if refit:
+            x = bayes_features.refit_for_fold(f, signals, f["fold"] != fold)[cols].to_numpy(float)
         for name, m in models().items():
             m.fit(x[~test], y[~test])
             out[name][test] = m.predict_proba(x[test])[:, 1]
