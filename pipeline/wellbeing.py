@@ -61,10 +61,10 @@ NORM = "bayes"   # inputs against the app's Bayesian personal norm (docs/persona
 HISTORY = ("_lag1", "_d1", "_min3", "_since_low")
 
 
-def add_pmdata_targets(f: pd.DataFrame) -> pd.DataFrame:
-    """Add y_<col> and ref_<col> for mood, fatigue and readiness. Rows are a full daily calendar per person."""
+def add_pmdata_targets(f: pd.DataFrame, cols: tuple[str, ...] = ("mood", "fatigue", "readiness")) -> pd.DataFrame:
+    """Add y_<col> and ref_<col> (mood, fatigue, readiness by default). Rows are a full daily calendar per person."""
     f = f.sort_values(["person_id", "date"]).copy()
-    for col in ("mood", "fatigue", "readiness"):
+    for col in cols:
         g = f.groupby("person_id")[col]
         usual = g.transform(lambda x: x.rolling(BASELINE_DAYS, min_periods=MIN_BASELINE_OBS).median())
         tomorrow = g.shift(-1)
@@ -260,6 +260,9 @@ def main() -> None:
         EXPORT_FILE.write_text(json.dumps(out, indent=1, ensure_ascii=False) + "\n", encoding="utf-8")
         print(f"wrote {EXPORT_FILE} ({len(out['days'])} days)", json.dumps(out["models"], indent=1))
         return
+    if sys.argv[1:] == ["crew"]:
+        print(json.dumps(crew_scores(), indent=1))
+        return
     scores, signals = run()
     with pd.option_context("display.width", 200, "display.max_columns", 20):
         print(scores.to_string(index=False))
@@ -325,9 +328,13 @@ def describe(col: str, value: float) -> str:
 
 def forecast_person(d: pd.DataFrame, cols: list[str], target: str, person: str, top: int = 3):
     """Train on everyone but `person`, then forecast their days with SHAP reasons (only signs that raise the risk)."""
+    return forecast_rows(d[d["person_id"] != person], d[d["person_id"] == person], cols, target, top)
+
+
+def forecast_rows(train: pd.DataFrame, test: pd.DataFrame, cols: list[str], target: str, top: int = 3):
+    """Fit on `train`, forecast every row of `test` with up to `top` SHAP reasons and what happened next."""
     import shap
 
-    train, test = d[d["person_id"] != person], d[d["person_id"] == person]
     imputer = SimpleImputer(strategy="median", keep_empty_features=True)
     forest = RandomForestClassifier(**FOREST).fit(imputer.fit_transform(train[cols]), train[target].to_numpy(int))
     x = imputer.transform(test[cols])
@@ -341,7 +348,7 @@ def forecast_person(d: pd.DataFrame, cols: list[str], target: str, person: str, 
                  if contrib[i, j] >= MIN_REASON and pd.notna(row[cols[j]])][:top]
         out.append({"probability": round(float(prob[i]), 3), "times_usual": round(float(prob[i]) / usual, 1),
                     "reasons": [describe(cols[j], float(row[cols[j]])) for j in order],
-                    "happened": None if pd.isna(row[target]) else bool(row[target])})
+                    "happened": None if pd.isna(row.get(target)) else bool(row[target])})
     return out, usual
 
 
@@ -379,6 +386,59 @@ def export() -> dict:
         "note": "Forecast, not a diagnosis. Scored on people the model never saw: docs/wellbeing-model.md",
         "models": models_info, "days": [days[k] for k in sorted(days)],
     }
+
+
+
+# ---------------------------------------------------------------------------------------------
+# Tried, NOT shipped: "Tomorrow's outlook" for every crew member (simulated mission).
+#
+#     python -m pipeline.wellbeing crew
+#
+# The crew has no fatigue, stress or readiness answers, so this model reads only what the crew has (mood,
+# sleep, resting pulse, exercise against the Bayesian norm), trained on real PMData people. It beats "same as
+# today" on real people but NOT on the simulated crew, whose mood only copies simple day-to-day persistence.
+# Why and what would fix it: docs/wellbeing-model.md, "Tried for the crew, not shipped".
+# ---------------------------------------------------------------------------------------------
+
+CREW_SIGNALS = ["mood", "sleep_hours", "heart_rate", "exercise_min"]
+
+
+def crew_columns() -> list[str]:
+    return [f"{s}_{k}" for s in CREW_SIGNALS for k in ("bz", "bz3")] + ["ref_mood"]
+
+
+def crew_frame(days: pd.DataFrame) -> pd.DataFrame:
+    """Simulated crew days in the shape of the PMData table: one row per person-day, inputs and target."""
+    f = days.rename(columns={"astronaut_id": "person_id"}).copy()
+    f["date"] = f["mission_day"]
+    f = add_pmdata_targets(f, ("mood",))
+    return bayes_features.add_bayes(f.assign(is_test=False), CREW_SIGNALS)
+
+
+def crew_scores() -> dict:
+    """Within-person AUC of the crew model: on real people (scored out of person) and on 30 simulated missions."""
+    from . import model as M
+    from . import simulation as sim
+
+    task = next(t for t in TASKS if t.name == "worse mood")
+    real = load("pmdata")
+    real = real[real[task.target].notna() & real[task.reference].notna()].reset_index(drop=True)
+    y, people = real[task.target].to_numpy(int), real["person_id"].to_numpy()
+    model = within_person_auc(people, y, out_of_person_scores(real, crew_columns(), task.target)["random forest"])
+    ref = within_person_auc(people, y, real[task.reference].to_numpy(float))
+    lo, hi = within_bootstrap(model, ref)
+    cal = sim.calibrate(pd.read_csv(PROCESSED / "daily.csv"), pd.read_csv(PROCESSED / "nhanes_reference.csv"))
+    days, _ = sim.training_missions(cal, 30, M.TEST_SEED)
+    s = crew_frame(days.assign(astronaut_id=days["mission_id"] + "/" + days["astronaut_id"]))
+    s = s[s["y_mood"].notna() & s["ref_mood"].notna()].reset_index(drop=True)
+    rows, _ = forecast_rows(real, s, crew_columns(), "y_mood", top=0)
+    sp, sy = s["person_id"].to_numpy(), s["y_mood"].to_numpy(int)
+    sim_model = within_person_auc(sp, sy, np.array([r["probability"] for r in rows]))
+    sim_ref = within_person_auc(sp, sy, s["ref_mood"].to_numpy(float))
+    mean = lambda d: round(float(np.mean(list(d.values()))), 3)
+    return {"real_people": {"model": mean(model), "same_as_today": mean(ref), "difference_95": [lo, hi]},
+            "simulated_crew": {"model": mean(sim_model), "same_as_today": mean(sim_ref)}}
+
 
 
 if __name__ == "__main__":

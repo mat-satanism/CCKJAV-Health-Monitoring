@@ -203,5 +203,5 @@ Rebuilt after cleaning the daily table (`docs/data.md`, "Cleaning update"). Two 
   no carry-over from day to day. It was assumed: 6.0 mg/dL with persistence 0.2.
 
 The risk-model table above is the re-run. Blood pressure levels now come from NHANES adults without diagnosed high blood pressure (`docs/data.md`).
-Demo story: John's infection risk is 22× usual on day 16 (0.3× or less
+Demo story: John's infection risk is 22× usual on day 16 (31× after the recalibration of `docs/calibration.md`; 0.3× or less
 on days 1-15); false alarms: Maria day 16, Stefan days 26-27.

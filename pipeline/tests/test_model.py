@@ -69,3 +69,23 @@ def test_signs_only_list_features_that_push_risk_up(trained, cal):
     signs = M.explain(settings, d, contrib)
     quiet = np.where(contrib["infection"].max(axis=1) < M.MIN_SIGN)[0]
     assert (signs["signs_infection"].iloc[quiet] == "").all()
+
+
+def test_recalibration_keeps_the_order_and_is_stored_as_plain_json(trained, cal):
+    settings, forests = json.loads(json.dumps(trained[0])), trained[1]
+    cal_days, _ = sim.training_missions(cal, 40, seed=31)
+    M.fit_calibration(settings, forests, cal_days)
+    json.dumps(settings)                                            # still plain JSON for the app
+    for event in sim.PREDICTED:
+        a, _b = settings["events"][event]["platt"]
+        assert a > 0                                                # higher raw risk stays higher
+    p = np.array([0.001, 0.01, 0.05, 0.2, 0.5])
+    q = M.recalibrate(p, settings["events"]["infection"]["platt"])
+    assert np.all(np.diff(q) > 0) and np.all((q > 0) & (q < 1))
+    assert np.array_equal(M.recalibrate(p, None), p)
+
+
+def test_shipped_model_is_recalibrated():
+    model = json.loads(M.MODEL_PATH.read_text())
+    assert all("platt" in v for v in model["events"].values())
+    assert "calibrated_on" in model
