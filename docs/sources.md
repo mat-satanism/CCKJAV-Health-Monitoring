@@ -43,7 +43,12 @@ Details and licenses: [data.md](data.md).
 ## Thresholds used
 | Indicator | Range used | Source |
 |---|---|---|
-| heart_rate | TODO | TODO |
+| heart_rate | yellow < 55 or > 100, red < 45 or > 120 bpm | 100: top of the usual resting range 60-100 (commonly cited, e.g. AHA; page not reachable 2026-11-15). Red limits: our choice |
+| bp_sys / bp_dia | yellow > 130 / 85, red > 160 / 100 mmHg; low side yellow < 95 / 60, red < 85 / 50 | [AHA/ACC 2025 guideline, top things to know](https://professional.heart.org/en/science-news/2025-high-blood-pressure-guideline/top-things-to-know): stage 1 from 130/80, stage 2 from 140/90, severe above 180/120 (page blocked our reader on 2026-11-15; numbers from search summaries, check before the final). Where we sit inside a stage, and the low side: our choice |
+| temp | yellow < 36.0 or > 37.5, red < 35.0 or > 38.5 °C | [CDC](https://www.cdc.gov/quarantine/maritime/definitions-signs-symptoms-conditions-ill-travelers.html): fever is 38.0 °C (100.4 °F) or more. 37.5 and 38.5 sit below and above that line: our choice |
+| sleep_hours | yellow < 6 or > 10, red < 4 or > 12 h | Adults 7 h or more (AASM/SRS consensus 2015, not opened); [OCHMO-TB-041 Sleep Accommodations](https://www.nasa.gov/wp-content/uploads/2023/03/sleep-accomodations-technical-brief-ochmo.pdf): about 0.3 h less sleep a day in flight. Limits: our choice |
+| exercise_min | yellow < 60 min a day | [OCHMO-TB-031 Exercise Overview](https://www.nasa.gov/wp-content/uploads/2023/12/ochmo-tb-031-exercise-overview.pdf): ISS crews average 600 min a week (Scott et al. 2023). 60 a day: our choice below that |
+| mood | yellow ≤ 2 on 1-5 | Our choice, same scale as PMData |
 | glucose | yellow < 65 or > 114, red > 128 mg/dL (fasting) | High: NHANES 2021-2023 adults 20-60 without diabetes, 95th/99th percentile. Low: Inspiration4 lab reference minimum (OSD-575). See [data.md](data.md) |
 
 ## Patient files and tests (added 2026-11-14)

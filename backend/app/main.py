@@ -30,7 +30,7 @@ CONTEXT = MissionContext(environment="mars_base", mission_day=94, **{
 TASKS: list[Task] = []
 MAX_ITEMS = 100                       # measurements per request: a day's check-in is about 10
 FUTURE_SLACK = timedelta(hours=12)    # clocks differ a little; a value from tomorrow or 2099 is a typo
-INTEGER_SCALES = {"mood", "sleep_quality"}
+INTEGER_SCALES = {"mood"}
 MISSION_ENVIRONMENT = "mars_base"     # one mission, one crew (docs/api-contract.md)
 
 
