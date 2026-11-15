@@ -7,9 +7,9 @@ import type { AstronautHistory, MissionInfo, Meta } from '../types'
 
 // The whole crew on one chart: each person's distance from their OWN norm (Bayesian prediction),
 // in prediction scales. 0 = as expected; the shaded band (about ±2) is the 95% "usual" range.
-// Based on Okabe-Ito (told apart with the common kinds of colour blindness), darkened where needed so every line
-// has 3:1 contrast on white; each person also gets their own dash pattern, so colour is never the only cue.
-const COLORS = ['#0072B2', '#D55E00', '#009E73', '#A8507F', '#6B6B6B']
+// Each person also gets their own dash pattern, so colour is never the only cue.
+// The colours are theme variables (--c1 … --c5), so each theme keeps lines readable on its own background.
+const COLORS = ['var(--c1)', 'var(--c2)', 'var(--c3)', 'var(--c4)', 'var(--c5)']
 const DASHES = [undefined, '6 3', '2 3', '10 3 2 3', '1 2']
 
 export function CrewChart({ mission, meta, day }: { mission: MissionInfo; meta: Meta; day: number }) {
