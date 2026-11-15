@@ -13,7 +13,9 @@ Live docs: http://127.0.0.1:8000/docs
 { "type": "heart_rate", "latest": 72, "status": "green|yellow|red|grey",
   "baseline": 65, "deviation": 1.4, "trend": "up|down|flat",   // baseline = personal norm, deviation = spreads from it
   "source": "manual|sensor|synthetic",
-  "message": "Within normal range", "actions": ["..."] }
+  "message": "Within normal range", "actions": ["..."],
+  "age_days": 0.4,          // how old the latest value is
+  "recheck": false }        // true: red on one reading only, re-measure to confirm
 
 // BloodRow (reference only, from GET /reference/blood)
 { "panel": "cmp", "analyte": "glucose", "unit": "milligram_per_deciliter", "timepoint": "R+45",
@@ -24,7 +26,8 @@ Live docs: http://127.0.0.1:8000/docs
 { "system": "cardiovascular", "status": "yellow", "indicators": ["heart_rate","bp_sys","bp_dia"] }
 
 // Task
-{ "id": "bp", "title": "Measure blood pressure", "points": 10, "done": false }
+{ "id": "bp", "title": "Measure blood pressure", "points": 10, "done": false,
+  "feedback": "better|same|worse|gone|null", "feedback_ts": "2026-11-15T09:00:00Z|null" }
 
 // MissionContext
 { "environment": "iss|transit|rover|moon_base|mars_base", "mission_day": 94,
@@ -36,15 +39,34 @@ Indicators: `heart_rate` (bpm), `bp_sys`/`bp_dia` (mmHg), `glucose` (mg/dL), `te
 Body systems: `cardiovascular`, `musculoskeletal`, `behavioral`, `immune`, `metabolic`, `sleep`.
 
 ## Validation
-`POST /measurements` rejects (422) unknown indicator types and values outside the plausible range in `BOUNDS` (`backend/app/config.py`), e.g. heart rate 20-250 bpm, mood 1-5.
+`POST /measurements` rejects (422), with the reason in `detail`:
+- unknown indicator types, and values outside the plausible range in `BOUNDS` (`backend/app/config.py`), e.g. heart rate 20-250 bpm, mood 1-5;
+- a unit that is not the indicator's unit (e.g. temperature in °F);
+- a time more than 12 hours in the future (a typo, or a clock far off);
+- mood that is not a whole number;
+- more than 100 values in one request; `NaN` and infinity; a unit longer than 20 characters.
+
+A time without a time zone is read as UTC; every stored time is UTC. Values sent here are stored with `source: "manual"`
+whatever the request says: only the app's own demo data is `synthetic`, and no sensor writes to this API yet.
+
+Other limits: `GET /forecast/{indicator}?days=` 1-30; check-in entries at most 20 values and 10 symptoms of 1-60
+characters; readiness note at most 500 characters. `PUT /context` only accepts `mars_base`: the app runs one mission
+(422 for any other environment; the mission day can change).
+
+A broken saved file (`data/local/checkins.json` or the mission's own) is renamed to `.broken` and the app starts
+without it, instead of failing on start.
 
 ## Status logic
 One rule for every view (`backend/app/status.py`), personal norm first:
 1. Latest value outside the `red_*` limits in `data/thresholds.json` → red. A `null` red limit means that side never turns red (mood and exercise: one bad day shouldn't call the ground).
 2. Personal norm = Bayesian prediction from a population prior (`models/norm_priors.json`) updated with the previous 14 values (needs at least 6). Outside the person's 99% band, or outside the 95% band two days in a row → yellow. Details: `docs/personal-norm.md`.
 3. Before a norm exists, the `yellow_*` band of `data/thresholds.json` decides yellow. In the crew mission the first 6 days show only red (a calibration week, no yellow from the population band). After the norm exists the population band is not used, so a person's usual value (e.g. an athlete's low resting pulse) is not flagged.
-4. No data → grey. A system takes the worst status of its indicators.
-4. Escalation: any red → `ground`; 2+ yellow → `crew`; else `self`.
+4. No data → grey. A value older than its freshness window (`FRESH_DAYS` in `backend/app/config.py`: 2 days for
+   daily signals, 7 days for blood pressure, glucose and temperature) → grey, "No fresh value", never red.
+5. Red on one reading only (the previous one was not red) → red with `recheck: true` and "Re-measure now": a slipped
+   cuff or a typo should not call the ground. The next red reading confirms it.
+6. A system takes the worst status of its indicators.
+7. Escalation: a confirmed red → `ground`; a red waiting for a re-measure, or 2+ yellow → `crew`; else `self`.
 
 ## Endpoints
 | Method | Path | Returns |
@@ -55,10 +77,11 @@ One rule for every view (`backend/app/status.py`), personal norm first:
 | POST | /measurements | Measurement[] |
 | GET | /measurements?type=&start=&end= | Measurement[] sorted by time |
 | GET | /status | `{indicators: IndicatorStatus[], systems: BodySystemStatus[]}` |
-| GET | /insights | `{level: "self|crew|ground", items: [...], comm_note}` |
+| GET | /insights | `{level: "self|crew|ground", items: [{type, status, message, actions, recheck}], comm_note}` |
 | GET | /forecast/{indicator}?days=7 | `{type, values: number[], low: number[], high: number[], coverage: 0.8}`: back to the person's own norm; `low`-`high` is the 80% band. Settings fitted on real people, see docs/forecast.md |
 | GET | /tasks | Task[] |
 | POST | /tasks/{id}/complete | Task |
+| POST | /tasks/{id}/feedback | body `{outcome: "better|same|worse|gone"}`; returns Task with `feedback` and `feedback_ts` (how the person feels after it) |
 | GET | /mission | simulated crew mission: `{day, days_total, crew[], source: "synthetic", note}` |
 | PUT | /mission/day?day=N | move the mission clock (1..days_total) |
 | GET | /mission/timeline | per day: `{day, status, high_risks, alerts[], changed_tasks}` for the mission strip |

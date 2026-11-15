@@ -232,3 +232,13 @@ def test_task_feedback_is_kept_with_the_task():
     assert r.status_code == 200 and r.json()["feedback"] == "better" and r.json()["feedback_ts"]
     assert client.post("/tasks/sleep/feedback", json={"outcome": "great"}).status_code == 422
     assert client.post("/tasks/nope/feedback", json={"outcome": "same"}).status_code == 404
+
+
+def test_a_broken_saved_file_is_set_aside_and_the_app_still_loads():
+    from app import main
+    main.SAVED_PATH.parent.mkdir(parents=True, exist_ok=True)
+    main.SAVED_PATH.write_text("{not json", encoding="utf-8")
+    main.load()
+    assert client.get("/status").status_code == 200
+    assert main.SAVED_PATH.with_suffix(".broken").exists() and not main.SAVED_PATH.exists()
+    main.SAVED_PATH.with_suffix(".broken").unlink()
