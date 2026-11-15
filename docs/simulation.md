@@ -86,7 +86,6 @@ day 21, CO2 build-up on day 25, solar flare on day 27.
 2. Model trained on many simulated missions, predictions for the demo mission.
 3. API (crew, mission clock, tasks with reassignment, doctors' overview) and frontend (crew, tasks, doctors' tab).
 
-Left to the builder: exact UI layout, task catalogue details, how the mission clock is played in the demo.
 
 ## Calibration check (stage 1, 2026-11-14)
 
