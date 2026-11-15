@@ -728,3 +728,6 @@ textarea { font: inherit; color: var(--text); background: var(--surface-2); bord
 .note { padding: .5rem .7rem; border-radius: 10px; background: var(--surface-2); font-size: .86rem; }
 .note p { margin: .15rem 0; }
 .tabbed-head { flex-wrap: wrap; }
+
+/* with reduced motion the scan line would stand still over the head: hide it instead */
+@media (prefers-reduced-motion: reduce) { .scan { display: none; } }
