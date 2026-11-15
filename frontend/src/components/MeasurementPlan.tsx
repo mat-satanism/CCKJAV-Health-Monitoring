@@ -5,8 +5,8 @@ export function MeasurementPlan({ meta }: { meta: Meta }) {
   const { items } = meta.content.measurement_plan
   const sources = meta.content.sources
   return (
-    <section className="panel plan">
-      <h2>Also measured, not daily</h2>
+    <section className="plan">
+      <p className="small muted">Also measured on a mission, beyond the daily numbers.</p>
       {items.map((i) => (
         <details key={i.what} className="learn">
           <summary><strong>{i.what}</strong> <small className="muted">{i.how_often}</small></summary>

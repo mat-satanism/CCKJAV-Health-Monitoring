@@ -31,7 +31,7 @@ export function TrendChart({ type, baseline }: { type: string; baseline?: number
         <CartesianGrid stroke="var(--grid)" vertical={false} />
         <XAxis dataKey="day" tick={{ fontSize: 10, fill: 'var(--muted)' }} interval="preserveStartEnd" />
         <YAxis tick={{ fontSize: 10, fill: 'var(--muted)' }} domain={['auto', 'auto']} />
-        <Tooltip contentStyle={{ background: 'var(--panel)', border: '1px solid var(--border)' }}
+        <Tooltip contentStyle={{ background: 'var(--panel)', border: '1px solid var(--border-hi)', borderRadius: 10, fontFamily: 'var(--font-mono)', fontSize: 12 }}
           formatter={(v, name) => name === 'band'
             ? [Array.isArray(v) ? `${v[0]}–${v[1]}` : String(v), 'likely range (80%)']
             : [v, name === 'forecast' ? 'forecast' : 'value']} />

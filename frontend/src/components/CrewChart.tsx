@@ -7,7 +7,7 @@ import type { AstronautHistory, MissionInfo, Meta } from '../types'
 
 // The whole crew on one chart: each person's distance from their OWN norm (Bayesian prediction),
 // in prediction scales. 0 = as expected; the shaded band (about ±2) is the 95% "usual" range.
-const COLORS = ['#7cc4e0', '#f0b429', '#b48ead', '#5bb98c', '#e88c6a']
+const COLORS = ['#6cc9ff', '#ffbe55', '#c4a5ff', '#3ddc97', '#ff8a6b']
 
 export function CrewChart({ mission, meta, day }: { mission: MissionInfo; meta: Meta; day: number }) {
   const [hist, setHist] = useState<Record<string, AstronautHistory> | null>(null)
@@ -44,7 +44,7 @@ export function CrewChart({ mission, meta, day }: { mission: MissionInfo; meta: 
           <ReferenceArea y1={-2} y2={2} fill="var(--accent)" fillOpacity={0.08} />
           <XAxis dataKey="day" tick={{ fontSize: 10, fill: 'var(--muted)' }} interval={4} />
           <YAxis tick={{ fontSize: 10, fill: 'var(--muted)' }} domain={[-8, 8]} allowDataOverflow />
-          <Tooltip contentStyle={{ background: 'var(--surface)', border: '1px solid var(--border)' }}
+          <Tooltip contentStyle={{ background: 'var(--panel)', border: '1px solid var(--border-hi)', borderRadius: 10, fontFamily: 'var(--font-mono)', fontSize: 12 }}
             labelFormatter={(d) => `Day ${d}`} />
           <Legend wrapperStyle={{ fontSize: 12 }} />
           <ReferenceLine x={day} stroke="var(--text)" strokeOpacity={0.5} />

@@ -7,6 +7,7 @@ import type { AstronautCard, AstronautHistory, HistoryPoint, Meta, Status, Syste
 import { BodyMap } from './BodyMap'
 import { MeasurementPlan } from './MeasurementPlan'
 import { SourceLinks } from './Sources'
+import { Tabbed } from './Tabbed'
 
 // One crew member of the simulated mission: body map for the chosen day, history of every indicator with
 // the personal norm band, check-in for that day, readiness, medical history. All data is synthetic.
@@ -31,7 +32,7 @@ function HistoryChart({ points, day, onDay }: { points: HistoryPoint[]; day: num
         <CartesianGrid stroke="var(--grid)" vertical={false} />
         <XAxis dataKey="day" tick={{ fontSize: 10, fill: 'var(--muted)' }} interval={4} />
         <YAxis tick={{ fontSize: 10, fill: 'var(--muted)' }} domain={['auto', 'auto']} />
-        <Tooltip contentStyle={{ background: 'var(--surface)', border: '1px solid var(--border)' }}
+        <Tooltip contentStyle={{ background: 'var(--panel)', border: '1px solid var(--border-hi)', borderRadius: 10, fontFamily: 'var(--font-mono)', fontSize: 12 }}
           formatter={(v, name) => (Array.isArray(v) ? [`${v[0]} to ${v[1]}`, 'usual range'] : [v, name])}
           labelFormatter={(d) => `Day ${d}`} />
         <Area dataKey="band" stroke="none" fill="var(--accent)" fillOpacity={0.12} isAnimationActive={false} name="usual range" />
@@ -52,12 +53,12 @@ function Readiness({ card, onDone }: { card: AstronautCard; onDone: () => void }
   const r = card.readiness
   const answer = (ready: boolean) => api.setReadiness(card.astronaut_id, card.day, ready).then(onDone)
   return (
-    <section className={`panel readiness ${r ? (r.ready ? 'status-green' : 'status-yellow') : ''}`}>
-      <h2>Ready for day {card.day}?</h2>
-      {r ? <p>{r.reply}</p> : <p className="muted">A quick morning check, one tap.</p>}
+    <section className={`readiness ${r ? (r.ready ? 'status-green' : 'status-yellow') : ''}`}>
+      <h3>Ready for day {card.day}?</h3>
+      {r && <p>{r.reply}</p>}
       <p className={`support support-${card.support.level}`}>{card.support.message}</p>
       <div className="row-buttons">
-        <button className={r?.ready ? 'primary' : ''} onClick={() => answer(true)}>I'm ready for the day</button>
+        <button className={r?.ready ? 'primary' : ''} onClick={() => answer(true)}>✓ I'm ready</button>
         <button className={r && !r.ready ? 'primary' : ''} onClick={() => answer(false)}>Not quite</button>
       </div>
     </section>
@@ -87,7 +88,7 @@ function CheckInFor({ card, meta, onSaved }: { card: AstronautCard; meta: Meta; 
   }
 
   return (
-    <form className="panel checkin" onSubmit={submit}>
+    <form className="checkin" onSubmit={submit}>
       <h2>Check-in for {card.name}, day {card.day}</h2>
       <p className="small muted">Values you enter replace the simulated ones for this day. Statuses and tasks update; the 48-hour risks stay the model's.</p>
       <div className="grid">
@@ -129,8 +130,8 @@ function MedicalHistory({ card }: { card: AstronautCard }) {
   const a = card.anamnesis
   const list = (items: string[]) => (items.length ? items.join('; ') : 'none known')
   return (
-    <section className="panel history-card">
-      <h2>Medical history <span className="badge-synthetic">synthetic</span></h2>
+    <section className="history-card">
+      <p className="small muted">Synthetic record for the demo.</p>
       <dl>
         <dt>Age, sex</dt><dd>{a.age}, {a.sex}</dd>
         <dt>Conditions</dt><dd>{list(a.conditions)}</dd>
@@ -165,7 +166,15 @@ export function PersonView({ aid, day, meta, onDay, onChanged, onOpenFile }: Pro
   }, [aid, day, version])
 
   if (error) return <p className="err">{error}</p>
-  if (!card || !hist) return <p className="muted">Loading…</p>
+  if (!card || !hist) {
+    return (
+      <main className="layout" aria-busy="true" aria-label="Loading">
+        <div className="skeleton" style={{ height: 520 }} />
+        <div className="detail"><div className="skeleton" style={{ height: 120 }} /><div className="skeleton" style={{ height: 380 }} /></div>
+        <div className="skeleton" style={{ height: 460 }} />
+      </main>
+    )
+  }
 
   const reload = () => { setVersion((v) => v + 1); onChanged() }
   const mine = card.indicators.filter((i) => selected && meta.indicators[i.type]?.system === selected)
@@ -173,13 +182,17 @@ export function PersonView({ aid, day, meta, onDay, onChanged, onOpenFile }: Pro
 
   return (
     <main className="layout">
-      <section className="panel map">
-        <div className="person-head">
-          <strong>{card.name}</strong> <small className="muted">{card.role}</small>
-          <button className="file-link" onClick={onOpenFile}>Open patient file</button>
-          <p className={`fit ${card.fit_for_high_demand ? 'ok' : 'no'}`}>
-            {card.fit_for_high_demand ? 'Fit for EVA' : 'Not fit for EVA'}
-          </p>
+      <aside className="panel map sticky-col">
+        <div className={`person-head status-${card.status}`}>
+          <span className="avatar" aria-hidden="true"><span>{card.name.slice(0, 2).toUpperCase()}</span></span>
+          <div>
+            <strong>{card.name}</strong>
+            <small className="muted">{card.role}</small>
+            <p className={`fit ${card.fit_for_high_demand ? 'ok' : 'no'}`}>
+              {card.fit_for_high_demand ? '✓ Fit for EVA' : '✕ Not fit for EVA'}
+            </p>
+          </div>
+          <button className="file-link" onClick={onOpenFile}>Patient file →</button>
         </div>
         <BodyMap systems={card.systems} selected={selected} onSelect={setSelected} />
         {(card.symptoms.length > 0 || card.isolated || card.contact_of.length > 0) && (
@@ -189,8 +202,8 @@ export function PersonView({ aid, day, meta, onDay, onChanged, onOpenFile }: Pro
             {card.symptoms.map((s) => <span key={s} className="chip">{s}</span>)}
           </p>
         )}
-        <p className="small muted">Tap a body part, then a day on any chart.</p>
-      </section>
+        <Readiness card={card} onDone={reload} />
+      </aside>
 
       <div className="detail">
         {risks.length > 0 && (
@@ -253,16 +266,20 @@ export function PersonView({ aid, day, meta, onDay, onChanged, onOpenFile }: Pro
         )}
       </div>
 
-      <aside className="side">
-        <Readiness card={card} onDone={reload} />
-        <CheckInFor key={`${aid}-${card.day}`} card={card} meta={meta} onSaved={reload} />
-        <MedicalHistory card={card} />
-        <section className="panel">
-          <h2>Food tips <span className="badge-synthetic">demo</span></h2>
-          <ul className="small">{card.support.nutrition.map((n) => <li key={n}>{n}</li>)}</ul>
-          <p className="small muted">Placeholder tips for the demo, not dietary advice.</p>
-        </section>
-        <MeasurementPlan meta={meta} />
+      <aside className="side sticky-col">
+        <Tabbed label={`${card.name}: check-in and records`} tabs={[
+          { id: 'checkin', label: 'Check-in', content: <CheckInFor key={`${aid}-${card.day}`} card={card} meta={meta} onSaved={reload} /> },
+          { id: 'history', label: 'Medical', badge: card.anamnesis.allergies.length ? '!' : undefined, content: <MedicalHistory card={card} /> },
+          {
+            id: 'food', label: 'Food', content: (
+              <section>
+                <ul className="small">{card.support.nutrition.map((n) => <li key={n}>{n}</li>)}</ul>
+                <p className="small muted">Placeholder tips for the demo, not dietary advice.</p>
+              </section>
+            ),
+          },
+          { id: 'plan', label: 'Not daily', content: <MeasurementPlan meta={meta} /> },
+        ]} />
       </aside>
     </main>
   )

@@ -21,12 +21,13 @@ export function SystemPanel({ system, meta, indicators }: Props) {
     <section className="panel">
       <h2>{meta.systems[system].label}</h2>
       {about && (
-        <div className="about">
+        <details className="about learn">
+          <summary>What it does, and what space does to it</summary>
           <p>{about.what}</p>
           <p><strong>In space.</strong> {about.in_space}</p>
           <p className="small muted">Spaceflight hazards: {about.hazards.join(', ')}</p>
           <SourceLinks ids={about.sources} sources={meta.content.sources} />
-        </div>
+        </details>
       )}
       {mine.map((i) => {
         const m = meta.indicators[i.type]
