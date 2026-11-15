@@ -1,6 +1,6 @@
 import type {
   Alarm, AstronautCard, Brief, PatientFile, AstronautHistory, AstronautState, BloodRow, CrewAlert, DoctorView, Insights, Measurement, Meta, MissionContext, MissionInfo,
-  MissionTask, NowLine, Readiness, Report, StatusResponse, Task, TimelineDay,
+  Forecast, MissionTask, NowLine, Readiness, Report, StatusResponse, Task, TimelineDay,
 } from './types'
 
 const BASE = import.meta.env.VITE_API_URL ?? 'http://127.0.0.1:8000'
@@ -19,7 +19,7 @@ export const api = {
   status: () => req<StatusResponse>('/status'),
   insights: () => req<Insights>('/insights'),
   measurements: (type: string) => req<Measurement[]>(`/measurements?type=${encodeURIComponent(type)}`),
-  forecast: (type: string) => req<{ type: string; values: number[] }>(`/forecast/${type}`),
+  forecast: (type: string) => req<Forecast>(`/forecast/${type}`),
   addMeasurements: (items: Measurement[]) =>
     req<Measurement[]>('/measurements', { method: 'POST', body: JSON.stringify(items) }),
   tasks: () => req<Task[]>('/tasks'),

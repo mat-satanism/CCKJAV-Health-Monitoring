@@ -170,3 +170,12 @@ export interface Meta {
     exposures: Record<string, Exposure>
   }
 }
+
+// GET /forecast/{indicator}: back to the person's own norm, with an 80% band (docs/forecast.md)
+export interface Forecast {
+  type: string
+  values: number[]
+  low: number[]
+  high: number[]
+  coverage: number
+}

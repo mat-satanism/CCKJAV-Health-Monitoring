@@ -303,9 +303,15 @@ def insights():
 def forecast(indicator: str, days: int = 7):
     if indicator not in INDICATORS:
         raise HTTPException(404, "Unknown indicator")
+    """Back to the person's own norm, with an 80% band; fitted on real people (docs/forecast.md)."""
     values = [m.value for m in list_measurements(type=indicator)]
     lo, hi = BOUNDS[indicator]
-    return {"type": indicator, "values": [min(hi, max(lo, v)) for v in analytics.forecast(values, days)]}
+    band = analytics.forecast_band(values, days, indicator)
+
+    def clamp(v: float) -> float:
+        return min(hi, max(lo, v))
+    return {"type": indicator, "values": [clamp(m) for m, _, _ in band],
+            "low": [clamp(a) for _, a, _ in band], "high": [clamp(b) for _, _, b in band], "coverage": 0.8}
 
 
 @app.get("/tasks", response_model=list[Task])

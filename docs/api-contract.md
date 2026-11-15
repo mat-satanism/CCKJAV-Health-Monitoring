@@ -56,7 +56,7 @@ One rule for every view (`backend/app/status.py`), personal norm first:
 | GET | /measurements?type=&start=&end= | Measurement[] sorted by time |
 | GET | /status | `{indicators: IndicatorStatus[], systems: BodySystemStatus[]}` |
 | GET | /insights | `{level: "self|crew|ground", items: [...], comm_note}` |
-| GET | /forecast/{indicator}?days=7 | `{type, values: number[]}` |
+| GET | /forecast/{indicator}?days=7 | `{type, values: number[], low: number[], high: number[], coverage: 0.8}`: back to the person's own norm; `low`-`high` is the 80% band. Settings fitted on real people, see docs/forecast.md |
 | GET | /tasks | Task[] |
 | POST | /tasks/{id}/complete | Task |
 | GET | /mission | simulated crew mission: `{day, days_total, crew[], source: "synthetic", note}` |

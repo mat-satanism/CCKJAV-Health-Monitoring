@@ -12,7 +12,7 @@ Working now:
 - **Body Map**: clickable astronaut figure, each body system colored by status.
 - **Daily Check-in**: heart rate, blood pressure, glucose, temperature, sleep, exercise, mood, heart rate variability, reaction time (3-minute PVT). Each indicator says how often and how to measure it; weekly and occasional measures (body mass, bone, blood, urine, saliva) are listed with sources.
 - **Personal baseline**: status is computed against the astronaut's own norm, learned the Bayesian way (start from what is typical for people, update with the person's last 14 days; yellow outside their 99% band or outside 95% two days in a row) plus absolute safe limits, the same rule in every tab. See `docs/personal-norm.md` and `docs/limits-and-assumptions.md`.
-- **Trends**: charts with the personal baseline line and a 7-day forecast.
+- **Trends**: charts with the personal baseline line and a 7-day forecast that goes back to the person's own norm, with an 80% band; fitted and checked on real people (15% better than "same as today", the old straight line was 44% worse). See `docs/forecast.md`.
 - **Assistant**: rule-based advice with escalation levels (self / crew / ground) and a comms-delay note.
 - **Daily tasks** with points.
 - **Mission context**: one Mars-base mission (0.38 g, 20 min signal delay).
@@ -51,7 +51,7 @@ docs/            api contract, sources
 ```
 
 ## For the data / ML team
-- **Models:** implement the functions in `backend/app/analytics.py`. Keep the signatures; each gets a time-ordered list of floats for one indicator.
+- **Models:** implement the functions in `backend/app/analytics.py`. The chart forecast is fitted by `python -m pipeline.forecast_eval` ([docs/forecast.md](docs/forecast.md)). Keep the signatures; each gets a time-ordered list of floats for one indicator.
 - **Data:** to show real/cleaned data in the app, make `demo_mission()` in `backend/app/demo.py` return your records as `Measurement` objects.
 - **Thresholds:** edit `data/thresholds.json` and add the source to `docs/sources.md`.
 - Notebooks go to `notebooks/`, raw data to `data/raw/` (keep large files out of git).
