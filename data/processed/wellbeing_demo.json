@@ -7,14 +7,14 @@
    "question": "Tomorrow: worse mood?",
    "inputs": "check-in + last days",
    "usual_rate": 0.153,
-   "within_person_auc": 0.681,
+   "within_person_auc": 0.703,
    "same_as_today_auc": 0.608
   },
   "fatigue": {
    "question": "Tomorrow: more tired (fatigue)?",
    "inputs": "all inputs",
    "usual_rate": 0.244,
-   "within_person_auc": 0.644,
+   "within_person_auc": 0.648,
    "same_as_today_auc": 0.59
   }
  },
@@ -22,40 +22,38 @@
   {
    "mission_day": 1,
    "mood": {
-    "probability": 0.136,
-    "times_usual": 0.9,
+    "probability": 0.101,
+    "times_usual": 0.7,
     "reasons": [
-     "lowest mood (1-5) in 3 days: 4",
-     "mood (1-5) yesterday: 4"
+     "mood (1-5) yesterday: 4",
+     "lowest mood (1-5) in 3 days: 4"
     ],
     "happened": null
    },
    "fatigue": {
-    "probability": 0.178,
-    "times_usual": 0.7,
-    "reasons": [
-     "sleep quality (1-5) today: 4"
-    ],
+    "probability": 0.139,
+    "times_usual": 0.6,
+    "reasons": [],
     "happened": null
    }
   },
   {
    "mission_day": 2,
    "mood": {
-    "probability": 0.141,
-    "times_usual": 0.9,
+    "probability": 0.109,
+    "times_usual": 0.7,
     "reasons": [
-     "lowest mood (1-5) in 3 days: 4",
-     "mood (1-5) yesterday: 4"
+     "mood (1-5) yesterday: 4",
+     "lowest mood (1-5) in 3 days: 4"
     ],
     "happened": null
    },
    "fatigue": {
-    "probability": 0.235,
-    "times_usual": 1.0,
+    "probability": 0.19,
+    "times_usual": 0.8,
     "reasons": [
      "readiness (0-10) today: 7",
-     "sleep quality (1-5) today: 4"
+     "steps 0.7 spreads above usual today"
     ],
     "happened": null
    }
@@ -63,17 +61,18 @@
   {
    "mission_day": 3,
    "mood": {
-    "probability": 0.137,
-    "times_usual": 0.9,
+    "probability": 0.16,
+    "times_usual": 1.0,
     "reasons": [
+     "mood (1-5) 0.6 spreads above usual today",
      "lowest mood (1-5) in 3 days: 4",
      "mood (1-5) yesterday: 4"
     ],
     "happened": true
    },
    "fatigue": {
-    "probability": 0.236,
-    "times_usual": 1.0,
+    "probability": 0.195,
+    "times_usual": 0.8,
     "reasons": [
      "readiness (0-10) today: 8"
     ],
@@ -83,22 +82,22 @@
   {
    "mission_day": 4,
    "mood": {
-    "probability": 0.347,
-    "times_usual": 2.3,
+    "probability": 0.363,
+    "times_usual": 2.4,
     "reasons": [
-     "mood (1-5) 2.6 spreads below usual today",
      "mood (1-5) 1.0 below usual today",
-     "mood (1-5) yesterday: 4"
+     "mood (1-5) 1.4 spreads below usual today",
+     "calm (1-5, 5 = relaxed) 1.6 spreads below usual on average over the last 3 days"
     ],
     "happened": false
    },
    "fatigue": {
-    "probability": 0.381,
-    "times_usual": 1.6,
+    "probability": 0.326,
+    "times_usual": 1.3,
     "reasons": [
      "energy (1-5, 5 = fresh) 1.0 below usual today",
-     "energy (1-5, 5 = fresh) 1.7 spreads below usual today",
-     "readiness (0-10) 2.5 below usual today"
+     "readiness (0-10) 2.5 below usual today",
+     "energy (1-5, 5 = fresh) 1.4 spreads below usual today"
     ],
     "happened": true
    }
@@ -106,22 +105,22 @@
   {
    "mission_day": 5,
    "mood": {
-    "probability": 0.244,
-    "times_usual": 1.6,
+    "probability": 0.269,
+    "times_usual": 1.8,
     "reasons": [
-     "mood (1-5) 0.5 below usual over the last 3 days",
-     "calm (1-5, 5 = relaxed) 0.8 below usual over the last 3 days",
-     "mood (1-5) +1 since yesterday"
+     "mood (1-5) 0.7 spreads above usual today",
+     "energy (1-5, 5 = fresh) 1.3 spreads below usual today",
+     "energy (1-5, 5 = fresh) 0.8 spreads below usual on average over the last 3 days"
     ],
     "happened": false
    },
    "fatigue": {
-    "probability": 0.381,
-    "times_usual": 1.6,
+    "probability": 0.279,
+    "times_usual": 1.1,
     "reasons": [
      "energy (1-5, 5 = fresh) 1.0 below usual today",
-     "energy (1-5, 5 = fresh) 1.0 below usual over the last 3 days",
-     "energy (1-5, 5 = fresh) 1.6 spreads below usual today"
+     "energy (1-5, 5 = fresh) 1.3 spreads below usual today",
+     "calm (1-5, 5 = relaxed) 1.2 spreads above usual today"
     ],
     "happened": false
    }
@@ -129,22 +128,22 @@
   {
    "mission_day": 6,
    "mood": {
-    "probability": 0.23,
-    "times_usual": 1.5,
+    "probability": 0.22,
+    "times_usual": 1.4,
     "reasons": [
-     "mood (1-5) 0.3 below usual over the last 3 days",
-     "calm (1-5, 5 = relaxed) 0.5 below usual over the last 3 days",
-     "mood (1-5) yesterday: 4"
+     "mood (1-5) 0.7 spreads above usual today",
+     "energy (1-5, 5 = fresh) 0.8 spreads below usual on average over the last 3 days",
+     "calm (1-5, 5 = relaxed) 1.1 spreads above usual today"
     ],
     "happened": false
    },
    "fatigue": {
-    "probability": 0.256,
-    "times_usual": 1.0,
+    "probability": 0.221,
+    "times_usual": 0.9,
     "reasons": [
-     "energy (1-5, 5 = fresh) 0.7 below usual over the last 3 days",
      "readiness (0-10) today: 8",
-     "sleep, self-report (h) 0.7 below usual over the last 3 days"
+     "exercise (min) 1.2 spreads below usual on average over the last 3 days",
+     "calm (1-5, 5 = relaxed) 1.1 spreads above usual today"
     ],
     "happened": false
    }
@@ -152,22 +151,22 @@
   {
    "mission_day": 7,
    "mood": {
-    "probability": 0.158,
-    "times_usual": 1.0,
+    "probability": 0.226,
+    "times_usual": 1.5,
     "reasons": [
-     "lowest mood (1-5) in 3 days: 4",
-     "mood (1-5) yesterday: 4",
-     "calm (1-5, 5 = relaxed) yesterday: 4"
+     "mood (1-5) 0.6 spreads above usual today",
+     "calm (1-5, 5 = relaxed) 1.0 spreads above usual today",
+     "mood (1-5) yesterday: 4"
     ],
     "happened": true
    },
    "fatigue": {
-    "probability": 0.197,
-    "times_usual": 0.8,
+    "probability": 0.22,
+    "times_usual": 0.9,
     "reasons": [
+     "calm (1-5, 5 = relaxed) 1.1 spreads above usual on average over the last 3 days",
      "readiness (0-10) today: 7",
-     "sleep quality (1-5) today: 4",
-     "steps 0.5 spreads above usual today"
+     "soreness (1-5, 5 = none) today: 2"
     ],
     "happened": false
    }
@@ -175,21 +174,21 @@
   {
    "mission_day": 8,
    "mood": {
-    "probability": 0.45,
-    "times_usual": 2.9,
+    "probability": 0.377,
+    "times_usual": 2.5,
     "reasons": [
-     "mood (1-5) 2.5 spreads below usual today",
      "mood (1-5) 1.0 below usual today",
-     "mood (1-5) 0.3 below usual over the last 3 days"
+     "mood (1-5) 1.5 spreads below usual today",
+     "mood (1-5) yesterday: 4"
     ],
     "happened": true
    },
    "fatigue": {
-    "probability": 0.159,
-    "times_usual": 0.6,
+    "probability": 0.208,
+    "times_usual": 0.9,
     "reasons": [
+     "calm (1-5, 5 = relaxed) 1.0 spreads above usual on average over the last 3 days",
      "readiness (0-10) today: 7",
-     "sleep quality (1-5) today: 4",
      "soreness (1-5, 5 = none) today: 2"
     ],
     "happened": true
@@ -198,208 +197,12 @@
   {
    "mission_day": 9,
    "mood": {
-    "probability": 0.402,
-    "times_usual": 2.6,
-    "reasons": [
-     "mood (1-5) 2.2 spreads below usual today",
-     "mood (1-5) 1.0 below usual today",
-     "mood (1-5) 0.7 below usual over the last 3 days"
-    ],
-    "happened": true
-   },
-   "fatigue": {
-    "probability": 0.418,
-    "times_usual": 1.7,
-    "reasons": [
-     "energy (1-5, 5 = fresh) 1.0 below usual today",
-     "energy (1-5, 5 = fresh) 1.7 spreads below usual today",
-     "readiness (0-10) 2.0 below usual today"
-    ],
-    "happened": true
-   }
-  },
-  {
-   "mission_day": 10,
-   "mood": {
-    "probability": 0.452,
-    "times_usual": 3.0,
-    "reasons": [
-     "mood (1-5) 2.1 spreads below usual today",
-     "mood (1-5) 1.0 below usual over the last 3 days",
-     "mood (1-5) 1.0 below usual today"
-    ],
-    "happened": false
-   },
-   "fatigue": {
-    "probability": 0.382,
-    "times_usual": 1.6,
-    "reasons": [
-     "energy (1-5, 5 = fresh) 1.0 below usual today",
-     "energy (1-5, 5 = fresh) 1.7 spreads below usual today",
-     "energy (1-5, 5 = fresh) 0.7 below usual over the last 3 days"
-    ],
-    "happened": false
-   }
-  },
-  {
-   "mission_day": 11,
-   "mood": {
-    "probability": 0.277,
-    "times_usual": 1.8,
-    "reasons": [
-     "mood (1-5) 0.7 below usual over the last 3 days",
-     "calm (1-5, 5 = relaxed) 0.7 below usual over the last 3 days",
-     "mood (1-5) +1 since yesterday"
-    ],
-    "happened": false
-   },
-   "fatigue": {
-    "probability": 0.237,
-    "times_usual": 1.0,
-    "reasons": [
-     "energy (1-5, 5 = fresh) 0.7 below usual over the last 3 days",
-     "steps 0.9 spreads above usual today"
-    ],
-    "happened": false
-   }
-  },
-  {
-   "mission_day": 12,
-   "mood": {
-    "probability": 0.208,
-    "times_usual": 1.4,
-    "reasons": [
-     "mood (1-5) 0.3 below usual over the last 3 days",
-     "mood (1-5) yesterday: 4",
-     "calm (1-5, 5 = relaxed) 0.3 below usual over the last 3 days"
-    ],
-    "happened": false
-   },
-   "fatigue": {
-    "probability": 0.244,
-    "times_usual": 1.0,
-    "reasons": [
-     "resting pulse (bpm) 1.7 spreads below usual today",
-     "readiness (0-10) 2.0 below usual today",
-     "soreness (1-5, 5 = none) today: 2"
-    ],
-    "happened": false
-   }
-  },
-  {
-   "mission_day": 13,
-   "mood": {
-    "probability": 0.189,
-    "times_usual": 1.2,
-    "reasons": [
-     "mood (1-5) yesterday: 4",
-     "lowest mood (1-5) in 3 days: 4",
-     "sleep quality (1-5) +2 since yesterday"
-    ],
-    "happened": false
-   },
-   "fatigue": {
-    "probability": 0.227,
-    "times_usual": 0.9,
-    "reasons": [
-     "resting pulse (bpm) 1.3 spreads below usual today"
-    ],
-    "happened": false
-   }
-  },
-  {
-   "mission_day": 14,
-   "mood": {
-    "probability": 0.168,
-    "times_usual": 1.1,
-    "reasons": [
-     "lowest mood (1-5) in 3 days: 4",
-     "mood (1-5) yesterday: 4"
-    ],
-    "happened": false
-   },
-   "fatigue": {
-    "probability": 0.26,
-    "times_usual": 1.1,
-    "reasons": [
-     "resting pulse (bpm) 1.7 spreads below usual today",
-     "readiness (0-10) 3.5 below usual today",
-     "soreness (1-5, 5 = none) today: 2"
-    ],
-    "happened": false
-   }
-  },
-  {
-   "mission_day": 15,
-   "mood": {
-    "probability": 0.174,
-    "times_usual": 1.1,
-    "reasons": [
-     "mood (1-5) yesterday: 4",
-     "lowest mood (1-5) in 3 days: 4"
-    ],
-    "happened": false
-   },
-   "fatigue": {
-    "probability": 0.184,
-    "times_usual": 0.8,
-    "reasons": [],
-    "happened": false
-   }
-  },
-  {
-   "mission_day": 16,
-   "mood": {
-    "probability": 0.153,
-    "times_usual": 1.0,
-    "reasons": [
-     "lowest mood (1-5) in 3 days: 4",
-     "mood (1-5) yesterday: 4",
-     "calm (1-5, 5 = relaxed) yesterday: 4"
-    ],
-    "happened": false
-   },
-   "fatigue": {
-    "probability": 0.176,
-    "times_usual": 0.7,
-    "reasons": [
-     "readiness (0-10) 2.0 below usual today",
-     "soreness (1-5, 5 = none) today: 2",
-     "sleep quality (1-5) today: 4"
-    ],
-    "happened": false
-   }
-  },
-  {
-   "mission_day": 17,
-   "mood": {
-    "probability": 0.222,
-    "times_usual": 1.5,
-    "reasons": [
-     "lowest mood (1-5) in 3 days: 4",
-     "mood (1-5) yesterday: 4",
-     "mood (1-5) +1 since yesterday"
-    ],
-    "happened": true
-   },
-   "fatigue": {
-    "probability": 0.184,
-    "times_usual": 0.8,
-    "reasons": [
-     "mood (1-5) 2.1 spreads above usual today"
-    ],
-    "happened": true
-   }
-  },
-  {
-   "mission_day": 18,
-   "mood": {
-    "probability": 0.311,
-    "times_usual": 2.0,
+    "probability": 0.347,
+    "times_usual": 2.3,
     "reasons": [
      "mood (1-5) 1.0 below usual today",
-     "mood (1-5) 1.7 spreads below usual today",
-     "calm (1-5, 5 = relaxed) 1.0 below usual over the last 3 days"
+     "mood (1-5) 1.3 spreads below usual today",
+     "mood (1-5) 0.7 spreads below usual on average over the last 3 days"
     ],
     "happened": true
    },
@@ -407,9 +210,211 @@
     "probability": 0.438,
     "times_usual": 1.8,
     "reasons": [
+     "energy (1-5, 5 = fresh) 1.0 below usual today",
+     "readiness (0-10) 2.0 below usual today",
+     "energy (1-5, 5 = fresh) 1.4 spreads below usual today"
+    ],
+    "happened": true
+   }
+  },
+  {
+   "mission_day": 10,
+   "mood": {
+    "probability": 0.396,
+    "times_usual": 2.6,
+    "reasons": [
+     "mood (1-5) 1.0 below usual today",
+     "mood (1-5) 1.2 spreads below usual today",
+     "energy (1-5, 5 = fresh) 0.8 spreads below usual on average over the last 3 days"
+    ],
+    "happened": false
+   },
+   "fatigue": {
+    "probability": 0.364,
+    "times_usual": 1.5,
+    "reasons": [
+     "energy (1-5, 5 = fresh) 1.0 below usual today",
+     "energy (1-5, 5 = fresh) 1.3 spreads below usual today",
+     "readiness (0-10) today: 7"
+    ],
+    "happened": false
+   }
+  },
+  {
+   "mission_day": 11,
+   "mood": {
+    "probability": 0.242,
+    "times_usual": 1.6,
+    "reasons": [
+     "mood (1-5) 0.8 spreads above usual today",
+     "mood (1-5) +1 since yesterday",
+     "calm (1-5, 5 = relaxed) 1.0 spreads above usual today"
+    ],
+    "happened": false
+   },
+   "fatigue": {
+    "probability": 0.247,
+    "times_usual": 1.0,
+    "reasons": [
+     "steps 1.3 spreads above usual today",
+     "calm (1-5, 5 = relaxed) 1.0 spreads above usual today",
+     "sleep, self-report (h) 0.2 spreads below usual today"
+    ],
+    "happened": false
+   }
+  },
+  {
+   "mission_day": 12,
+   "mood": {
+    "probability": 0.205,
+    "times_usual": 1.3,
+    "reasons": [
+     "mood (1-5) 0.8 spreads above usual today",
+     "calm (1-5, 5 = relaxed) 1.0 spreads above usual today",
+     "mood (1-5) yesterday: 4"
+    ],
+    "happened": false
+   },
+   "fatigue": {
+    "probability": 0.257,
+    "times_usual": 1.1,
+    "reasons": [
+     "readiness (0-10) 2.0 below usual today",
+     "soreness (1-5, 5 = none) today: 2",
+     "calm (1-5, 5 = relaxed) 1.0 spreads above usual today"
+    ],
+    "happened": false
+   }
+  },
+  {
+   "mission_day": 13,
+   "mood": {
+    "probability": 0.247,
+    "times_usual": 1.6,
+    "reasons": [
+     "mood (1-5) 0.7 spreads above usual today",
+     "mood (1-5) yesterday: 4",
+     "calm (1-5, 5 = relaxed) 1.0 spreads above usual today"
+    ],
+    "happened": false
+   },
+   "fatigue": {
+    "probability": 0.235,
+    "times_usual": 1.0,
+    "reasons": [
+     "calm (1-5, 5 = relaxed) 1.0 spreads above usual on average over the last 3 days",
+     "calm (1-5, 5 = relaxed) 1.0 spreads above usual today",
+     "sleep, wristband (h) 0.7 spreads above usual on average over the last 3 days"
+    ],
+    "happened": false
+   }
+  },
+  {
+   "mission_day": 14,
+   "mood": {
+    "probability": 0.223,
+    "times_usual": 1.5,
+    "reasons": [
+     "mood (1-5) 0.7 spreads above usual today",
+     "calm (1-5, 5 = relaxed) 0.9 spreads above usual today",
+     "mood (1-5) yesterday: 4"
+    ],
+    "happened": false
+   },
+   "fatigue": {
+    "probability": 0.256,
+    "times_usual": 1.0,
+    "reasons": [
+     "readiness (0-10) 3.5 below usual today",
+     "soreness (1-5, 5 = none) today: 2",
+     "calm (1-5, 5 = relaxed) 0.9 spreads above usual on average over the last 3 days"
+    ],
+    "happened": false
+   }
+  },
+  {
+   "mission_day": 15,
+   "mood": {
+    "probability": 0.242,
+    "times_usual": 1.6,
+    "reasons": [
+     "mood (1-5) 0.7 spreads above usual today",
+     "mood (1-5) yesterday: 4",
+     "calm (1-5, 5 = relaxed) 0.9 spreads above usual today"
+    ],
+    "happened": false
+   },
+   "fatigue": {
+    "probability": 0.249,
+    "times_usual": 1.0,
+    "reasons": [
+     "calm (1-5, 5 = relaxed) 0.9 spreads above usual on average over the last 3 days",
+     "calm (1-5, 5 = relaxed) 0.9 spreads above usual today",
+     "mood (1-5) 0.7 spreads above usual today"
+    ],
+    "happened": false
+   }
+  },
+  {
+   "mission_day": 16,
+   "mood": {
+    "probability": 0.225,
+    "times_usual": 1.5,
+    "reasons": [
+     "mood (1-5) 0.7 spreads above usual today",
+     "mood (1-5) yesterday: 4",
+     "calm (1-5, 5 = relaxed) 0.8 spreads above usual today"
+    ],
+    "happened": false
+   },
+   "fatigue": {
+    "probability": 0.207,
+    "times_usual": 0.8,
+    "reasons": [
+     "readiness (0-10) 2.0 below usual today",
+     "soreness (1-5, 5 = none) today: 2",
+     "calm (1-5, 5 = relaxed) 0.8 spreads above usual on average over the last 3 days"
+    ],
+    "happened": false
+   }
+  },
+  {
+   "mission_day": 17,
+   "mood": {
+    "probability": 0.187,
+    "times_usual": 1.2,
+    "reasons": [
+     "mood (1-5) 2.7 spreads above usual today",
+     "mood (1-5) yesterday: 4",
+     "mood (1-5) +1 since yesterday"
+    ],
+    "happened": true
+   },
+   "fatigue": {
+    "probability": 0.149,
+    "times_usual": 0.6,
+    "reasons": [],
+    "happened": true
+   }
+  },
+  {
+   "mission_day": 18,
+   "mood": {
+    "probability": 0.333,
+    "times_usual": 2.2,
+    "reasons": [
+     "mood (1-5) 1.0 below usual today",
+     "mood (1-5) 1.2 spreads below usual today"
+    ],
+    "happened": true
+   },
+   "fatigue": {
+    "probability": 0.38,
+    "times_usual": 1.6,
+    "reasons": [
      "energy (1-5, 5 = fresh) 2.0 below usual today",
      "readiness (0-10) 3.0 below usual today",
-     "energy (1-5, 5 = fresh) 0.7 below usual over the last 3 days"
+     "energy (1-5, 5 = fresh) 3.6 spreads below usual today"
     ],
     "happened": true
    }
@@ -417,22 +422,22 @@
   {
    "mission_day": 19,
    "mood": {
-    "probability": 0.375,
-    "times_usual": 2.5,
+    "probability": 0.394,
+    "times_usual": 2.6,
     "reasons": [
      "mood (1-5) 1.0 below usual today",
-     "mood (1-5) 1.7 spreads below usual today",
-     "mood (1-5) 0.3 below usual over the last 3 days"
+     "mood (1-5) 1.2 spreads below usual today",
+     "calm (1-5, 5 = relaxed) 1.6 spreads below usual on average over the last 3 days"
     ],
     "happened": false
    },
    "fatigue": {
-    "probability": 0.392,
-    "times_usual": 1.6,
+    "probability": 0.377,
+    "times_usual": 1.5,
     "reasons": [
      "energy (1-5, 5 = fresh) 1.0 below usual today",
-     "energy (1-5, 5 = fresh) 1.0 below usual over the last 3 days",
-     "energy (1-5, 5 = fresh) 1.6 spreads below usual today"
+     "energy (1-5, 5 = fresh) 1.2 spreads below usual today",
+     "energy (1-5, 5 = fresh) 1.4 spreads below usual on average over the last 3 days"
     ],
     "happened": true
    }
@@ -440,22 +445,22 @@
   {
    "mission_day": 20,
    "mood": {
-    "probability": 0.253,
-    "times_usual": 1.7,
+    "probability": 0.235,
+    "times_usual": 1.5,
     "reasons": [
-     "mood (1-5) 0.7 below usual over the last 3 days",
-     "calm (1-5, 5 = relaxed) 2.0 below usual over the last 3 days",
-     "mood (1-5) +1 since yesterday"
+     "mood (1-5) 0.6 spreads above usual today",
+     "energy (1-5, 5 = fresh) 2.5 spreads below usual on average over the last 3 days",
+     "calm (1-5, 5 = relaxed) 2.1 spreads below usual on average over the last 3 days"
     ],
     "happened": false
    },
    "fatigue": {
-    "probability": 0.474,
-    "times_usual": 1.9,
+    "probability": 0.368,
+    "times_usual": 1.5,
     "reasons": [
      "energy (1-5, 5 = fresh) 2.0 below usual today",
-     "energy (1-5, 5 = fresh) 1.7 below usual over the last 3 days",
-     "readiness (0-10) 2.5 below usual today"
+     "readiness (0-10) 2.5 below usual today",
+     "soreness (1-5, 5 = none) today: 2"
     ],
     "happened": true
    }
@@ -463,22 +468,21 @@
   {
    "mission_day": 21,
    "mood": {
-    "probability": 0.246,
-    "times_usual": 1.6,
+    "probability": 0.284,
+    "times_usual": 1.9,
     "reasons": [
-     "mood (1-5) 0.3 below usual over the last 3 days",
-     "calm (1-5, 5 = relaxed) 2.0 below usual over the last 3 days",
-     "mood (1-5) yesterday: 4"
+     "mood (1-5) 0.6 spreads above usual today",
+     "calm (1-5, 5 = relaxed) 1.9 spreads below usual on average over the last 3 days",
+     "energy (1-5, 5 = fresh) 2.1 spreads below usual on average over the last 3 days"
     ],
     "happened": false
    },
    "fatigue": {
-    "probability": 0.395,
-    "times_usual": 1.6,
+    "probability": 0.269,
+    "times_usual": 1.1,
     "reasons": [
      "energy (1-5, 5 = fresh) 2.0 below usual today",
-     "energy (1-5, 5 = fresh) 1.7 below usual over the last 3 days",
-     "energy (1-5, 5 = fresh) 2.6 spreads below usual today"
+     "energy (1-5, 5 = fresh) 2.1 spreads below usual on average over the last 3 days"
     ],
     "happened": true
    }
@@ -486,22 +490,22 @@
   {
    "mission_day": 22,
    "mood": {
-    "probability": 0.247,
-    "times_usual": 1.6,
+    "probability": 0.293,
+    "times_usual": 1.9,
     "reasons": [
-     "calm (1-5, 5 = relaxed) 1.8 below usual over the last 3 days",
-     "lowest mood (1-5) in 3 days: 4",
-     "mood (1-5) yesterday: 4"
+     "mood (1-5) 0.6 spreads above usual today",
+     "calm (1-5, 5 = relaxed) 1.6 spreads below usual on average over the last 3 days",
+     "energy (1-5, 5 = fresh) 2.0 spreads below usual on average over the last 3 days"
     ],
     "happened": false
    },
    "fatigue": {
-    "probability": 0.39,
-    "times_usual": 1.6,
+    "probability": 0.309,
+    "times_usual": 1.3,
     "reasons": [
      "energy (1-5, 5 = fresh) 0.5 below usual today",
-     "energy (1-5, 5 = fresh) 1.7 below usual over the last 3 days",
-     "energy (1-5, 5 = fresh) 1.2 spreads below usual today"
+     "energy (1-5, 5 = fresh) 2.0 spreads below usual on average over the last 3 days",
+     "energy (1-5, 5 = fresh) 0.8 spreads below usual today"
     ],
     "happened": false
    }
@@ -509,20 +513,21 @@
   {
    "mission_day": 23,
    "mood": {
-    "probability": 0.248,
-    "times_usual": 1.6,
+    "probability": 0.253,
+    "times_usual": 1.7,
     "reasons": [
-     "calm (1-5, 5 = relaxed) 1.5 below usual over the last 3 days",
-     "lowest mood (1-5) in 3 days: 4",
-     "mood (1-5) yesterday: 4"
+     "energy (1-5, 5 = fresh) 0.9 spreads below usual on average over the last 3 days",
+     "calm (1-5, 5 = relaxed) 1.4 spreads below usual on average over the last 3 days",
+     "mood (1-5) 0.5 spreads above usual today"
     ],
     "happened": false
    },
    "fatigue": {
-    "probability": 0.27,
-    "times_usual": 1.1,
+    "probability": 0.243,
+    "times_usual": 1.0,
     "reasons": [
-     "energy (1-5, 5 = fresh) 0.8 below usual over the last 3 days"
+     "calm (1-5, 5 = relaxed) 1.3 spreads below usual today",
+     "soreness (1-5, 5 = none) today: 2"
     ],
     "happened": true
    }
@@ -530,22 +535,22 @@
   {
    "mission_day": 24,
    "mood": {
-    "probability": 0.19,
-    "times_usual": 1.2,
+    "probability": 0.219,
+    "times_usual": 1.4,
     "reasons": [
-     "calm (1-5, 5 = relaxed) 1.2 below usual over the last 3 days",
-     "lowest mood (1-5) in 3 days: 4",
-     "mood (1-5) yesterday: 4"
+     "calm (1-5, 5 = relaxed) 1.3 spreads below usual on average over the last 3 days",
+     "mood (1-5) 0.4 spreads above usual today",
+     "energy (1-5, 5 = fresh) 0.8 spreads below usual today"
     ],
     "happened": false
    },
    "fatigue": {
-    "probability": 0.307,
-    "times_usual": 1.3,
+    "probability": 0.291,
+    "times_usual": 1.2,
     "reasons": [
      "energy (1-5, 5 = fresh) 1.0 below usual today",
-     "energy (1-5, 5 = fresh) 1.2 spreads below usual today",
-     "steps 1.6 spreads above usual today"
+     "steps 1.5 spreads above usual today",
+     "energy (1-5, 5 = fresh) 0.8 spreads below usual today"
     ],
     "happened": false
    }
@@ -553,20 +558,21 @@
   {
    "mission_day": 25,
    "mood": {
-    "probability": 0.189,
-    "times_usual": 1.2,
+    "probability": 0.17,
+    "times_usual": 1.1,
     "reasons": [
-     "lowest mood (1-5) in 3 days: 4",
-     "mood (1-5) yesterday: 4"
+     "mood (1-5) yesterday: 4",
+     "calm (1-5, 5 = relaxed) 1.2 spreads above usual today",
+     "lowest mood (1-5) in 3 days: 4"
     ],
     "happened": false
    },
    "fatigue": {
-    "probability": 0.216,
-    "times_usual": 0.9,
+    "probability": 0.176,
+    "times_usual": 0.7,
     "reasons": [
-     "calm (1-5, 5 = relaxed) 1.5 spreads above usual today",
-     "sleep quality (1-5) today: 4"
+     "calm (1-5, 5 = relaxed) 1.2 spreads above usual today",
+     "sleep, wristband (h) 1.5 spreads above usual on average over the last 3 days"
     ],
     "happened": false
    }
@@ -574,8 +580,8 @@
   {
    "mission_day": 26,
    "mood": {
-    "probability": 0.153,
-    "times_usual": 1.0,
+    "probability": 0.126,
+    "times_usual": 0.8,
     "reasons": [
      "lowest mood (1-5) in 3 days: 4",
      "mood (1-5) yesterday: 4"
@@ -583,10 +589,10 @@
     "happened": false
    },
    "fatigue": {
-    "probability": 0.178,
-    "times_usual": 0.7,
+    "probability": 0.144,
+    "times_usual": 0.6,
     "reasons": [
-     "sleep quality (1-5) today: 4"
+     "sleep, wristband (h) 1.4 spreads above usual on average over the last 3 days"
     ],
     "happened": true
    }
@@ -594,20 +600,21 @@
   {
    "mission_day": 27,
    "mood": {
-    "probability": 0.163,
-    "times_usual": 1.1,
+    "probability": 0.158,
+    "times_usual": 1.0,
     "reasons": [
+     "mood (1-5) yesterday: 4",
      "lowest mood (1-5) in 3 days: 4",
-     "mood (1-5) yesterday: 4"
+     "energy (1-5, 5 = fresh) 0.8 spreads below usual today"
     ],
     "happened": false
    },
    "fatigue": {
-    "probability": 0.372,
-    "times_usual": 1.5,
+    "probability": 0.392,
+    "times_usual": 1.6,
     "reasons": [
      "energy (1-5, 5 = fresh) 0.5 below usual today",
-     "energy (1-5, 5 = fresh) 1.2 spreads below usual today",
+     "energy (1-5, 5 = fresh) 0.8 spreads below usual today",
      "soreness (1-5, 5 = none) today: 2"
     ],
     "happened": false
@@ -616,21 +623,20 @@
   {
    "mission_day": 28,
    "mood": {
-    "probability": 0.191,
-    "times_usual": 1.2,
+    "probability": 0.149,
+    "times_usual": 1.0,
     "reasons": [
-     "lowest mood (1-5) in 3 days: 4",
-     "mood (1-5) yesterday: 4"
+     "mood (1-5) yesterday: 4",
+     "lowest mood (1-5) in 3 days: 4"
     ],
     "happened": true
    },
    "fatigue": {
-    "probability": 0.252,
-    "times_usual": 1.0,
+    "probability": 0.199,
+    "times_usual": 0.8,
     "reasons": [
-     "steps 1.5 spreads above usual today",
-     "exercise (min) 2.1 spreads above usual today",
-     "calm (1-5, 5 = relaxed) 0.5 above usual over the last 3 days"
+     "steps 1.4 spreads above usual today",
+     "exercise (min) 1.8 spreads above usual today"
     ],
     "happened": true
    }
@@ -638,22 +644,21 @@
   {
    "mission_day": 29,
    "mood": {
-    "probability": 0.449,
-    "times_usual": 2.9,
+    "probability": 0.364,
+    "times_usual": 2.4,
     "reasons": [
-     "mood (1-5) 2.1 spreads below usual today",
      "mood (1-5) 1.0 below usual today",
-     "mood (1-5) 0.3 below usual over the last 3 days"
+     "mood (1-5) 1.6 spreads below usual today",
+     "mood (1-5) yesterday: 4"
     ],
     "happened": false
    },
    "fatigue": {
-    "probability": 0.261,
-    "times_usual": 1.1,
+    "probability": 0.211,
+    "times_usual": 0.9,
     "reasons": [
-     "resting pulse (bpm) 1.4 spreads below usual today",
      "readiness (0-10) today: 7",
-     "calm (1-5, 5 = relaxed) 1.0 above usual over the last 3 days"
+     "resting pulse (bpm) 1.4 spreads below usual today"
     ],
     "happened": false
    }
@@ -661,22 +666,19 @@
   {
    "mission_day": 30,
    "mood": {
-    "probability": 0.216,
-    "times_usual": 1.4,
+    "probability": 0.163,
+    "times_usual": 1.1,
     "reasons": [
-     "mood (1-5) 0.3 below usual over the last 3 days",
-     "mood (1-5) +1 since yesterday",
-     "sleep quality (1-5) +2 since yesterday"
+     "mood (1-5) 0.4 spreads above usual today",
+     "mood (1-5) +1 since yesterday"
     ],
     "happened": false
    },
    "fatigue": {
-    "probability": 0.23,
-    "times_usual": 0.9,
+    "probability": 0.2,
+    "times_usual": 0.8,
     "reasons": [
-     "calm (1-5, 5 = relaxed) 1.0 above usual over the last 3 days",
-     "sleep quality (1-5) today: 4",
-     "steps 0.8 spreads above usual today"
+     "steps 1.1 spreads above usual today"
     ],
     "happened": false
    }

@@ -10,8 +10,9 @@ learns and is scored **only on real people**. Run: `python -m pipeline.wellbeing
 - **Targets.** PMData: tomorrow's mood, fatigue or readiness is below the person's usual (median of the last 14
   days). All PMData scales go "higher = better" (fatigue 5 = fresh). LifeSnaps: tomorrow the person ticked sad,
   tense or tired.
-- **Inputs.** For each signal: today's distance from the person's own norm (`_z`) and the 3-day average
-  (`_dev3`). PMData signals: resting pulse, sleep (band and self-report), exercise, steps, mood, fatigue, stress,
+- **Inputs.** For each signal: today's distance from the person's own **Bayesian norm**, the same norm the app's
+  statuses use (`_bz`, in the person's predictive scale), and its 3-day average (`_bz3`); see
+  `docs/personal-norm.md`. (Until 2026-11-15 the 14-day median: `NORM = "median"` in `pipeline/wellbeing.py`.) PMData signals: resting pulse, sleep (band and self-report), exercise, steps, mood, fatigue, stress,
   plus sleep quality, soreness and readiness. LifeSnaps: pulse, sleep, exercise, steps, stress score, skin
   temperature, today's feelings. Plus a weekend flag.
   "Last days" adds, for each check-in answer: yesterday's value, the change since yesterday and the worst of the
@@ -36,12 +37,14 @@ An interval entirely above 0 means the model beats "same as today" on people it 
 
 | Target | Same as today | Random forest (all inputs) | Forest, check-in only | Forest, check-in + last days |
 |---|---|---|---|---|
-| Worse mood (PMData) | 0.608 | 0.658 (+0.016..+0.087) | 0.647 (−0.001..+0.093) | **0.681 (+0.038..+0.115)** |
-| More tired (PMData) | 0.590 | **0.644 (+0.008..+0.118)** | 0.615 (−0.008..+0.064) | 0.617 (−0.020..+0.083) |
-| Less ready (PMData) | 0.627 | 0.645 (−0.019..+0.051) | 0.632 (−0.039..+0.050) | 0.610 (−0.056..+0.017) |
-| Negative feeling (LifeSnaps) | 0.530 | 0.531 (−0.039..+0.040) | 0.543 (−0.007..+0.036) | not built |
+| Worse mood (PMData) | 0.608 | 0.684 (+0.043..+0.108) | 0.720 (+0.072..+0.154) | **0.703 (+0.057..+0.134)** |
+| More tired (PMData) | 0.590 | **0.648 (+0.009..+0.121)** | 0.637 (+0.009..+0.088) | 0.627 (−0.010..+0.090) |
+| Less ready (PMData) | 0.627 | 0.648 (−0.010..+0.051) | 0.627 (−0.044..+0.051) | 0.620 (−0.052..+0.039) |
+| Negative feeling (LifeSnaps) | 0.530 | 0.545 (−0.027..+0.054) | 0.543 (−0.007..+0.036) | not built |
 
-Logistic regression is never better than the reference (mood 0.580, fatigue 0.608, readiness 0.609).
+Bold: the variant shipped in the app (chosen before the switch to the Bayesian norm and kept, so the choice is
+not tuned on this table). Logistic regression: mood 0.643, fatigue 0.624, readiness 0.653, none clearly above the
+reference. With the old median-norm inputs the shipped variants scored 0.681 (mood) and 0.644 (fatigue).
 Pooled AUC for the best mood model is 0.705 against 0.611; full table: `python -m pipeline.wellbeing`.
 
 What moves the forest most (mean |SHAP|): for mood, how far below usual mood is today and over 3 days, then stress
@@ -62,6 +65,8 @@ Scored on three different splits of people (seeds 42, 1, 2) before choosing:
 | Last days (yesterday, change since yesterday, worst of 3 days) | +0.01 | +0.03 | **yes, for mood** |
 
 The first two ideas are the lesson: they lift the headline number by 0.04 and change nothing for one person.
+
+Round 2 and the nested check below were run with the median-norm inputs (before 2026-11-15).
 
 ### Round 2: composite features (`python -m pipeline.wellbeing_search mood|fatigue`)
 
@@ -100,10 +105,10 @@ simple start version: the variants are equivalent, and the simpler one is easier
 ## What this means
 
 - **A worse mood tomorrow can be predicted better than "same as today" for the same person**: within-person AUC
-  0.68 against 0.61 (0.67 after paying for our search in the nested check), interval entirely above 0, on people
-  the model never saw. It is the first real-data result
+  0.70 against 0.61 (0.68 with the old median-norm inputs, 0.67 after paying for our search in the nested
+  check), interval entirely above 0, on people the model never saw. It is the first real-data result
   in the project that beats the simple reference instead of matching it.
-- **Fatigue**: the forest with all inputs beats the reference within person (0.64 vs 0.59, also in the nested
+- **Fatigue**: the forest with all inputs beats the reference within person (0.65 vs 0.59, also in the nested
   check); steps are among its top signals, so here the wristband helps.
 - **More features do not help further**: sleep debt, training load, interactions and a wellbeing index all land
   within ±0.01. The ceiling is the data (16 people), not the model.
