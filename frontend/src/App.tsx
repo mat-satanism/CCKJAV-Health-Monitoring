@@ -9,6 +9,7 @@ import { MissionView } from './components/MissionView'
 import { PatientFile } from './components/PatientFile'
 import { PersonView } from './components/PersonView'
 import { InsightsCard, TasksCard } from './components/Sidebar'
+import { WellbeingCard } from './components/WellbeingCard'
 import { SystemPanel } from './components/SystemPanel'
 import type {
   Insights, Meta, MissionContext, MissionInfo, StatusResponse, SystemId, Task,
@@ -148,6 +149,7 @@ export default function App() {
 
           <aside className="side">
             <InsightsCard insights={insights} meta={meta} />
+            <WellbeingCard />
             <TasksCard tasks={tasks} onDone={(id) => api.completeTask(id).then(refresh)} />
             <CheckIn meta={meta} onSaved={refresh} />
           </aside>

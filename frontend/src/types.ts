@@ -179,3 +179,35 @@ export interface Forecast {
   high: number[]
   coverage: number
 }
+
+// Real-data demo: wellbeing forecast for tomorrow (GET /wellbeing, made by `python -m pipeline.wellbeing export`)
+export interface WellbeingForecast {
+  probability: number
+  times_usual: number          // probability / how often this happens to people in general
+  reasons: string[]            // signs that raised the risk most (SHAP), plain words
+  happened: boolean | null     // what really happened the next day (null = no answer)
+}
+
+export interface WellbeingModel {
+  question: string
+  inputs: string
+  usual_rate: number
+  within_person_auc: number    // scored on people the model never saw
+  same_as_today_auc: number    // the simple reference it has to beat
+}
+
+export interface WellbeingDay {
+  mission_day: number
+  for_date: string             // the day the forecast is about (mission_day + 1)
+  mood: WellbeingForecast
+  fatigue: WellbeingForecast
+}
+
+export interface Wellbeing {
+  available: boolean
+  person?: string
+  source?: string
+  note?: string
+  models: Record<'mood' | 'fatigue', WellbeingModel> | Record<string, never>
+  days: WellbeingDay[]
+}

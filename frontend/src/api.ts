@@ -1,6 +1,6 @@
 import type {
   Alarm, AstronautCard, Brief, PatientFile, AstronautHistory, AstronautState, BloodRow, CrewAlert, DoctorView, Insights, Measurement, Meta, MissionContext, MissionInfo,
-  Forecast, MissionTask, NowLine, Readiness, Report, StatusResponse, Task, TimelineDay,
+  Forecast, MissionTask, NowLine, Readiness, Report, StatusResponse, Task, TimelineDay, Wellbeing,
 } from './types'
 
 const BASE = import.meta.env.VITE_API_URL ?? 'http://127.0.0.1:8000'
@@ -28,6 +28,7 @@ export const api = {
   setContext: (ctx: MissionContext) =>
     req<MissionContext>('/context', { method: 'PUT', body: JSON.stringify(ctx) }),
   resetDemo: () => req<{ ok: boolean }>('/demo/reset', { method: 'POST' }),
+  wellbeing: () => req<Wellbeing>('/wellbeing'),
   bloodReference: (crew: string) => req<BloodRow[]>(`/reference/blood?crew=${encodeURIComponent(crew)}`),
   // simulated crew mission
   mission: () => req<MissionInfo>('/mission'),

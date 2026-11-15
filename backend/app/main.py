@@ -15,7 +15,7 @@ from pydantic import BaseModel
 
 from . import analytics, rules
 from .config import BOUNDS, CONTENT, DATA_DIR, ENVIRONMENTS, INDICATORS, SYSTEMS
-from .demo import blood_reference, demo_mission
+from .demo import blood_reference, demo_mission, wellbeing_forecast
 from .mission import MISSION
 from .models import Measurement, MissionContext, Task
 
@@ -286,6 +286,12 @@ def reference_blood(crew: str = "C001"):
     return blood_reference(crew)
 
 
+@app.get("/wellbeing")
+def wellbeing():
+    """Real-data demo: chance that tomorrow's mood or energy is below this person's usual, with the reasons."""
+    return wellbeing_forecast()
+
+
 @app.get("/insights")
 def insights():
     inds = _indicator_statuses()
@@ -301,9 +307,9 @@ def insights():
 
 @app.get("/forecast/{indicator}")
 def forecast(indicator: str, days: int = 7):
+    """Back to the person's own norm, with an 80% band; fitted on real people (docs/forecast.md)."""
     if indicator not in INDICATORS:
         raise HTTPException(404, "Unknown indicator")
-    """Back to the person's own norm, with an 80% band; fitted on real people (docs/forecast.md)."""
     values = [m.value for m in list_measurements(type=indicator)]
     lo, hi = BOUNDS[indicator]
     band = analytics.forecast_band(values, days, indicator)
