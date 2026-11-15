@@ -1,27 +1,12 @@
-"""Analytics interface: the plug-in point for the data/ML team.
+"""Trend arrow and the 7-day chart forecast. Input `values`: floats in time order (oldest first).
 
-Keep these function signatures stable; swap the bodies for real models.
-Input `values` is a list of floats ordered by time (oldest first).
+The personal norm and the statuses live in status.py (Bayesian norm, docs/personal-norm.md); the models in
+pipeline/ (risk model, wellbeing forecast). The old median baseline() and deviation() were removed on
+2026-11-15: nothing used them any more, and they disagreed with the Bayesian norm the app shows.
 """
 from statistics import median, pstdev
 
-BASELINE_DAYS = 14
-
-
-def baseline(values: list[float]) -> float | None:
-    """Personal norm. Default: median of the first BASELINE_DAYS values."""
-    window = values[:BASELINE_DAYS]
-    return median(window) if len(window) >= 3 else None
-
-
-def deviation(values: list[float]) -> float | None:
-    """How unusual the latest value is vs the personal norm (z-score-like)."""
-    window = values[:BASELINE_DAYS]
-    base = baseline(values)
-    if base is None or len(values) <= len(window):
-        return None
-    spread = pstdev(window) or 1.0
-    return round((values[-1] - base) / spread, 2)
+BASELINE_DAYS = 14   # the forecast's norm window, the same as status.NORM_DAYS (checked: docs/norm-days.md)
 
 
 def trend(values: list[float], n: int = 5) -> str | None:

@@ -29,123 +29,123 @@ john,6,0.0,0.0,0.0,0.0,0.0,,,,,
 kenji,6,0.0,0.0,0.0,0.0,0.0,,,,,
 maria,6,0.0,0.0,0.0,0.0,0.0,,,,,
 stefan,6,0.0,0.0,0.0,0.0,0.0,,,,,
-amara,7,0.001,0.001,0.0,0.002,0.001,,,,,
-john,7,0.0,0.0,0.0,0.001,0.0,,,,,
-kenji,7,0.0,0.0,0.0,0.0,0.0,,,,,
-maria,7,0.002,0.0,0.001,0.001,0.001,,,Exercise -44.8 min vs usual today,,
-stefan,7,0.004,0.0,0.0,0.001,0.001,Sleep -1.2 h vs usual today,,,,
-amara,8,0.003,0.0,0.002,0.003,0.014,,,,,
-john,8,0.044,0.006,0.135,0.01,0.022,"Sleep -1.4 h vs usual today; Heart rate variability -8.6 ms vs usual today; Exercise -57.4 min vs usual, last 3 days",,"Exercise -57.4 min vs usual, last 3 days; Exercise -64.1 min vs usual today",,
-kenji,8,0.004,0.001,0.0,0.0,0.009,,,,,
-maria,8,0.009,0.002,0.087,0.016,0.027,,,"Exercise -42.4 min vs usual, last 3 days; Exercise -39.9 min vs usual today",,
-stefan,8,0.093,0.005,0.063,0.01,0.051,"Sleep -2.0 h vs usual today; Reaction time +58.1 ms vs usual today; Sleep -1.6 h vs usual, last 3 days",,"Exercise -48.8 min vs usual today; Exercise -43.9 min vs usual, last 3 days",,Reaction time +58.1 ms vs usual today
-amara,9,0.07,0.003,0.004,0.005,0.011,Sleep -2.7 h vs usual today,,Exercise -50.5 min vs usual today,,
-john,9,0.027,0.005,0.155,0.014,0.019,,,"Exercise -59.9 min vs usual, last 3 days; Exercise -64.7 min vs usual today; Whole crew: sleep -0.7 h vs usual",,
-kenji,9,0.022,0.005,0.006,0.003,0.017,,,,,
-maria,9,0.037,0.001,0.054,0.013,0.021,,,"Exercise -40.2 min vs usual, last 3 days; Exercise -35.9 min vs usual today",,
-stefan,9,0.037,0.003,0.009,0.007,0.041,"Sleep -1.1 h vs usual, last 3 days; Reaction time +48.3 ms vs usual today; Reaction time +40.9 ms vs usual, last 3 days",,,,Whole crew: sleep -0.7 h vs usual; Reaction time +48.3 ms vs usual today
-amara,10,0.023,0.001,0.0,0.007,0.022,,,,,
-john,10,0.033,0.002,0.071,0.01,0.022,,,"Exercise -49.9 min vs usual, last 3 days",,
-kenji,10,0.008,0.006,0.001,0.003,0.009,,,,,
-maria,10,0.004,0.001,0.0,0.001,0.006,,,,,
-stefan,10,0.019,0.003,0.002,0.005,0.011,,,,,
-amara,11,0.051,0.002,0.0,0.005,0.013,"Sleep -1.4 h vs usual, last 3 days",,,,
-john,11,0.022,0.001,0.002,0.008,0.027,,,,,
-kenji,11,0.017,0.022,0.002,0.023,0.018,,,,,
-maria,11,0.042,0.002,0.001,0.004,0.027,Sleep -1.9 h vs usual today,,,,
-stefan,11,0.015,0.017,0.0,0.004,0.021,,Temperature +0.2 °C vs usual today; Heart rate variability -19.4 ms vs usual today,,,
-amara,12,0.005,0.008,0.001,0.002,0.013,,,,,
-john,12,0.008,0.0,0.005,0.0,0.007,,,,,
-kenji,12,0.005,0.001,0.0,0.007,0.004,,,,,
-maria,12,0.012,0.004,0.001,0.003,0.019,Reaction time +31.2 ms vs usual today,,,,
-stefan,12,0.043,0.003,0.005,0.004,0.013,Sleep -2.3 h vs usual today,,,,
-amara,13,0.002,0.0,0.0,0.001,0.004,,,,,
-john,13,0.008,0.0,0.006,0.004,0.006,,,,,
-kenji,13,0.005,0.0,0.002,0.001,0.007,,,,,
-maria,13,0.003,0.006,0.001,0.002,0.012,,,,,
-stefan,13,0.053,0.008,0.004,0.002,0.012,"Sleep -1.2 h vs usual, last 3 days; Heart rate variability -17.0 ms vs usual today",,,,
-amara,14,0.003,0.002,0.006,0.004,0.009,,,Exercise -54.6 min vs usual today,,
-john,14,0.007,0.003,0.002,0.011,0.018,,,,,
-kenji,14,0.027,0.007,0.085,0.004,0.024,,,"Exercise -40.2 min vs usual, last 3 days",,
-maria,14,0.005,0.009,0.002,0.005,0.012,,,,,
-stefan,14,0.025,0.003,0.006,0.004,0.02,"Sleep -1.1 h vs usual, last 3 days",,,,
-amara,15,0.006,0.001,0.0,0.004,0.011,,,,,
-john,15,0.011,0.004,0.0,0.006,0.014,,,,,
-kenji,15,0.007,0.016,0.074,0.0,0.018,,,"Exercise -41.7 min vs usual, last 3 days; Whole crew: resting pulse +1.7 bpm vs usual",,
-maria,15,0.005,0.04,0.004,0.005,0.018,,"Temperature +0.2 °C vs usual, last 3 days",,,
-stefan,15,0.012,0.018,0.001,0.001,0.025,,Heart rate variability -26.0 ms vs usual today,,,
-amara,16,0.006,0.004,0.0,0.006,0.024,,,,,Whole crew: resting pulse +3.1 bpm vs usual
-john,16,0.096,0.459,0.017,0.018,0.027,"Sleep -2.1 h vs usual today; Sleep -0.7 h vs usual, last 3 days","Resting pulse +6.0 bpm vs usual today; Temperature +0.4 °C vs usual today; Resting pulse +3.4 bpm vs usual, last 3 days",Exercise -53.2 min vs usual today,,
-kenji,16,0.025,0.005,0.035,0.012,0.033,,,"Exercise -37.4 min vs usual, last 3 days",,
-maria,16,0.031,0.138,0.024,0.021,0.041,,"Resting pulse +3.3 bpm vs usual today; Temperature +0.2 °C vs usual, last 3 days; Whole crew: resting pulse +3.1 bpm vs usual",Exercise -70.6 min vs usual today,Whole crew: resting pulse +3.1 bpm vs usual,Whole crew: resting pulse +3.1 bpm vs usual
-stefan,16,0.028,0.019,0.002,0.016,0.048,,Whole crew: resting pulse +3.1 bpm vs usual,,Whole crew: resting pulse +3.1 bpm vs usual,Whole crew: resting pulse +3.1 bpm vs usual
-amara,17,0.011,0.008,0.002,0.005,0.025,,,,,
-john,17,0.122,0.463,0.003,0.014,0.047,Sleep -2.2 h vs usual today; Heart rate variability -17.8 ms vs usual today; Reaction time +38.3 ms vs usual today,"Resting pulse +5.4 bpm vs usual today; Temperature +0.4 °C vs usual today; Temperature +0.3 °C vs usual, last 3 days",,,Reaction time +38.3 ms vs usual today
-kenji,17,0.024,0.042,0.004,0.008,0.019,,Resting pulse +3.6 bpm vs usual today,,,
-maria,17,0.008,0.06,0.011,0.003,0.02,,"Temperature +0.2 °C vs usual, last 3 days; Whole crew: resting pulse +2.6 bpm vs usual; Resting pulse +2.7 bpm vs usual, last 3 days",,,
-stefan,17,0.047,0.02,0.002,0.041,0.04,Mood -0.9 points vs usual today,Whole crew: resting pulse +2.6 bpm vs usual,,Whole crew: resting pulse +2.6 bpm vs usual; Mood -0.9 points vs usual today,Whole crew: resting pulse +2.6 bpm vs usual
-amara,18,0.071,0.008,0.004,0.007,0.047,Sleep -2.4 h vs usual today; Whole crew: resting pulse +3.7 bpm vs usual,,,,Whole crew: resting pulse +3.7 bpm vs usual
-john,18,0.094,0.077,0.034,0.039,0.077,Reaction time +85.0 ms vs usual today; Heart rate variability -28.8 ms vs usual today,Resting pulse +12.5 bpm vs usual today; Temperature +1.7 °C vs usual today; Heart rate variability -28.8 ms vs usual today,Exercise -37.3 min vs usual today,,
-kenji,18,0.018,0.003,0.001,0.008,0.039,,,,,
-maria,18,0.024,0.03,0.014,0.01,0.024,,Whole crew: resting pulse +3.7 bpm vs usual,,,
-stefan,18,0.011,0.043,0.021,0.04,0.035,,Temperature +0.2 °C vs usual today; Whole crew: resting pulse +3.7 bpm vs usual,Whole crew: resting pulse +3.7 bpm vs usual,Whole crew: resting pulse +3.7 bpm vs usual,
-amara,19,0.05,0.026,0.002,0.01,0.044,,Whole crew: resting pulse +4.1 bpm vs usual,,,
-john,19,0.063,0.165,0.011,0.029,0.047,Sleep -1.6 h vs usual today,Temperature +1.4 °C vs usual today; Resting pulse +11.2 bpm vs usual today; Exercise -5.7 min vs usual today,,"Mood -0.7 points vs usual, last 3 days",
-kenji,19,0.024,0.059,0.003,0.011,0.043,,Resting pulse +3.9 bpm vs usual today,,,
-maria,19,0.174,0.034,0.022,0.057,0.038,Sleep -1.9 h vs usual today; Mood -1.0 points vs usual today; Heart rate variability -15.7 ms vs usual today,Heart rate variability -15.7 ms vs usual today,Exercise -68.5 min vs usual today,"Mood -0.4 points vs usual, last 3 days; Whole crew: resting pulse +4.1 bpm vs usual",Mood -1.0 points vs usual today
-stefan,19,0.014,0.004,0.001,0.033,0.033,,,,Whole crew: resting pulse +4.1 bpm vs usual,
-amara,20,0.086,0.013,0.0,0.011,0.04,"Whole crew: sleep -1.6 h vs usual; Sleep -1.2 h vs usual, last 3 days; Heart rate variability -14.8 ms vs usual today",,,,Whole crew: sleep -1.6 h vs usual
-john,20,0.098,0.052,0.026,0.051,0.077,Sleep -2.4 h vs usual today; Mood -2.0 points vs usual today; Heart rate variability -19.4 ms vs usual today,Temperature +1.5 °C vs usual today; Resting pulse +11.2 bpm vs usual today,Exercise -53.0 min vs usual today,"Mood -1.4 points vs usual, last 3 days",Whole crew: sleep -1.6 h vs usual; Mood -2.0 points vs usual today
-kenji,20,0.078,0.084,0.003,0.017,0.06,Sleep -1.6 h vs usual today; Whole crew: sleep -1.6 h vs usual,"Resting pulse +6.5 bpm vs usual today; Resting pulse +4.0 bpm vs usual, last 3 days",,,Whole crew: sleep -1.6 h vs usual
-maria,20,0.168,0.034,0.004,0.04,0.111,"Sleep -3.0 h vs usual today; Whole crew: sleep -1.6 h vs usual; Sleep -1.9 h vs usual, last 3 days",,,"Mood -0.3 points vs usual, last 3 days; Whole crew: resting pulse +4.3 bpm vs usual",Whole crew: sleep -1.6 h vs usual; Exercise +291.1 min vs usual today; Sleep -3.0 h vs usual today
-stefan,20,0.028,0.006,0.034,0.018,0.055,Whole crew: sleep -1.6 h vs usual,,Whole crew: resting pulse +4.3 bpm vs usual; Exercise -88.4 min vs usual today,Whole crew: resting pulse +4.3 bpm vs usual,Whole crew: sleep -1.6 h vs usual
-amara,21,0.034,0.009,0.009,0.014,0.03,Reaction time +26.4 ms vs usual today,,,Whole crew: resting pulse +4.0 bpm vs usual,
-john,21,0.059,0.118,0.011,0.094,0.024,,"Temperature +1.3 °C vs usual today; Temperature +1.4 °C vs usual, last 3 days; Whole crew: resting pulse +4.0 bpm vs usual",,"Mood -1.3 points vs usual, last 3 days; Mood -0.8 points vs usual today",
-kenji,21,0.062,0.076,0.011,0.015,0.054,"Sleep -0.7 h vs usual, last 3 days","Resting pulse +6.6 bpm vs usual today; Resting pulse +5.7 bpm vs usual, last 3 days",,,"Whole crew: resting pulse +4.0 bpm vs usual; Temperature -0.2 °C vs usual, last 3 days"
-maria,21,0.098,0.042,0.016,0.035,0.047,Reaction time +49.7 ms vs usual today; Sleep -2.2 h vs usual today,Resting pulse +4.6 bpm vs usual today,,"Mood -0.7 points vs usual, last 3 days",Reaction time +49.7 ms vs usual today
-stefan,21,0.008,0.002,0.059,0.018,0.034,,,Whole crew: resting pulse +4.0 bpm vs usual; Exercise -83.3 min vs usual today,Whole crew: resting pulse +4.0 bpm vs usual,
-amara,22,0.029,0.006,0.013,0.008,0.03,,,Exercise -47.3 min vs usual today,,
-john,22,0.032,0.008,0.031,0.064,0.02,"Sleep -1.2 h vs usual, last 3 days","Temperature +0.7 °C vs usual, last 3 days",Exercise -31.0 min vs usual today,"Mood -0.9 points vs usual, last 3 days; Exercise -28.4 min vs usual, last 3 days",
-kenji,22,0.03,0.022,0.029,0.017,0.048,,"Resting pulse +6.2 bpm vs usual, last 3 days",Exercise -55.0 min vs usual today,,"Temperature -0.2 °C vs usual, last 3 days"
-maria,22,0.071,0.028,0.013,0.022,0.04,Sleep -2.5 h vs usual today,,,"Mood -0.6 points vs usual, last 3 days",Reaction time +40.1 ms vs usual today
-stefan,22,0.044,0.004,0.305,0.007,0.029,"Exercise -83.9 min vs usual, last 3 days",,"Exercise -83.9 min vs usual, last 3 days; Exercise -80.0 min vs usual today",,
-amara,23,0.012,0.003,0.011,0.011,0.023,,,,,
-john,23,0.005,0.0,0.001,0.003,0.014,,,,,
-kenji,23,0.03,0.006,0.005,0.011,0.038,,,,,
-maria,23,0.048,0.019,0.052,0.081,0.045,Sleep -2.2 h vs usual today,Resting pulse +5.6 bpm vs usual today,Exercise -83.4 min vs usual today,"Mood -0.9 points vs usual, last 3 days; Mood -0.8 points vs usual today",
-stefan,23,0.03,0.005,0.125,0.005,0.041,,,"Exercise -61.0 min vs usual, last 3 days",,
-amara,24,0.035,0.014,0.044,0.019,0.049,,,Exercise -45.7 min vs usual today,,
-john,24,0.008,0.001,0.001,0.001,0.012,,,,,
-kenji,24,0.072,0.009,0.019,0.024,0.059,Heart rate variability -12.0 ms vs usual today,,,,Whole crew: sleep -0.8 h vs usual
-maria,24,0.11,0.008,0.04,0.048,0.042,Sleep -2.3 h vs usual today; Heart rate variability -7.3 ms vs usual today,,Exercise -83.4 min vs usual today,"Mood -0.8 points vs usual, last 3 days",
-stefan,24,0.05,0.004,0.126,0.006,0.064,Reaction time +36.6 ms vs usual today,,"Exercise -50.3 min vs usual today; Exercise -50.0 min vs usual, last 3 days",,Whole crew: sleep -0.8 h vs usual
-amara,25,0.047,0.037,0.009,0.083,0.097,Whole crew: sleep -1.4 h vs usual,Resting pulse +4.3 bpm vs usual today,,"Whole crew: resting pulse +4.2 bpm vs usual; Mood -0.6 points vs usual, last 3 days",Whole crew: sleep -1.4 h vs usual; Whole crew: mood -1.2 points vs usual
-john,25,0.067,0.003,0.023,0.016,0.067,Whole crew: sleep -1.4 h vs usual,,Exercise -34.5 min vs usual today,,Whole crew: mood -1.2 points vs usual; Whole crew: sleep -1.4 h vs usual
-kenji,25,0.066,0.012,0.011,0.051,0.09,Whole crew: sleep -1.4 h vs usual,,,,Whole crew: sleep -1.4 h vs usual; Whole crew: mood -1.2 points vs usual
-maria,25,0.109,0.021,0.017,0.068,0.077,Sleep -3.3 h vs usual today; Mood -1.7 points vs usual today,Resting pulse +8.6 bpm vs usual today,,"Mood -1.1 points vs usual, last 3 days",Whole crew: sleep -1.4 h vs usual; Whole crew: mood -1.2 points vs usual
-stefan,25,0.098,0.028,0.014,0.027,0.096,"Sleep -2.4 h vs usual today; Whole crew: sleep -1.4 h vs usual; Sleep -1.2 h vs usual, last 3 days",Resting pulse +4.5 bpm vs usual today,,,Whole crew: mood -1.2 points vs usual; Whole crew: sleep -1.4 h vs usual; Sleep -2.4 h vs usual today
-amara,26,0.05,0.036,0.026,0.108,0.044,,Resting pulse +5.8 bpm vs usual today,,"Mood -0.9 points vs usual, last 3 days; Whole crew: resting pulse +4.3 bpm vs usual; Sleep +0.5 h vs usual, last 3 days",Whole crew: mood -1.3 points vs usual
-john,26,0.058,0.004,0.001,0.038,0.025,"Sleep -0.9 h vs usual, last 3 days",,,Whole crew: resting pulse +4.3 bpm vs usual,Whole crew: mood -1.3 points vs usual
-kenji,26,0.052,0.02,0.079,0.163,0.037,,,"Exercise -30.6 min vs usual, last 3 days; Whole crew: resting pulse +4.3 bpm vs usual","Mood -0.9 points vs usual, last 3 days; Exercise -30.6 min vs usual, last 3 days; Whole crew: resting pulse +4.3 bpm vs usual",Whole crew: mood -1.3 points vs usual
-maria,26,0.091,0.014,0.035,0.101,0.045,Sleep -2.3 h vs usual today; Heart rate variability -13.2 ms vs usual today,Resting pulse +8.3 bpm vs usual today,,"Mood -1.4 points vs usual, last 3 days; Mood -1.6 points vs usual today; Whole crew: mood -1.3 points vs usual",Whole crew: mood -1.3 points vs usual
-stefan,26,0.088,0.223,0.026,0.062,0.042,"Mood -1.8 points vs usual today; Sleep -1.0 h vs usual, last 3 days; Reaction time +45.0 ms vs usual today","Resting pulse +6.9 bpm vs usual today; Temperature +0.2 °C vs usual today; Temperature +0.1 °C vs usual, last 3 days",,"Mood -0.8 points vs usual, last 3 days; Whole crew: mood -1.3 points vs usual",Whole crew: mood -1.3 points vs usual; Mood -1.8 points vs usual today
-amara,27,0.016,0.035,0.02,0.051,0.034,,"Resting pulse +3.6 bpm vs usual, last 3 days",,"Mood -0.6 points vs usual, last 3 days",
-john,27,0.007,0.0,0.003,0.007,0.003,,,,,
-kenji,27,0.044,0.024,0.004,0.036,0.027,,,,"Mood -0.9 points vs usual, last 3 days",
-maria,27,0.021,0.004,0.008,0.036,0.008,"Sleep -1.8 h vs usual, last 3 days",,,"Mood -0.9 points vs usual, last 3 days",
-stefan,27,0.039,0.14,0.004,0.033,0.03,"Sleep -0.9 h vs usual, last 3 days","Temperature +0.4 °C vs usual today; Temperature +0.2 °C vs usual, last 3 days; Resting pulse +4.9 bpm vs usual, last 3 days",,"Mood -0.7 points vs usual, last 3 days",
-amara,28,0.016,0.004,0.075,0.009,0.026,,,"Exercise -41.9 min vs usual, last 3 days; Exercise -32.6 min vs usual today",,
-john,28,0.006,0.0,0.004,0.001,0.009,,,Exercise -38.2 min vs usual today,,
-kenji,28,0.005,0.0,0.001,0.021,0.007,,,,"Mood -0.5 points vs usual, last 3 days",
-maria,28,0.005,0.0,0.002,0.005,0.006,,,,,
-stefan,28,0.012,0.051,0.001,0.013,0.018,,"Temperature +0.2 °C vs usual, last 3 days; Resting pulse +4.1 bpm vs usual, last 3 days",,"Mood -0.4 points vs usual, last 3 days",
-amara,29,0.01,0.002,0.016,0.008,0.014,,,"Exercise -35.9 min vs usual, last 3 days",,
-john,29,0.002,0.0,0.002,0.002,0.004,,,,,
-kenji,29,0.018,0.003,0.0,0.003,0.011,Sleep -1.3 h vs usual today,,,,
-maria,29,0.003,0.0,0.002,0.0,0.007,,,,,
-stefan,29,0.008,0.014,0.001,0.001,0.012,,"Temperature +0.2 °C vs usual, last 3 days",,,
-amara,30,0.008,0.016,0.016,0.02,0.03,,Temperature +0.2 °C vs usual today,,,"Heart rate variability +18.2 ms vs usual, last 3 days"
-john,30,0.001,0.0,0.0,0.0,0.008,,,,,
-kenji,30,0.003,0.0,0.001,0.001,0.003,,,,,
-maria,30,0.002,0.0,0.0,0.002,0.005,,,,,
-stefan,30,0.008,0.002,0.001,0.001,0.011,,,,,
+amara,7,0.001,0.0,0.0,0.002,0.001,,,,,
+john,7,0.0,0.0,0.0,0.0,0.001,,,,,
+kenji,7,0.0,0.0,0.0,0.0,0.001,,,,,
+maria,7,0.002,0.0,0.0,0.0,0.001,,,Exercise -44.8 min vs usual today,,
+stefan,7,0.004,0.0,0.0,0.0,0.002,Sleep -1.2 h vs usual today,,,,
+amara,8,0.003,0.0,0.001,0.002,0.015,,,,,
+john,8,0.042,0.001,0.166,0.009,0.024,"Sleep -1.4 h vs usual today; Heart rate variability -8.6 ms vs usual today; Exercise -57.4 min vs usual, last 3 days",,"Exercise -57.4 min vs usual, last 3 days; Exercise -64.1 min vs usual today",,
+kenji,8,0.003,0.0,0.0,0.0,0.01,,,,,
+maria,8,0.008,0.0,0.095,0.015,0.029,,,"Exercise -42.4 min vs usual, last 3 days; Exercise -39.9 min vs usual today",,
+stefan,8,0.091,0.001,0.061,0.008,0.052,"Sleep -2.0 h vs usual today; Reaction time +58.1 ms vs usual today; Sleep -1.6 h vs usual, last 3 days",,"Exercise -48.8 min vs usual today; Exercise -43.9 min vs usual, last 3 days",,Reaction time +58.1 ms vs usual today
+amara,9,0.067,0.001,0.002,0.004,0.012,Sleep -2.7 h vs usual today,,Exercise -50.5 min vs usual today,,
+john,9,0.025,0.001,0.196,0.012,0.02,,,"Exercise -59.9 min vs usual, last 3 days; Exercise -64.7 min vs usual today; Whole crew: sleep -0.7 h vs usual",,
+kenji,9,0.02,0.001,0.003,0.002,0.019,,,,,
+maria,9,0.034,0.0,0.05,0.012,0.023,,,"Exercise -40.2 min vs usual, last 3 days; Exercise -35.9 min vs usual today",,
+stefan,9,0.035,0.0,0.005,0.006,0.043,"Sleep -1.1 h vs usual, last 3 days; Reaction time +48.3 ms vs usual today; Reaction time +40.9 ms vs usual, last 3 days",,,,Whole crew: sleep -0.7 h vs usual; Reaction time +48.3 ms vs usual today
+amara,10,0.021,0.0,0.0,0.006,0.024,,,,,
+john,10,0.03,0.0,0.073,0.008,0.024,,,"Exercise -49.9 min vs usual, last 3 days",,
+kenji,10,0.007,0.002,0.0,0.002,0.01,,,,,
+maria,10,0.003,0.0,0.0,0.001,0.007,,,,,
+stefan,10,0.017,0.001,0.0,0.004,0.012,,,,,
+amara,11,0.048,0.0,0.0,0.004,0.015,"Sleep -1.4 h vs usual, last 3 days",,,,
+john,11,0.02,0.0,0.001,0.006,0.028,,,,,
+kenji,11,0.016,0.01,0.001,0.023,0.02,,,,,
+maria,11,0.039,0.0,0.0,0.003,0.029,Sleep -1.9 h vs usual today,,,,
+stefan,11,0.014,0.007,0.0,0.003,0.023,,Temperature +0.2 °C vs usual today; Heart rate variability -19.4 ms vs usual today,,,
+amara,12,0.004,0.002,0.0,0.001,0.015,,,,,
+john,12,0.007,0.0,0.002,0.0,0.009,,,,,
+kenji,12,0.004,0.0,0.0,0.006,0.004,,,,,
+maria,12,0.011,0.001,0.0,0.002,0.021,Reaction time +31.2 ms vs usual today,,,,
+stefan,12,0.04,0.001,0.002,0.003,0.015,Sleep -2.3 h vs usual today,,,,
+amara,13,0.001,0.0,0.0,0.001,0.005,,,,,
+john,13,0.007,0.0,0.003,0.003,0.007,,,,,
+kenji,13,0.004,0.0,0.001,0.0,0.009,,,,,
+maria,13,0.002,0.002,0.0,0.001,0.013,,,,,
+stefan,13,0.05,0.002,0.001,0.001,0.013,"Sleep -1.2 h vs usual, last 3 days; Heart rate variability -17.0 ms vs usual today",,,,
+amara,14,0.003,0.0,0.003,0.003,0.01,,,Exercise -54.6 min vs usual today,,
+john,14,0.006,0.0,0.001,0.009,0.02,,,,,
+kenji,14,0.025,0.002,0.092,0.003,0.026,,,"Exercise -40.2 min vs usual, last 3 days",,
+maria,14,0.004,0.003,0.001,0.004,0.013,,,,,
+stefan,14,0.023,0.001,0.003,0.003,0.022,"Sleep -1.1 h vs usual, last 3 days",,,,
+amara,15,0.005,0.0,0.0,0.003,0.012,,,,,
+john,15,0.01,0.001,0.0,0.005,0.015,,,,,
+kenji,15,0.006,0.006,0.076,0.0,0.02,,,"Exercise -41.7 min vs usual, last 3 days; Whole crew: resting pulse +1.7 bpm vs usual",,
+maria,15,0.004,0.024,0.002,0.004,0.019,,"Temperature +0.2 °C vs usual, last 3 days",,,
+stefan,15,0.011,0.007,0.0,0.001,0.027,,Heart rate variability -26.0 ms vs usual today,,,
+amara,16,0.006,0.001,0.0,0.004,0.026,,,,,Whole crew: resting pulse +3.1 bpm vs usual
+john,16,0.094,0.655,0.011,0.017,0.029,"Sleep -2.1 h vs usual today; Sleep -0.7 h vs usual, last 3 days","Resting pulse +6.0 bpm vs usual today; Temperature +0.4 °C vs usual today; Resting pulse +3.4 bpm vs usual, last 3 days",Exercise -53.2 min vs usual today,,
+kenji,16,0.023,0.001,0.028,0.011,0.034,,,"Exercise -37.4 min vs usual, last 3 days",,
+maria,16,0.028,0.147,0.017,0.02,0.043,,"Resting pulse +3.3 bpm vs usual today; Temperature +0.2 °C vs usual, last 3 days; Whole crew: resting pulse +3.1 bpm vs usual",Exercise -70.6 min vs usual today,Whole crew: resting pulse +3.1 bpm vs usual,Whole crew: resting pulse +3.1 bpm vs usual
+stefan,16,0.026,0.008,0.001,0.015,0.049,,Whole crew: resting pulse +3.1 bpm vs usual,,Whole crew: resting pulse +3.1 bpm vs usual,Whole crew: resting pulse +3.1 bpm vs usual
+amara,17,0.009,0.002,0.001,0.004,0.027,,,,,
+john,17,0.12,0.659,0.001,0.012,0.048,Sleep -2.2 h vs usual today; Heart rate variability -17.8 ms vs usual today; Reaction time +38.3 ms vs usual today,"Resting pulse +5.4 bpm vs usual today; Temperature +0.4 °C vs usual today; Temperature +0.3 °C vs usual, last 3 days",,,Reaction time +38.3 ms vs usual today
+kenji,17,0.022,0.026,0.001,0.007,0.021,,Resting pulse +3.6 bpm vs usual today,,,
+maria,17,0.007,0.043,0.006,0.002,0.022,,"Temperature +0.2 °C vs usual, last 3 days; Whole crew: resting pulse +2.6 bpm vs usual; Resting pulse +2.7 bpm vs usual, last 3 days",,,
+stefan,17,0.044,0.009,0.001,0.043,0.041,Mood -0.9 points vs usual today,Whole crew: resting pulse +2.6 bpm vs usual,,Whole crew: resting pulse +2.6 bpm vs usual; Mood -0.9 points vs usual today,Whole crew: resting pulse +2.6 bpm vs usual
+amara,18,0.068,0.002,0.002,0.006,0.047,Sleep -2.4 h vs usual today; Whole crew: resting pulse +3.7 bpm vs usual,,,,Whole crew: resting pulse +3.7 bpm vs usual
+john,18,0.091,0.062,0.027,0.04,0.076,Reaction time +85.0 ms vs usual today; Heart rate variability -28.8 ms vs usual today,Resting pulse +12.5 bpm vs usual today; Temperature +1.7 °C vs usual today; Heart rate variability -28.8 ms vs usual today,Exercise -37.3 min vs usual today,,
+kenji,18,0.016,0.001,0.0,0.006,0.04,,,,,
+maria,18,0.022,0.016,0.008,0.009,0.026,,Whole crew: resting pulse +3.7 bpm vs usual,,,
+stefan,18,0.01,0.026,0.014,0.042,0.036,,Temperature +0.2 °C vs usual today; Whole crew: resting pulse +3.7 bpm vs usual,Whole crew: resting pulse +3.7 bpm vs usual,Whole crew: resting pulse +3.7 bpm vs usual,
+amara,19,0.047,0.013,0.001,0.009,0.045,,Whole crew: resting pulse +4.1 bpm vs usual,,,
+john,19,0.061,0.188,0.006,0.029,0.048,Sleep -1.6 h vs usual today,Temperature +1.4 °C vs usual today; Resting pulse +11.2 bpm vs usual today; Exercise -5.7 min vs usual today,,"Mood -0.7 points vs usual, last 3 days",
+kenji,19,0.022,0.042,0.001,0.009,0.044,,Resting pulse +3.9 bpm vs usual today,,,
+maria,19,0.175,0.019,0.015,0.062,0.039,Sleep -1.9 h vs usual today; Mood -1.0 points vs usual today; Heart rate variability -15.7 ms vs usual today,Heart rate variability -15.7 ms vs usual today,Exercise -68.5 min vs usual today,"Mood -0.4 points vs usual, last 3 days; Whole crew: resting pulse +4.1 bpm vs usual",Mood -1.0 points vs usual today
+stefan,19,0.013,0.001,0.0,0.034,0.035,,,,Whole crew: resting pulse +4.1 bpm vs usual,
+amara,20,0.084,0.005,0.0,0.01,0.042,"Whole crew: sleep -1.6 h vs usual; Sleep -1.2 h vs usual, last 3 days; Heart rate variability -14.8 ms vs usual today",,,,Whole crew: sleep -1.6 h vs usual
+john,20,0.096,0.036,0.019,0.055,0.076,Sleep -2.4 h vs usual today; Mood -2.0 points vs usual today; Heart rate variability -19.4 ms vs usual today,Temperature +1.5 °C vs usual today; Resting pulse +11.2 bpm vs usual today,Exercise -53.0 min vs usual today,"Mood -1.4 points vs usual, last 3 days",Whole crew: sleep -1.6 h vs usual; Mood -2.0 points vs usual today
+kenji,20,0.076,0.071,0.001,0.016,0.06,Sleep -1.6 h vs usual today; Whole crew: sleep -1.6 h vs usual,"Resting pulse +6.5 bpm vs usual today; Resting pulse +4.0 bpm vs usual, last 3 days",,,Whole crew: sleep -1.6 h vs usual
+maria,20,0.168,0.019,0.002,0.043,0.107,"Sleep -3.0 h vs usual today; Whole crew: sleep -1.6 h vs usual; Sleep -1.9 h vs usual, last 3 days",,,"Mood -0.3 points vs usual, last 3 days; Whole crew: resting pulse +4.3 bpm vs usual",Whole crew: sleep -1.6 h vs usual; Exercise +291.1 min vs usual today; Sleep -3.0 h vs usual today
+stefan,20,0.026,0.002,0.028,0.017,0.056,Whole crew: sleep -1.6 h vs usual,,Whole crew: resting pulse +4.3 bpm vs usual; Exercise -88.4 min vs usual today,Whole crew: resting pulse +4.3 bpm vs usual,Whole crew: sleep -1.6 h vs usual
+amara,21,0.031,0.003,0.005,0.012,0.032,Reaction time +26.4 ms vs usual today,,,Whole crew: resting pulse +4.0 bpm vs usual,
+john,21,0.056,0.116,0.007,0.11,0.025,,"Temperature +1.3 °C vs usual today; Temperature +1.4 °C vs usual, last 3 days; Whole crew: resting pulse +4.0 bpm vs usual",,"Mood -1.3 points vs usual, last 3 days; Mood -0.8 points vs usual today",
+kenji,21,0.06,0.062,0.006,0.014,0.055,"Sleep -0.7 h vs usual, last 3 days","Resting pulse +6.6 bpm vs usual today; Resting pulse +5.7 bpm vs usual, last 3 days",,,"Whole crew: resting pulse +4.0 bpm vs usual; Temperature -0.2 °C vs usual, last 3 days"
+maria,21,0.096,0.026,0.01,0.036,0.048,Reaction time +49.7 ms vs usual today; Sleep -2.2 h vs usual today,Resting pulse +4.6 bpm vs usual today,,"Mood -0.7 points vs usual, last 3 days",Reaction time +49.7 ms vs usual today
+stefan,21,0.007,0.0,0.056,0.017,0.035,,,Whole crew: resting pulse +4.0 bpm vs usual; Exercise -83.3 min vs usual today,Whole crew: resting pulse +4.0 bpm vs usual,
+amara,22,0.026,0.001,0.008,0.007,0.032,,,Exercise -47.3 min vs usual today,,
+john,22,0.03,0.002,0.024,0.071,0.022,"Sleep -1.2 h vs usual, last 3 days","Temperature +0.7 °C vs usual, last 3 days",Exercise -31.0 min vs usual today,"Mood -0.9 points vs usual, last 3 days; Exercise -28.4 min vs usual, last 3 days",
+kenji,22,0.028,0.01,0.022,0.016,0.049,,"Resting pulse +6.2 bpm vs usual, last 3 days",Exercise -55.0 min vs usual today,,"Temperature -0.2 °C vs usual, last 3 days"
+maria,22,0.068,0.014,0.008,0.021,0.042,Sleep -2.5 h vs usual today,,,"Mood -0.6 points vs usual, last 3 days",Reaction time +40.1 ms vs usual today
+stefan,22,0.041,0.001,0.434,0.006,0.03,"Exercise -83.9 min vs usual, last 3 days",,"Exercise -83.9 min vs usual, last 3 days; Exercise -80.0 min vs usual today",,
+amara,23,0.01,0.001,0.006,0.009,0.024,,,,,
+john,23,0.004,0.0,0.0,0.002,0.015,,,,,
+kenji,23,0.028,0.002,0.002,0.009,0.039,,,,,
+maria,23,0.046,0.008,0.048,0.094,0.046,Sleep -2.2 h vs usual today,Resting pulse +5.6 bpm vs usual today,Exercise -83.4 min vs usual today,"Mood -0.9 points vs usual, last 3 days; Mood -0.8 points vs usual today",
+stefan,23,0.028,0.001,0.15,0.004,0.042,,,"Exercise -61.0 min vs usual, last 3 days",,
+amara,24,0.033,0.005,0.038,0.018,0.049,,,Exercise -45.7 min vs usual today,,
+john,24,0.007,0.0,0.0,0.001,0.014,,,,,
+kenji,24,0.069,0.003,0.013,0.024,0.059,Heart rate variability -12.0 ms vs usual today,,,,Whole crew: sleep -0.8 h vs usual
+maria,24,0.108,0.002,0.034,0.052,0.043,Sleep -2.3 h vs usual today; Heart rate variability -7.3 ms vs usual today,,Exercise -83.4 min vs usual today,"Mood -0.8 points vs usual, last 3 days",
+stefan,24,0.048,0.001,0.152,0.004,0.064,Reaction time +36.6 ms vs usual today,,"Exercise -50.3 min vs usual today; Exercise -50.0 min vs usual, last 3 days",,Whole crew: sleep -0.8 h vs usual
+amara,25,0.045,0.021,0.005,0.096,0.094,Whole crew: sleep -1.4 h vs usual,Resting pulse +4.3 bpm vs usual today,,"Whole crew: resting pulse +4.2 bpm vs usual; Mood -0.6 points vs usual, last 3 days",Whole crew: sleep -1.4 h vs usual; Whole crew: mood -1.2 points vs usual
+john,25,0.064,0.0,0.016,0.015,0.067,Whole crew: sleep -1.4 h vs usual,,Exercise -34.5 min vs usual today,,Whole crew: mood -1.2 points vs usual; Whole crew: sleep -1.4 h vs usual
+kenji,25,0.063,0.004,0.006,0.055,0.088,Whole crew: sleep -1.4 h vs usual,,,,Whole crew: sleep -1.4 h vs usual; Whole crew: mood -1.2 points vs usual
+maria,25,0.107,0.01,0.011,0.077,0.076,Sleep -3.3 h vs usual today; Mood -1.7 points vs usual today,Resting pulse +8.6 bpm vs usual today,,"Mood -1.1 points vs usual, last 3 days",Whole crew: sleep -1.4 h vs usual; Whole crew: mood -1.2 points vs usual
+stefan,25,0.095,0.014,0.009,0.027,0.093,"Sleep -2.4 h vs usual today; Whole crew: sleep -1.4 h vs usual; Sleep -1.2 h vs usual, last 3 days",Resting pulse +4.5 bpm vs usual today,,,Whole crew: mood -1.2 points vs usual; Whole crew: sleep -1.4 h vs usual; Sleep -2.4 h vs usual today
+amara,26,0.048,0.02,0.019,0.129,0.045,,Resting pulse +5.8 bpm vs usual today,,"Mood -0.9 points vs usual, last 3 days; Whole crew: resting pulse +4.3 bpm vs usual; Sleep +0.5 h vs usual, last 3 days",Whole crew: mood -1.3 points vs usual
+john,26,0.055,0.001,0.0,0.039,0.026,"Sleep -0.9 h vs usual, last 3 days",,,Whole crew: resting pulse +4.3 bpm vs usual,Whole crew: mood -1.3 points vs usual
+kenji,26,0.05,0.009,0.083,0.203,0.038,,,"Exercise -30.6 min vs usual, last 3 days; Whole crew: resting pulse +4.3 bpm vs usual","Mood -0.9 points vs usual, last 3 days; Exercise -30.6 min vs usual, last 3 days; Whole crew: resting pulse +4.3 bpm vs usual",Whole crew: mood -1.3 points vs usual
+maria,26,0.088,0.005,0.029,0.119,0.046,Sleep -2.3 h vs usual today; Heart rate variability -13.2 ms vs usual today,Resting pulse +8.3 bpm vs usual today,,"Mood -1.4 points vs usual, last 3 days; Mood -1.6 points vs usual today; Whole crew: mood -1.3 points vs usual",Whole crew: mood -1.3 points vs usual
+stefan,26,0.086,0.283,0.019,0.069,0.043,"Mood -1.8 points vs usual today; Sleep -1.0 h vs usual, last 3 days; Reaction time +45.0 ms vs usual today","Resting pulse +6.9 bpm vs usual today; Temperature +0.2 °C vs usual today; Temperature +0.1 °C vs usual, last 3 days",,"Mood -0.8 points vs usual, last 3 days; Whole crew: mood -1.3 points vs usual",Whole crew: mood -1.3 points vs usual; Mood -1.8 points vs usual today
+amara,27,0.015,0.02,0.013,0.056,0.036,,"Resting pulse +3.6 bpm vs usual, last 3 days",,"Mood -0.6 points vs usual, last 3 days",
+john,27,0.006,0.0,0.001,0.005,0.004,,,,,
+kenji,27,0.042,0.011,0.001,0.037,0.028,,,,"Mood -0.9 points vs usual, last 3 days",
+maria,27,0.019,0.001,0.004,0.037,0.01,"Sleep -1.8 h vs usual, last 3 days",,,"Mood -0.9 points vs usual, last 3 days",
+stefan,27,0.037,0.148,0.001,0.034,0.032,"Sleep -0.9 h vs usual, last 3 days","Temperature +0.4 °C vs usual today; Temperature +0.2 °C vs usual, last 3 days; Resting pulse +4.9 bpm vs usual, last 3 days",,"Mood -0.7 points vs usual, last 3 days",
+amara,28,0.014,0.001,0.077,0.007,0.028,,,"Exercise -41.9 min vs usual, last 3 days; Exercise -32.6 min vs usual today",,
+john,28,0.005,0.0,0.002,0.001,0.011,,,Exercise -38.2 min vs usual today,,
+kenji,28,0.005,0.0,0.0,0.02,0.008,,,,"Mood -0.5 points vs usual, last 3 days",
+maria,28,0.004,0.0,0.001,0.004,0.007,,,,,
+stefan,28,0.011,0.034,0.0,0.012,0.019,,"Temperature +0.2 °C vs usual, last 3 days; Resting pulse +4.1 bpm vs usual, last 3 days",,"Mood -0.4 points vs usual, last 3 days",
+amara,29,0.008,0.0,0.01,0.007,0.015,,,"Exercise -35.9 min vs usual, last 3 days",,
+john,29,0.002,0.0,0.0,0.001,0.004,,,,,
+kenji,29,0.016,0.0,0.0,0.002,0.013,Sleep -1.3 h vs usual today,,,,
+maria,29,0.002,0.0,0.001,0.0,0.008,,,,,
+stefan,29,0.007,0.005,0.0,0.0,0.014,,"Temperature +0.2 °C vs usual, last 3 days",,,
+amara,30,0.007,0.006,0.01,0.019,0.031,,Temperature +0.2 °C vs usual today,,,"Heart rate variability +18.2 ms vs usual, last 3 days"
+john,30,0.001,0.0,0.0,0.0,0.009,,,,,
+kenji,30,0.002,0.0,0.0,0.0,0.003,,,,,
+maria,30,0.001,0.0,0.0,0.002,0.006,,,,,
+stefan,30,0.007,0.0,0.0,0.0,0.012,,,,,

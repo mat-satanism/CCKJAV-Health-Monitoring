@@ -68,7 +68,7 @@ Not worse anywhere, slightly better on three of four (within the noise).
 
 **Risk model, 100 new simulated missions** (mean over 5 events): ROC AUC 0.875 → 0.878, PR AUC 0.221 → 0.253,
 events caught in the top 5% riskiest days 40.7% → 44.3%, precision 17.3% → 18.6%. The gain is mostly
-deconditioning (caught 54% → 71%). The demo story holds: John's infection risk is 22× usual on day 16, two days
+deconditioning (caught 54% → 71%). The demo story holds: John's infection risk is 22× usual on day 16 (32× after recalibration, `docs/calibration.md`), two days
 before the fever; Maria's sleep risk rises on days 19-20 before day 21.
 
 **Risk model on real mood: an honest correction.** The sim-trained forest scored 0.632 on real PMData mood, close

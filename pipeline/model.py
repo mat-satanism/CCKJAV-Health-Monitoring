@@ -15,6 +15,7 @@ import numpy as np
 import pandas as pd
 import shap
 from sklearn.ensemble import RandomForestClassifier
+from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import average_precision_score, roc_auc_score
 
 from . import bayes_features as B
@@ -25,6 +26,7 @@ from .common import PROCESSED, ROOT
 MODEL_PATH = ROOT / "models" / "risk_model.json"
 TRAIN_MISSIONS, TRAIN_SEED = 400, 7
 TEST_MISSIONS, TEST_SEED = 100, 1234
+CAL_MISSIONS, CAL_SEED = 100, 99   # missions used only to recalibrate the probabilities (docs/calibration.md)
 ALERT_SHARE = 0.05          # "top 5% riskiest astronaut-days raise an alert" for the recall/precision numbers
 FOREST = {"n_estimators": 300, "min_samples_leaf": 20, "random_state": 42}   # leaves of 20+ days: no memorising
 C = 0.5                     # regularisation of the logistic regression (compare_models only)
@@ -128,12 +130,39 @@ def train(train_days: pd.DataFrame) -> tuple[dict, dict[str, RandomForestClassif
     return settings, forests
 
 
-def risk(forests: dict, d: pd.DataFrame, explain_signs: bool = True) -> tuple[pd.DataFrame, dict[str, np.ndarray]]:
-    """Probabilities per event and, if asked, SHAP contributions per feature (in probability units)."""
+def _logit(p: np.ndarray) -> np.ndarray:
+    p = np.clip(p, 1e-4, 1 - 1e-4)
+    return np.log(p / (1 - p))
+
+
+def recalibrate(p: np.ndarray, platt: list[float] | None) -> np.ndarray:
+    """Forests squeeze probabilities towards the middle; a logistic fit on their log-odds puts them back."""
+    if not platt:
+        return p
+    a, b = platt
+    return 1 / (1 + np.exp(-(a * _logit(p) + b)))
+
+
+def fit_calibration(settings: dict, forests: dict, cal_days: pd.DataFrame) -> None:
+    """Fit the recalibration per event on missions used for nothing else; stored in settings (risk_model.json)."""
+    d, _ = sim_features(cal_days, settings["floors"])
+    raw, _ = risk(forests, d, explain_signs=False)
+    for event in forests:
+        lr = LogisticRegression().fit(_logit(raw[f"risk_{event}"].to_numpy())[:, None],
+                                      d[f"label_{event}_48h"].to_numpy())
+        settings["events"][event]["platt"] = [round(float(lr.coef_[0][0]), 4), round(float(lr.intercept_[0]), 4)]
+    settings["calibrated_on"] = f"{CAL_MISSIONS} simulated missions, seed {CAL_SEED}"
+
+
+def risk(forests: dict, d: pd.DataFrame, explain_signs: bool = True,
+         settings: dict | None = None) -> tuple[pd.DataFrame, dict[str, np.ndarray]]:
+    """Probabilities per event (recalibrated if settings carry it) and, if asked, SHAP contributions per feature
+    (in the forest's raw probability units: they rank and filter the signs, they do not add up to the risk)."""
     X = matrix(d)
     probs, contrib = {}, {}
     for event, forest in forests.items():
-        probs[f"risk_{event}"] = forest.predict_proba(X)[:, 1]
+        platt = (settings or {}).get("events", {}).get(event, {}).get("platt")
+        probs[f"risk_{event}"] = recalibrate(forest.predict_proba(X)[:, 1], platt)
         if explain_signs:
             contrib[event] = shap.TreeExplainer(forest).shap_values(X)[:, :, 1]
     return pd.DataFrame(probs, index=d.index), contrib
@@ -168,7 +197,7 @@ def explain(model: dict, d: pd.DataFrame, contrib: dict[str, np.ndarray], top: i
 
 def evaluate(settings: dict, forests: dict, test_days: pd.DataFrame) -> pd.DataFrame:
     d, _ = sim_features(test_days, settings["floors"])
-    probs, _ = risk(forests, d, explain_signs=False)
+    probs, _ = risk(forests, d, explain_signs=False, settings=settings)
     simple = d[[f"{ind}_z" for ind in sim.INDICATORS]].abs().max(axis=1).fillna(0)   # rule: biggest |z| today
     rows = []
     for event in sim.PREDICTED:
@@ -209,7 +238,7 @@ def real_check(forests: dict) -> pd.DataFrame:
 
 def predict_demo(settings: dict, forests: dict, demo_days: pd.DataFrame) -> pd.DataFrame:
     d, _ = sim_features(demo_days, settings["floors"])
-    probs, contrib = risk(forests, d)
+    probs, contrib = risk(forests, d, settings=settings)
     out = pd.concat([d[["astronaut_id", "mission_day"]], probs.round(3), explain(settings, d, contrib)], axis=1)
     return out.sort_values(["mission_day", "astronaut_id"]).reset_index(drop=True)
 
@@ -219,6 +248,8 @@ def main() -> None:
     train_days, _ = sim.training_missions(cal, TRAIN_MISSIONS, TRAIN_SEED)
     test_days, _ = sim.training_missions(cal, TEST_MISSIONS, TEST_SEED)
     settings, forests = train(train_days)
+    cal_days, _ = sim.training_missions(cal, CAL_MISSIONS, CAL_SEED)
+    fit_calibration(settings, forests, cal_days)
     MODEL_PATH.parent.mkdir(exist_ok=True)
     MODEL_PATH.write_text(json.dumps(settings, indent=1))
     print(f"model -> {MODEL_PATH.relative_to(ROOT)}")
