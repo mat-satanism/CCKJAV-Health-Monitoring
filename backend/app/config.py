@@ -18,7 +18,7 @@ INDICATORS: dict[str, dict] = {
 }
 
 # How long a value stays "fresh", in days. Daily signals are measured every day; blood pressure, glucose and
-# temperature are measured at planned check-ups or when something is wrong, not every day (team doc, NASA practice).
+# temperature are measured at planned check-ups or when something is wrong, not every day (NASA practice).
 # An older value is shown grey ("no fresh data"), never red.
 FRESH_DAYS: dict[str, float] = {
     "heart_rate": 2, "sleep_hours": 2, "mood": 2, "exercise_min": 2, "hrv_ms": 2, "reaction_ms": 2,

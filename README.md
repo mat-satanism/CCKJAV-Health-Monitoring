@@ -1,43 +1,70 @@
 # Crew Health Navigator
 
-NASA Space Apps Challenge 2026 — astronaut self-assessment health monitoring tool.
+**Try it: https://crew-health-navigator.onrender.com** (no installation; the first visit after a quiet spell can take up to a minute to wake the site)
 
-Repository: CCKJAV Health Monitoring.
+A health-monitoring tool for astronauts on long missions, built for the NASA Space Apps Challenge 2026. Each astronaut checks in once a day; the app compares every value with **that person's own norm**, says what looks unusual and why, and tells who should react: the astronaut, the crew medical officer on board, or the flight surgeon on Earth. It works without internet, because on Mars a message takes 20 minutes each way.
+
+> Demo, not medical advice. The crew, their missions and their illnesses are simulated; the limits and advice are for demonstration and must be checked with medical sources before any real use.
 
 ## The problem
-On long-duration missions (Moon, Mars) astronauts must spot health changes in themselves: radiation, isolation, altered gravity, distance from Earth and a closed environment affect the heart, bones, immune system, sleep and mood. Our tool gathers health indicators, shows status at a glance and tells the astronaut what to do and when to escalate to flight surgeons.
+On missions to the Moon and Mars, radiation, isolation, changed gravity, distance from Earth and a closed environment affect the heart, bones, immune system, sleep and mood. Doctors are minutes away, and the onboard medical officer is busy. The app has to notice **early** that something is off for **this** person, say **why**, and never take someone off a task on a guess.
 
-## Features
-Working now:
-- **Body Map**: clickable astronaut figure, each body system colored by status.
-- **Daily Check-in**: heart rate, blood pressure, glucose, temperature, sleep, exercise, mood, heart rate variability, reaction time (3-minute PVT). Each indicator says how often and how to measure it; weekly and occasional measures (body mass, bone, blood, urine, saliva) are listed with sources.
-- **Personal baseline**: status is computed against the astronaut's own norm, learned the Bayesian way (start from what is typical for people, update with the person's last 14 days; yellow outside their 99% band or outside 95% two days in a row) plus absolute safe limits, the same rule in every tab. See `docs/personal-norm.md` and `docs/limits-and-assumptions.md`.
-- **Trends**: charts with the personal baseline line and a 7-day forecast that goes back to the person's own norm, with an 80% band; fitted and checked on real people (15% better than "same as today", the old straight line was 44% worse). See `docs/forecast.md`.
-- **Assistant**: rule-based advice with escalation levels (self / crew / ground) and a comms-delay note.
-- **Daily tasks** with points.
-- **Mission context**: the same crew on a Mars base (0.38 g, 20 min signal delay), Moon base, space station, deep-space transit or Mars rover; each place has its own simulated mission. See `docs/environments.md`.
-- **Check-in per crew member**: pick an astronaut, tap the body, pick a day on the mission strip or any chart, see the history with their usual range, enter values and symptoms for that day, answer the morning readiness check, see their (synthetic) medical history and medicine for the day.
-- **Demo data (Check-in, real-data demo)**: 30 real days of one PMData participant for heart rate, sleep, mood and exercise; blood pressure, glucose and temperature are synthetic (typical NHANES level + simulated daily changes) and labelled as such.
-- **Crew mission (simulation)**: 5 astronauts over 30 days, synthetic data calibrated on real people. Mission clock, crew status, risks for the next 48 h, and tasks that move to a fit crew member with the reason (e.g. John's EVA goes to Stefan because of fever).
-- **Doctors' tab**: crew medical officer onboard (live) or flight surgeon on Earth (20 min delay). The CMO is busy, so the onboard view starts with "Right now": one line per person and what to do; the full tables (anomalies, risks with their signs, symptoms) and the alarm log are one click away. A chart shows the whole crew's distance from their own norm over the mission. The ground gets a daily or weekly report made overnight, saved as PDF from the browser's print dialog.
-- **Isolation of close contacts**: a fever isolates the person (their tasks move to someone else), and whoever shared a task with them in the last 2 days is asked to check temperature twice a day (John's fever on day 18: Maria worked with him on day 17).
-- **Week trends and support**: each card shows what has been going one way for a week (e.g. Maria's sleep going down before her sleep problem), a kind message (take it easier / you're doing well) and demo food tips.
-- **Patient file**: a fictional biography turned into an exposure history (e.g. years as a jet pilot, outdoor work, previous long flights) and from it sourced risks and checks, as NASA's lifetime surveillance of astronaut health does.
-- **Crew-wide signal and daily brief**: when 3+ crew members move the worrying way on the same day, the app points to a shared cause (air, noise, schedule) instead of treating people one by one; the CMO gets one short brief written by fixed rules from the data.
-- **Tomorrow's outlook (real-data demo)**: the chance that tomorrow's mood or energy is below the person's usual, with the reasons (SHAP) and a 30-day strip of forecast vs what really happened. Learned from other real people only (PMData), and shown only because it beats "same as today" on people it never saw (mood 0.70 vs 0.61). Both models read the same Bayesian personal norm as the statuses. See `docs/wellbeing-model.md`.
-- **Risk model**: one random forest per event, trained on simulated missions, with SHAP explanations (which signs pushed the risk up). Chosen over logistic regression and LightGBM, see `docs/model-comparison.md`.
-- **Re-measure before calling Earth**: one red reading asks to re-measure that value (a button opens the check-in on it); only a red confirmed by the next reading calls the flight surgeon, on a full screen with yes/no steps and the signal delay. An old value is grey ("no fresh value"), never red. Each value says when it was measured.
-- **Feedback on tasks**: once a task is done, "how do you feel after it?" (better / same / worse / gone) is saved with it.
-- **Sourced limits**: each limit in `data/thresholds.json` names its source (CDC fever line, AHA/ACC blood pressure stages, NASA exercise time) and which numbers are our own choice.
-- **Two themes**: the original dark console and a light one that meets WCAG 2.2 AA contrast and never shows status by colour alone; a header button switches, the choice is remembered.
+## A two-minute tour
+1. Open the site, **Crew mission** tab. Press day **18** on the mission strip: John gets a fever, his tasks move to a fit crewmate with the reason, and his close contacts are asked to check their temperature.
+2. Press **Doctors**: the onboard view starts with "Right now", one line per person and what to do; switch to the flight surgeon to see the 20-minute delay.
+3. Open **Check-in**, pick **Real-data demo**: 30 real days of one participant of a public study, a body map, a trend per indicator with the personal norm, and tomorrow's mood and energy forecast.
+4. Try **Light theme / Dark theme** in the header.
 
-Planned:
-- Streaks and badges.
-- Sleep quality on a sourced scale (no source found yet for the 1-7 scale).
+## What is real and what is simulated
+There is no open daily health data of astronauts, so the app is honest about what it uses (details: [docs/limits-and-assumptions.md](docs/limits-and-assumptions.md)).
 
-> Not medical advice. Thresholds are for demonstration and must be verified with medical sources.
+| Part | Real or simulated |
+|---|---|
+| Blood tests of the Inspiration4 crew (4 people, 7 time points) | real, NASA OSDR |
+| Daily pulse, sleep, mood, exercise of ordinary people (PMData, 16 people); heart rate variability (LifeSnaps); typical blood pressure, pulse, glucose (NHANES, BIG IDEAs) | real, public datasets |
+| The crew, their 30 days, their illnesses and biographies | **simulated**, calibrated on the real data above |
+| How each event moves the numbers, reaction-time levels | **our assumptions**, written in `pipeline/simulation.py` |
 
-## Repo structure
+Every simulated value is labelled "synthetic" in the app. On simulated missions the models work well; that shows the approach works if the early signs look like our simulation, and says nothing about real astronauts.
+
+## How it works
+- **Personal norm, not one limit for everyone.** Usual resting pulse differs by 32 bpm between ordinary people, so a fixed limit flags the wrong ones. Status is computed against the person's own norm, learned the Bayesian way: start from what is typical for people, update with the person's last 14 days. Yellow outside their 99% band, or outside the 95% band two days in a row; red only at safety limits ([docs/personal-norm.md](docs/personal-norm.md)).
+- **Rules and small models, no chatbot.** Transparent rules and statistics that run offline and explain every alert (the signs and how many days). The risk model is a random forest per event with SHAP explanations ([docs/model-comparison.md](docs/model-comparison.md)); its percentages are recalibrated ([docs/calibration.md](docs/calibration.md)).
+- **Forecasts that beat "same as today".** Tomorrow's mood and energy are forecast from real people only and scored on people the model never saw (mood 0.70 vs 0.61 for "same as today"; [docs/wellbeing-model.md](docs/wellbeing-model.md)).
+- **Re-measure before calling Earth.** One red reading asks to re-measure; only a red confirmed by the next reading calls the flight surgeon, on a full screen with yes/no steps and the signal delay. An old value is grey ("no fresh value"), never red.
+- **Crew-wide signal.** When 3 or more people move the worrying way on the same day, the app points to a shared cause (air, noise, schedule) instead of treating people one by one ([docs/crew-signal.md](docs/crew-signal.md)).
+
+## What is in the app
+- **Crew mission** (simulation): 5 astronauts over 30 days, mission clock, crew status, risks for the next 48 hours, tasks that move to a fit crewmate, isolation of close contacts, week trends, kind messages. The same crew can be moved to a Mars base, Moon base, space station, deep-space transit or Mars rover; each place has its own mission ([docs/environments.md](docs/environments.md)).
+- **Doctors**: onboard medical officer or flight surgeon on Earth, an overnight report to save as PDF, a chart of the whole crew's distance from their own norm.
+- **Check-in per person**: body map coloured by status, values and symptoms for a chosen day, morning readiness check, history with the usual range, a fictional patient file turned into an exposure history with sourced checks.
+- **Real-data demo**: 30 real days of one PMData participant (blood pressure, glucose and temperature are synthetic and labelled), with tomorrow's outlook and its reasons.
+- **Tasks** with points and "how do you feel after it?"; **sourced limits** (each limit in `data/thresholds.json` names its source and which numbers are our own choice); **two themes** (the light one meets WCAG 2.2 AA contrast and never shows status by colour alone).
+
+Planned: streaks and badges; sleep quality on a sourced scale (no source found yet for the 1-7 scale).
+
+## Run it yourself
+Everything in one container:
+```bash
+docker build -t chn . && docker run -p 7860:7860 chn
+```
+Open http://localhost:7860.
+
+Or backend and frontend separately:
+```bash
+cd backend
+python -m venv .venv && source .venv/bin/activate
+pip install -r requirements.txt
+uvicorn app.main:app --reload        # http://127.0.0.1:8000/docs, tests: pytest
+```
+```bash
+cd frontend
+npm install
+npm run dev                          # http://localhost:5173
+```
+The backend starts with a synthetic demo mission; "Reset demo" in the app restores it.
+
+## Repository
 ```
 backend/app/
   main.py        API endpoints
@@ -56,49 +83,17 @@ data/            thresholds.json (limits), content/ (sourced texts), processed/ 
 docs/            api contract, methods and results, sources, pitch charts
 ```
 
+
 ## Data and models
-- **Models:** the personal norm and statuses are in `backend/app/status.py` (Bayesian, `docs/personal-norm.md`); the chart forecast and trend arrow in `backend/app/analytics.py`, fitted by `python -m pipeline.forecast_eval` ([docs/forecast.md](docs/forecast.md)); the risk model and the wellbeing forecast are trained in `pipeline/` and the app reads their precomputed files.
-- **Data:** to show real/cleaned data in the app, make `demo_mission()` in `backend/app/demo.py` return your records as `Measurement` objects.
-- **Thresholds:** edit `data/thresholds.json` and add the source to `docs/sources.md`.
-- Raw data goes to `data/raw/` (not in git; `python -m pipeline.get_data` downloads it).
-- **Cleaned data:** `python -m pipeline.get_data` then `python -m pipeline.build` fills `data/processed/` (daily wearable table, Inspiration4 blood tests, NHANES reference ranges). Columns and cleaning rules: [docs/data.md](docs/data.md). Which days have data, per person: [docs/data-completeness.md](docs/data-completeness.md).
-- **Can the percentages be trusted:** `python -m pipeline.calibration` checks both models; the risk model understated high risks, so it is recalibrated on separate missions (stored in `models/risk_model.json`). See [docs/calibration.md](docs/calibration.md).
-- **How many days the norm needs:** `python -m pipeline.norm_days` checks the calibration week (6 days) and the 14-day window on real people and the simulation: both hold up. See [docs/norm-days.md](docs/norm-days.md).
-- **Early warning without crying wolf:** `python -m pipeline.early_warning` compares the model with the status rules on new simulated missions: as early, far fewer flags in a calm week. See [docs/early-warning.md](docs/early-warning.md).
-- **Same crew, another place:** `python -m pipeline.environments` builds the station, transit, Moon and rover missions (the Mars base stays the original) and checks the Mars-trained model there; the header switches between them. See [docs/environments.md](docs/environments.md).
-- **Simulation and model:** `python -m pipeline.build` also writes the simulated crew mission to `data/processed/sim/`; `python -m pipeline.model` trains the risk model (`models/risk_model.json`) and writes the demo predictions. Design, assumptions and results: [docs/simulation.md](docs/simulation.md).
-- **Wellbeing forecast on real people:** `python -m pipeline.wellbeing` predicts a worse mood, fatigue or readiness tomorrow on PMData and LifeSnaps, scored within each person on people the model never saw against "same as today". Pitch charts and the one-page ML summary: `python -m pipeline.pitch_charts` -> [docs/pitch/](docs/pitch/README.md). `python -m pipeline.wellbeing export` writes the app's forecasts to `data/processed/wellbeing_demo.json`. Results: [docs/wellbeing-model.md](docs/wellbeing-model.md).
-
-## Quick start
-Backend:
-```bash
-cd backend
-python -m venv .venv && source .venv/bin/activate
-pip install -r requirements.txt
-uvicorn app.main:app --reload
-```
-Open http://127.0.0.1:8000/docs. Tests: `pytest` inside `backend/`.
-
-Frontend (second terminal):
-```bash
-cd frontend
-npm install
-npm run dev
-```
-Open http://localhost:5173. The backend starts with a synthetic demo mission; "Reset demo" in the UI restores it.
+Everything is rebuilt by commands in `pipeline/`; the app reads the precomputed files.
+- **Cleaned data:** `python -m pipeline.get_data` (downloads the public datasets into `data/raw/`, not in git), then `python -m pipeline.build` fills `data/processed/`. Columns, cleaning rules and licences: [docs/data.md](docs/data.md), [data/processed/README.md](data/processed/README.md). Which days have data, per person: [docs/data-completeness.md](docs/data-completeness.md).
+- **Models:** `python -m pipeline.model` trains the risk model (`models/risk_model.json`) and writes the demo predictions; `python -m pipeline.wellbeing` trains the wellbeing forecast; `python -m pipeline.forecast_eval` fits the chart forecast ([docs/forecast.md](docs/forecast.md)).
+- **Checks:** `python -m pipeline.calibration` (can the percentages be trusted), `python -m pipeline.norm_days` ([docs/norm-days.md](docs/norm-days.md)), `python -m pipeline.early_warning` ([docs/early-warning.md](docs/early-warning.md)), `python -m pipeline.environments` ([docs/environments.md](docs/environments.md)).
+- **Design and results:** [docs/simulation.md](docs/simulation.md); one-page ML summary with the charts: [docs/pitch/](docs/pitch/README.md) (`python -m pipeline.pitch_charts`).
+- **Thresholds:** edit `data/thresholds.json` and add the source to [docs/sources.md](docs/sources.md). API: [docs/api-contract.md](docs/api-contract.md).
 
 ## Public site
-The whole app runs in one container (`Dockerfile`): the API also serves the built website, on one address.
-Try it locally: `docker build -t chn . && docker run -p 7860:7860 chn`, then open http://localhost:7860.
+The site runs on Render's free plan from the `Dockerfile` (`render.yaml`) and redeploys after every merge to `main`. A free service sleeps after 15 minutes without visitors, so `.github/workflows/keep-awake.yml` opens it every 10 minutes (repo variable `SITE_URL`). GitHub can start scheduled jobs a few minutes late: open the site by hand before a presentation. The demo is shared: a check-in or "Reset demo" by one visitor is seen by everyone.
 
-It is published on Render (free plan), described in `render.yaml`: on render.com choose New → Blueprint and pick
-this repository; it then redeploys by itself after every merge to `main`. A free service sleeps after 15 minutes
-without visitors, so `.github/workflows/keep-awake.yml` opens it every 10 minutes; set the repo variable `SITE_URL`
-(Settings → Secrets and variables → Actions → Variables) to the site's address, e.g.
-`https://crew-health-navigator.onrender.com`. Before a presentation, open the site once by hand: GitHub can start
-scheduled jobs a few minutes late, and waking a sleeping service takes up to a minute.
-
-The demo is shared: a check-in or "Reset demo" by one visitor is seen by everyone.
-
-## Sources
-See [docs/sources.md](docs/sources.md). Based on NASA Human Research Program and CSA public resources.
+## Sources and licences
+All sources: [docs/sources.md](docs/sources.md) (NASA Human Research Program and OSDR, CSA, CDC, AHA/ACC and the public datasets). The datasets keep their own licences, listed in [data/processed/README.md](data/processed/README.md); PMData is CC BY-NC 4.0, so non-commercial use only.
