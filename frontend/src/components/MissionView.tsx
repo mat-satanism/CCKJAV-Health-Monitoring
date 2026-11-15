@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { api } from '../api'
+import { useCountUp } from '../anim'
 import type { AstronautState, CrewAlert, MissionTask } from '../types'
 
 // The simulated crew mission for one day: who is fit, what is coming, and who does which task.
@@ -21,25 +22,28 @@ export function AlertList({ alerts }: { alerts: CrewAlert[] }) {
   )
 }
 
-function CrewRow({ a, onOpen }: { a: AstronautState; onOpen: (aid: string) => void }) {
+function initials(name: string) { return name.slice(0, 2).toUpperCase() }
+
+function CrewCard({ a, onOpen, i }: { a: AstronautState; onOpen: (aid: string) => void; i: number }) {
   const top = a.risks.find((r) => r.level !== 'normal')
-  const off = a.indicators.filter((i) => i.status === 'yellow' || i.status === 'red')
+  const off = a.indicators.filter((x) => x.status === 'yellow' || x.status === 'red')
   return (
-    <div className={`crew-row status-${a.status}`}>
-      <span className="dot" aria-label={`status ${a.status}`} />
-      <button className="who linkish" onClick={() => onOpen(a.astronaut_id)} title={`Open ${a.name}'s card`}>
-        <strong>{a.name}</strong><small>{a.role}</small>
+    <article className={`crew-card status-${a.status}`} style={{ '--i': i } as React.CSSProperties}>
+      <button className="crew-top linkish" onClick={() => onOpen(a.astronaut_id)} title={`Open ${a.name}'s card`}>
+        <span className="avatar" aria-hidden="true"><span>{initials(a.name)}</span></span>
+        <span className="who"><strong>{a.name}</strong><small>{a.role}</small></span>
+        <span className="dot" aria-label={`status ${a.status}`} />
       </button>
       <div className="lamps" aria-label="Indicators">
-        {a.indicators.map((i) => (
-          <span key={i.type} className={`lamp status-${i.status}`}
-            title={`${i.label}: ${i.value} ${i.unit}. ${i.message}`}>{LAMP_LABEL[i.type] ?? i.label}</span>
+        {a.indicators.map((x) => (
+          <span key={x.type} className={`lamp status-${x.status}`}
+            title={`${x.label}: ${x.value} ${x.unit}. ${x.message}`}>{LAMP_LABEL[x.type] ?? x.label}</span>
         ))}
       </div>
       <div className="crew-note">
         {top
-          ? <p className={`risk risk-${top.level}`}>{top.label} risk {top.multiple}× usual in the next 48 h</p>
-          : <p className="muted">{off.length ? off.map((i) => `${i.label}: ${i.message.toLowerCase()}`).join('; ') : 'As usual for this person'}</p>}
+          ? <p className={`risk risk-${top.level}`}><b className="num">{top.multiple}×</b> {top.label.toLowerCase()} risk, next 48 h</p>
+          : <p className="muted">{off.length ? off.map((x) => `${x.label}: ${x.message.toLowerCase()}`).join('; ') : 'As usual for this person'}</p>}
         {(a.symptoms.length > 0 || a.isolated || a.contact_of.length > 0) && (
           <p className="chips">
             {a.isolated && <span className="chip chip-strong">isolated</span>}
@@ -49,9 +53,43 @@ function CrewRow({ a, onOpen }: { a: AstronautState; onOpen: (aid: string) => vo
         )}
       </div>
       <span className={`fit ${a.fit_for_high_demand ? 'ok' : 'no'}`}>
-        {a.fit_for_high_demand ? 'Fit for EVA' : 'Not fit for EVA'}
+        {a.fit_for_high_demand ? '✓ Fit for EVA' : '✕ Not fit for EVA'}
       </span>
+    </article>
+  )
+}
+
+function Tile({ label, value, of, unit, note, tone, i }: {
+  label: string; value: number; of?: number; unit?: string; note: string; tone: string; i: number; }) {
+  const v = useCountUp(value)
+  const shown = Number.isInteger(value) ? Math.round(v) : v.toFixed(1)
+  return (
+    <div className={`tile status-${tone}`} style={{ '--i': i } as React.CSSProperties}>
+      <span className="tile-label">{label}</span>
+      <span className="tile-value num">{shown}{unit && <small>{unit}</small>}{of != null && <small>/{of}</small>}</span>
+      <span className="tile-note">{note}</span>
     </div>
+  )
+}
+
+function Overview({ crew, tasks }: { crew: AstronautState[]; tasks: MissionTask[] }) {
+  const ok = crew.filter((a) => a.status === 'green').length
+  const fit = crew.filter((a) => a.fit_for_high_demand).length
+  const risks = crew.flatMap((a) => a.risks.filter((r) => r.level !== 'normal').map((r) => ({ ...r, name: a.name })))
+  const top = risks.sort((x, y) => y.multiple - x.multiple)[0]
+  const moved = tasks.filter((t) => t.status !== 'planned').length
+  const worst = crew.some((a) => a.status === 'red') ? 'red' : crew.some((a) => a.status === 'yellow') ? 'yellow' : 'green'
+  return (
+    <section className="overview" aria-label="Mission overview">
+      <Tile i={0} label="Crew nominal" value={ok} of={crew.length} tone={worst}
+        note={ok === crew.length ? 'everyone as usual' : `${crew.length - ok} need a look`} />
+      <Tile i={1} label="Highest 48 h risk" value={top ? top.multiple : 1} unit="×" tone={top ? (top.level === 'high' ? 'red' : 'yellow') : 'green'}
+        note={top ? `${top.name}: ${top.label.toLowerCase()}, vs usual` : 'no raised risks'} />
+      <Tile i={2} label="Fit for EVA" value={fit} of={crew.length} tone={fit === crew.length ? 'green' : 'yellow'}
+        note={fit === crew.length ? 'all can go outside' : 'some stay inside'} />
+      <Tile i={3} label="Tasks today" value={tasks.length} tone={moved ? 'yellow' : 'green'}
+        note={moved ? `${moved} moved or postponed` : 'all as planned'} />
+    </section>
   )
 }
 
@@ -72,9 +110,10 @@ export function MissionView({ day, onOpen }: { day: number; onOpen: (aid: string
 
   return (
     <div className="mission">
+      <Overview crew={crew} tasks={tasks} />
       <AlertList alerts={alerts} />
-      <section className="panel roster" aria-label="Crew">
-        {crew.map((a) => <CrewRow key={a.astronaut_id} a={a} onOpen={onOpen} />)}
+      <section className="crew-grid" aria-label="Crew">
+        {crew.map((a, i) => <CrewCard key={a.astronaut_id} a={a} onOpen={onOpen} i={i} />)}
       </section>
       <section className="panel">
         <h2>Tasks on day {day}</h2>

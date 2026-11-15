@@ -54,7 +54,9 @@ export default function App() {
   useEffect(() => { refresh() }, [refresh])
 
   if (error) return <main className="center"><p className="err">{error}</p></main>
-  if (!meta || !status || !insights || !ctx) return <main className="center muted">Loading…</main>
+  if (!meta || !status || !insights || !ctx) {
+    return <main className="center"><div className="loader" role="status"><span /><p className="muted">Connecting to the crew…</p></div></main>
+  }
 
   const changeDay = async (day: number) => {
     if (!mission) return
@@ -78,12 +80,15 @@ export default function App() {
                 <stop offset="0" stopColor="#6cc9ff" /><stop offset="1" stopColor="#a78bfa" />
               </linearGradient>
             </defs>
-            <ellipse cx="20" cy="20" rx="17" ry="7" fill="none" stroke="url(#logo-g)" strokeWidth="1.6"
-              transform="rotate(-28 20 20)" opacity=".9" />
+            <g transform="rotate(-28 20 20)">
+              <ellipse cx="20" cy="20" rx="17" ry="7" fill="none" stroke="url(#logo-g)" strokeWidth="1.6" opacity=".9" />
+              <circle r="1.9" fill="#fff" className="logo-sat">
+                <animateMotion dur="6s" repeatCount="indefinite" path="M37 20 A17 7 0 1 1 3 20 A17 7 0 1 1 37 20" />
+              </circle>
+            </g>
             <circle cx="20" cy="20" r="8" fill="url(#logo-g)" />
             <path d="M15.5 20h2.5l1.5-3 2 6 1.5-3h2.5" fill="none" stroke="#071022" strokeWidth="1.6"
-              strokeLinecap="round" strokeLinejoin="round" />
-            <circle cx="35" cy="12" r="1.8" fill="#fff" />
+              strokeLinecap="round" strokeLinejoin="round" className="logo-beat" />
           </svg>
           <div>
             <h1>Crew Health Navigator</h1>
@@ -108,6 +113,7 @@ export default function App() {
         </div>
       </header>
 
+      <div className="view" key={tab}>
       {tab !== 'astronaut' && (
         missionError || !mission ? <p className="err">{missionError ?? 'Loading mission…'}</p> : (
           <>
@@ -173,6 +179,7 @@ export default function App() {
           </aside>
         </main>
       )}
+      </div>
       <footer className="muted">Demo thresholds and simulated crew data. Not medical advice.</footer>
     </div>
   )

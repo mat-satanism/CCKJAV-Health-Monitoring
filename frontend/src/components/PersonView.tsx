@@ -174,12 +174,16 @@ export function PersonView({ aid, day, meta, onDay, onChanged, onOpenFile }: Pro
   return (
     <main className="layout">
       <section className="panel map">
-        <div className="person-head">
-          <strong>{card.name}</strong> <small className="muted">{card.role}</small>
-          <button className="file-link" onClick={onOpenFile}>Open patient file</button>
-          <p className={`fit ${card.fit_for_high_demand ? 'ok' : 'no'}`}>
-            {card.fit_for_high_demand ? 'Fit for EVA' : 'Not fit for EVA'}
-          </p>
+        <div className={`person-head status-${card.status}`}>
+          <span className="avatar" aria-hidden="true"><span>{card.name.slice(0, 2).toUpperCase()}</span></span>
+          <div>
+            <strong>{card.name}</strong>
+            <small className="muted">{card.role}</small>
+            <p className={`fit ${card.fit_for_high_demand ? 'ok' : 'no'}`}>
+              {card.fit_for_high_demand ? '✓ Fit for EVA' : '✕ Not fit for EVA'}
+            </p>
+          </div>
+          <button className="file-link" onClick={onOpenFile}>Patient file →</button>
         </div>
         <BodyMap systems={card.systems} selected={selected} onSelect={setSelected} />
         {(card.symptoms.length > 0 || card.isolated || card.contact_of.length > 0) && (
@@ -189,7 +193,7 @@ export function PersonView({ aid, day, meta, onDay, onChanged, onOpenFile }: Pro
             {card.symptoms.map((s) => <span key={s} className="chip">{s}</span>)}
           </p>
         )}
-        <p className="small muted">Tap a body part, then a day on any chart.</p>
+        <p className="small muted hint">Tap a body part, then a day on any chart.</p>
       </section>
 
       <div className="detail">
