@@ -108,39 +108,39 @@
  "forecast": [
   {
    "label": "Lower mood tomorrow",
-   "model": 0.681,
+   "model": 0.703,
    "reference": 0.608,
-   "lo": 0.038,
-   "hi": 0.115,
+   "lo": 0.057,
+   "hi": 0.134,
    "people": 16,
-   "gain": 0.073
+   "gain": 0.095
   },
   {
    "label": "Less energy tomorrow",
-   "model": 0.644,
+   "model": 0.648,
    "reference": 0.59,
-   "lo": 0.008,
-   "hi": 0.118,
+   "lo": 0.009,
+   "hi": 0.121,
    "people": 16,
-   "gain": 0.054
+   "gain": 0.058
   },
   {
    "label": "Less ready to train",
-   "model": 0.645,
+   "model": 0.648,
    "reference": 0.627,
-   "lo": -0.019,
+   "lo": -0.01,
    "hi": 0.051,
    "people": 16,
-   "gain": 0.017
+   "gain": 0.021
   },
   {
    "label": "Sad, tense or tired (LifeSnaps)",
-   "model": 0.531,
+   "model": 0.545,
    "reference": 0.53,
-   "lo": -0.039,
-   "hi": 0.04,
+   "lo": -0.027,
+   "hi": 0.054,
    "people": 58,
-   "gain": 0.001
+   "gain": 0.015
   }
  ]
 }

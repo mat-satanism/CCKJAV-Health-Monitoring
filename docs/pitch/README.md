@@ -20,8 +20,8 @@ Trained and scored on real people only, each person scored by a model that never
 
 | Tomorrow | "Same as today" | Our forest | Gain, 95% interval |
 |---|---|---|---|
-| Lower mood | 0.61 | **0.68** | +0.04 .. +0.12 |
-| Less energy | 0.59 | **0.64** | +0.01 .. +0.12 |
+| Lower mood | 0.61 | **0.70** | +0.06 .. +0.13 |
+| Less energy | 0.59 | **0.65** | +0.01 .. +0.12 |
 | Readiness, LifeSnaps feelings | | no better | we show this too |
 
 AUC within a person (is tomorrow a bad day *for me?*), 0.5 = guessing. Even after paying for every variant we
@@ -29,9 +29,8 @@ tried (nested check) the gain holds: mood 0.67, energy 0.64. In the app: "Tomorr
 demo, for a person the model never saw, with the reasons (`docs/wellbeing-model.md`).
 
 **3. Early warning before symptoms** (`3-early-warning-before-fever.png`, simulated mission).
-The risk model flags John's infection on day 16, at 20× the usual risk, 2 days before the fever, while his pulse
-and temperature are still inside the safe limits. It also gives false alarms (Maria day 16, Kenji day 17, Stefan
-days 26-27), which is why a prediction only asks the CMO to confirm and never moves a task by itself
+The risk model flags John's infection on day 16, at 22× the usual risk, 2 days before the fever, while his pulse
+and temperature are still inside the safe limits. It also gives false alarms (Maria day 16, Stefan days 26-27), which is why a prediction only asks the CMO to confirm and never moves a task by itself
 (`docs/simulation.md`).
 
 ## All charts (pick for the slides)
@@ -73,7 +72,7 @@ real astronauts; chart 7 is one person and should not be shown as proof.
 
 - *Why not astronaut data?* It is not public (NASA LSDA, access by request). The pipeline retrains on it without
   changing the app.
-- *Is 0.68 good?* It is modest, and it is honest: measured on people the model never saw, against the strongest
+- *Is 0.70 good?* It is modest, and it is honest: measured on people the model never saw, against the strongest
   simple rule. Models that report 0.9 on 16 people usually leak.
 - *Why random forest?* Same accuracy as boosting on simulation, more stable on real people, exact SHAP
   explanations (`docs/model-comparison.md`).
