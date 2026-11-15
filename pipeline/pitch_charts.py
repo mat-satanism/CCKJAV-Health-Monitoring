@@ -27,6 +27,7 @@ MUTED = "#8a8984"
 GRID = "#e4e3df"
 BLUE = "#2a78d6"
 YELLOW = "#eda100"
+ORANGE = "#eb6834"
 
 plt.rcParams.update({
     "font.family": ["Helvetica Neue", "Helvetica", "Arial", "DejaVu Sans"],
@@ -381,11 +382,46 @@ def chart_demo_person() -> dict:
     return {"high_days": hi_n, "high_then_bad": hi_bad, "other_days": lo_n, "other_then_bad": lo_bad}
 
 
+# --- 8. Early warning without crying wolf (simulated missions) ---------------------------------------------
+
+def chart_alerts() -> dict:
+    from . import early_warning as ew
+
+    t, calibrated = ew.run()
+    fig, ax = plt.subplots(figsize=(12, 6.2))
+    fig.subplots_adjust(left=0.3, right=0.95, top=0.72, bottom=0.17)
+    ys = np.arange(len(t))[::-1]
+    h = 0.34
+    for y, (_, r) in zip(ys, t.iterrows()):
+        for off, col, color in ((h / 2, "flagged_before_events", BLUE), (-h / 2, "flagged_in_a_calm_week", ORANGE)):
+            v = r[col] * 100
+            ax.barh(y + off, v, height=h - 0.04, color=color)
+            ax.text(v + 1, y + off, f"{v:.0f}%", va="center", fontsize=12, color=INK)
+    ax.set_yticks(ys, ["Status rules\n(any yellow or red)", "Model\nrisk 3x usual", "Model\nrisk 5x usual"],
+                  fontsize=12, color=INK)
+    ax.tick_params(axis="y", length=0)
+    ax.set_xlim(0, 112)
+    ax.set_xlabel("Share of events / of astronauts with at least one flag in the 6 days")
+    ax.grid(axis="y", visible=False)
+    ax.legend(handles=[plt.Rectangle((0, 0), 1, 1, color=BLUE), plt.Rectangle((0, 0), 1, 1, color=ORANGE)],
+              labels=["in the 6 days before a problem", "in a calm week (nothing happens)"],
+              loc="lower left", bbox_to_anchor=(0, 1.0), ncol=2, frameon=False, fontsize=11)
+    rules, m5 = t.iloc[0], t.iloc[-1]
+    _titles(fig, "The model warns as early as the rules, with far fewer false alarms",
+            f"In a calm week the rules flag {rules['flagged_in_a_calm_week']:.0%} of astronauts; the model at 5x usual "
+            f"flags {m5['flagged_in_a_calm_week']:.0%}, and still {m5['flagged_before_events']:.0%} of problems ahead.",
+            f"SIMULATED: 100 new missions, {int(rules['events'])} events. Risk model "
+            f"{'recalibrated' if calibrated else 'raw forest'}. python -m pipeline.early_warning")
+    fig.savefig(OUT / "8-early-warning-without-crying-wolf.png", dpi=160)
+    plt.close(fig)
+    return {"calibrated": calibrated, "rows": t.to_dict(orient="records")}
+
+
 def main() -> None:
     OUT.mkdir(parents=True, exist_ok=True)
     facts = {"own_norm": chart_own_norm(), "early_warning": chart_early_warning(), "blood": chart_blood(),
              "before_bad_mood": chart_before_bad_mood(), "crew": chart_crew_heatmap(),
-             "demo_person": chart_demo_person()}
+             "demo_person": chart_demo_person(), "alerts": chart_alerts()}
     gains = forecast_gains()
     chart_forecast(gains)
     facts["forecast"] = gains.round(3).to_dict(orient="records")

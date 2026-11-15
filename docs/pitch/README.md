@@ -44,6 +44,7 @@ and temperature are still inside the safe limits. It also gives false alarms (Ma
 | `5-what-comes-before-a-worse-mood.png` | after a stressed day a worse mood follows 21% vs 15% on any day | real | what the forecast reads, explanations |
 | `6-crew-at-a-glance.png` | one person drifting vs the whole crew at once (CO2) | simulated | the crew-wide signal, doctors' view |
 | `7-forecast-for-an-unseen-person.png` | a person the model never saw: worse mood after 3 of 7 high-risk days vs 4 of 21 others | real, one person | the app card, as an illustration |
+| `8-early-warning-without-crying-wolf.png` | the model warns as early as the rules, with far fewer false alarms (calm week: 73% rules vs 17% model at 5×) | simulated | why a model at all, the doctors' view |
 
 Strongest trio for a short pitch: **2 → 1 → 3** (problem, real result, demo story). Chart 4 is the only one with
 real astronauts; chart 7 is one person and should not be shown as proof.
