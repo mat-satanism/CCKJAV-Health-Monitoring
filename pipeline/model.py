@@ -17,6 +17,7 @@ import shap
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import average_precision_score, roc_auc_score
 
+from . import bayes_features as B
 from . import features as F
 from . import simulation as sim
 from .common import PROCESSED, ROOT
@@ -30,6 +31,7 @@ C = 0.5                     # regularisation of the logistic regression (compare
 MIN_SIGN = 0.01             # a sign is shown only if SHAP says it adds at least 1 percentage point of risk
 KEY = ["mission_id", "astronaut_id"]
 CREW_SIGNALS = ["sleep_hours", "mood", "heart_rate"]
+NORM = "bayes"   # inputs measured against the app's Bayesian personal norm; "median" = the old 14-day median
 
 LABELS = {
     "heart_rate": ("Resting pulse", "bpm"), "bp_sys": ("Systolic pressure", "mmHg"),
@@ -71,13 +73,39 @@ def sim_features(days: pd.DataFrame, floors: dict | None = None) -> tuple[pd.Dat
     by_day = d.groupby(["mission_id", "mission_day"])
     for ind in CREW_SIGNALS:
         d[f"crew_{ind}_dev"] = by_day[f"{ind}_dev"].transform("mean")
+    add_bayes_sim(d, groups)
     d["has_norm"] = d["heart_rate_dev"].notna().astype(float)
     return d, floors
 
 
-def feature_columns() -> list[str]:
-    cols = [f"{ind}_{kind}" for ind in sim.INDICATORS for kind in ("z", "dev3")]
-    return cols + [f"crew_{ind}_dev" for ind in CREW_SIGNALS] + ["has_norm"]
+def add_bayes_sim(d: pd.DataFrame, groups: list[pd.Series]) -> None:
+    """Distance from the app's Bayesian norm (backend/app/status.py): <ind>_bdev in units, <ind>_bz in the
+    person's predictive scale, 3-day means, and the crew mean. Only days before today enter the norm."""
+    for ind in sim.INDICATORS:
+        prior = B.APP_PRIORS[ind]
+        bdev, bz = np.full(len(d), np.nan), np.full(len(d), np.nan)
+        for idx in d.groupby(groups, sort=False).indices.values():
+            past: list[float] = []
+            for i in idx:
+                x = float(d.at[i, ind])
+                norm = B.bayes_norm(past[-B.status.NORM_DAYS:], prior)
+                if norm is not None:
+                    bdev[i], bz[i] = x - norm[0], (x - norm[0]) / norm[1]
+                past.append(x)
+        d[f"{ind}_bdev"], d[f"{ind}_bz"] = bdev, bz
+        d[f"{ind}_bdev3"] = _rolling(d[f"{ind}_bdev"], groups, F.RECENT_DAYS, 2, "mean")
+        d[f"{ind}_bz3"] = _rolling(d[f"{ind}_bz"], groups, F.RECENT_DAYS, 2, "mean")
+    by_day = d.groupby(["mission_id", "mission_day"])
+    for ind in CREW_SIGNALS:
+        d[f"crew_{ind}_bdev"] = by_day[f"{ind}_bdev"].transform("mean")
+
+
+def feature_columns(norm: str | None = None) -> list[str]:
+    if (norm or NORM) == "median":
+        cols = [f"{ind}_{kind}" for ind in sim.INDICATORS for kind in ("z", "dev3")]
+        return cols + [f"crew_{ind}_dev" for ind in CREW_SIGNALS] + ["has_norm"]
+    cols = [f"{ind}_{kind}" for ind in sim.INDICATORS for kind in ("bz", "bz3")]
+    return cols + [f"crew_{ind}_bdev" for ind in CREW_SIGNALS] + ["has_norm"]
 
 
 def matrix(d: pd.DataFrame) -> np.ndarray:
@@ -93,7 +121,7 @@ def train(train_days: pd.DataFrame) -> tuple[dict, dict[str, RandomForestClassif
         y = d[f"label_{event}_48h"].to_numpy()
         forests[event] = RandomForestClassifier(**FOREST, n_jobs=-1).fit(X, y)
         events[event] = {"base_rate": round(float(y.mean()), 4)}   # share of days with this label: "usual" risk
-    settings = {"model": "random_forest", "params": FOREST, "explanations": "SHAP (TreeExplainer)",
+    settings = {"model": "random_forest", "params": FOREST, "explanations": "SHAP (TreeExplainer)", "norm": NORM,
                 "features": feature_columns(), "floors": floors, "events": events,
                 "trained_on": f"{TRAIN_MISSIONS} simulated missions, seed {TRAIN_SEED}",
                 "note": "Synthetic training data calibrated on PMData and NHANES. Not a medical device."}
@@ -113,14 +141,15 @@ def risk(forests: dict, d: pd.DataFrame, explain_signs: bool = True) -> tuple[pd
 
 def describe(feature: str, row: pd.Series) -> str:
     if feature.startswith("crew_"):
-        ind = feature[len("crew_"):-len("_dev")]
+        ind = feature[len("crew_"):].rsplit("_", 1)[0]
         label, unit = LABELS[ind]
         return f"Whole crew: {label.lower()} {row[feature]:+.1f} {unit} vs usual"
     ind, kind = feature.rsplit("_", 1)
     label, unit = LABELS[ind]
-    if kind == "dev3":
-        return f"{label} {row[f'{ind}_dev3']:+.1f} {unit} vs usual, last 3 days"
-    return f"{label} {row[f'{ind}_dev']:+.1f} {unit} vs usual today"
+    dev = "bdev" if kind.startswith("bz") else "dev"     # shown in units, whichever norm the model reads
+    if kind in ("dev3", "bz3"):
+        return f"{label} {row[f'{ind}_{dev}3']:+.1f} {unit} vs usual, last 3 days"
+    return f"{label} {row[f'{ind}_{dev}']:+.1f} {unit} vs usual today"
 
 
 def explain(model: dict, d: pd.DataFrame, contrib: dict[str, np.ndarray], top: int = 3) -> pd.DataFrame:
@@ -154,11 +183,18 @@ def evaluate(settings: dict, forests: dict, test_days: pd.DataFrame) -> pd.DataF
     return pd.DataFrame(rows)
 
 
-def real_check(forests: dict) -> pd.DataFrame:
-    """Score the sim-trained mood-related models on real PMData people against 'tomorrow's mood is worse than usual'."""
+def real_people() -> pd.DataFrame:
+    """PMData days with the risk model's inputs (both norms) and the target 'tomorrow's mood worse than usual'."""
     f = pd.read_csv(PROCESSED / "features_pmdata.csv")
+    f = B.add_bayes(f, ["heart_rate", "sleep_hours", "mood", "exercise_min"])   # the app's priors for these
     f = f[f["target_worse_mood"].notna()].copy()
     f["has_norm"] = f["heart_rate_base"].notna().astype(float)
+    return f
+
+
+def real_check(forests: dict) -> pd.DataFrame:
+    """Score the sim-trained mood-related models on real PMData people against 'tomorrow's mood is worse than usual'."""
+    f = real_people()
     probs, _ = risk(forests, f, explain_signs=False)   # missing indicators (pressure, glucose, temperature, crew) count as 0
     y = f["target_worse_mood"].to_numpy()
     rows = [{"score": f"risk_{e}", "auc": round(roc_auc_score(y, probs[f"risk_{e}"]), 3)}

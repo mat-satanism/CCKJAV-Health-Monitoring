@@ -27,6 +27,7 @@ from sklearn.metrics import average_precision_score, roc_auc_score
 from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import StandardScaler
 
+from . import bayes_features
 from .common import PROCESSED
 from .features import BASELINE_DAYS, MIN_BASELINE_OBS
 
@@ -55,6 +56,7 @@ PM_SIGNALS = ["heart_rate", "sleep_hours_device", "exercise_min", "steps", "slee
 DEVICE = ("heart_rate", "sleep_hours_device", "exercise_min", "steps", "stress_score", "temp_skin")  # wearable, not self-report
 LS_SIGNALS = ["heart_rate", "sleep_hours_device", "exercise_min", "steps", "stress_score", "temp_skin"]
 CHECK_IN = ["mood", "fatigue", "stress", "readiness", "sleep_quality", "soreness", "sleep_hours"]
+NORM = "bayes"   # inputs against the app's Bayesian personal norm (docs/personal-norm.md); "median" = old rule
 HISTORY = ("_lag1", "_d1", "_min3")   # yesterday's answer, change since yesterday, worst of the last 3 days
 
 
@@ -85,9 +87,11 @@ def add_history(f: pd.DataFrame) -> pd.DataFrame:
     return f
 
 
-def feature_columns(dataset: str, f: pd.DataFrame) -> list[str]:
+def feature_columns(dataset: str, f: pd.DataFrame, norm: str | None = None) -> list[str]:
+    """Inputs: each signal against the person's norm (Bayesian like the app by default, or the old 14-day median)."""
     signals = PM_SIGNALS if dataset == "pmdata" else LS_SIGNALS
-    cols = [c for s in signals for c in (f"{s}_z", f"{s}_dev3")]
+    kinds = ("_z", "_dev3") if (norm or NORM) == "median" else ("_bz", "_bz3")
+    cols = [f"{s}{k}" for s in signals for k in kinds]
     if dataset == "pmdata":
         cols += ["sleep_quality", "soreness", "readiness", "ref_mood", "ref_fatigue", "ref_readiness"]
     else:
@@ -100,6 +104,7 @@ def load(dataset: str) -> pd.DataFrame:
     f = pd.read_csv(PROCESSED / f"features_{dataset}.csv")
     if dataset == "pmdata":
         f = add_history(add_pmdata_targets(f))
+    f = bayes_features.add_bayes(f, PM_SIGNALS if dataset == "pmdata" else LS_SIGNALS)
     f["weekend"] = (f["dow"] >= 5).astype(float)
     return f
 
@@ -275,6 +280,10 @@ def describe(col: str, value: float) -> str:
     if col.startswith("ref_"):
         name = LABELS[col[4:]]
         return f"{name} {abs(value):.1f} {'below' if value > 0 else 'above'} usual today"
+    if col.endswith(("_bz", "_bz3")):
+        name = LABELS[col.rsplit("_", 1)[0]]
+        when = "today" if col.endswith("_bz") else "on average over the last 3 days"
+        return f"{name} {abs(value):.1f} spreads {'below' if value < 0 else 'above'} usual {when}"
     for suffix, text in (("_z", "today"), ("_dev3", "over the last 3 days")):
         if col.endswith(suffix):
             name = LABELS[col[: -len(suffix)]]
