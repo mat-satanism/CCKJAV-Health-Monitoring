@@ -44,9 +44,9 @@ and temperature are still inside the safe limits. It also gives false alarms (Ma
 | `5-what-comes-before-a-worse-mood.png` | for the same person a short night, stress or a tired day add only 3-4 points to a worse mood tomorrow; a raised pulse adds none | real | why the forecast combines signs |
 | `6-crew-at-a-glance.png` | one person drifting vs the whole crew at once (CO2) | simulated | the crew-wide signal, doctors' view |
 | `7-forecast-for-an-unseen-person.png` | a person the model never saw: worse mood after 3 of 7 high-risk days vs 4 of 21 others | real, one person | the app card, as an illustration |
-
 | `8-inspiration4-six-blood-values.png` | six blood values of the four Inspiration4 astronauts over 7 time points: 8 of 165 results outside the lab range | real astronauts | backup slide, questions about real data |
 | `9-data-completeness.png` | which days have data; 2 of 16 PMData people have a fully complete 30-day stretch | real | for the team, not the pitch (table: `docs/data-completeness.md`) |
+| `10-early-warning-without-crying-wolf.png` | the model warns as early as the rules, with far fewer false alarms (calm week: 73% rules vs 17% model at 5×) | simulated | why a model at all, the doctors' view |
 
 **Changed 2026-11-15.** Chart 5 used to pool all days of all people ("after a stressed day 21% vs 13%"). That mixes in
 who is moody in general; comparing each person with themselves the effect is +3-4 points and not in everyone, and a

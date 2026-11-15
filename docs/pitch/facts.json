@@ -169,6 +169,35 @@
    }
   ]
  },
+ "alerts": {
+  "calibrated": false,
+  "rows": [
+   {
+    "method": "Status rules (any yellow or red)",
+    "flagged_before_events": 0.961,
+    "median_days_ahead": 4.0,
+    "flagged_in_a_calm_week": 0.732,
+    "flags_per_calm_astronaut_week": 1.44,
+    "events": 717
+   },
+   {
+    "method": "Model, risk 3x usual or more",
+    "flagged_before_events": 0.986,
+    "median_days_ahead": 4.0,
+    "flagged_in_a_calm_week": 0.414,
+    "flags_per_calm_astronaut_week": 0.99,
+    "events": 717
+   },
+   {
+    "method": "Model, risk 5x usual or more",
+    "flagged_before_events": 0.883,
+    "median_days_ahead": 3.0,
+    "flagged_in_a_calm_week": 0.172,
+    "flags_per_calm_astronaut_week": 0.32,
+    "events": 717
+   }
+  ]
+ },
  "forecast": [
   {
    "label": "Lower mood tomorrow",
