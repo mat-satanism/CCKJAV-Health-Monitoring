@@ -229,10 +229,17 @@ footer { margin-top: 32px; font-size: .78rem; color: var(--muted); font-family: 
 .task-table tbody tr:hover, .doc-table tbody tr:hover { background: rgba(255,255,255,.025); }
 .task-table td, .doc-table td { padding: .55rem .6rem; border-top: 1px solid var(--border); vertical-align: top; }
 .table-wrap { overflow-x: auto; }
-.pill { font-size: .74rem; padding: .12rem .65rem; font-family: var(--font-mono); border-radius: 999px; border: 1px solid var(--border); white-space: nowrap; color: var(--muted); }
+.pill { display: inline-block; line-height: 1.5; font-size: .74rem; padding: .05rem .65rem; font-family: var(--font-mono); border-radius: 999px; border: 1px solid var(--border); white-space: nowrap; color: var(--muted); }
 .task-reassigned .pill { border-color: var(--accent); color: var(--accent); background: color-mix(in srgb, var(--accent) 10%, transparent); }
 .task-postponed .pill, .task-needs-decision .pill { border-color: var(--red); color: var(--red); background: color-mix(in srgb, var(--red) 10%, transparent); }
 .task-table td.why { color: var(--muted); }
+/* tasks: fixed columns so statuses line up; every cell centred on the row */
+.task-table { table-layout: fixed; }
+.task-table td { vertical-align: middle; }
+.task-table th:nth-child(1) { width: 30%; }
+.task-table th:nth-child(2) { width: 24%; }
+.task-table th:nth-child(3) { width: 150px; }
+@media (max-width: 720px) { .task-table { table-layout: auto; } }
 .task-reassigned td.why, .task-postponed td.why { color: var(--text); }
 .doc-table tr.lvl-high td:first-child, .doc-table tr.status-red td:first-child { box-shadow: inset 3px 0 var(--red); }
 .doc-table tr.lvl-watch td:first-child, .doc-table tr.status-yellow td:first-child { box-shadow: inset 3px 0 var(--yellow); }
