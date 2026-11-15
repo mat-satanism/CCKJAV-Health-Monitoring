@@ -110,8 +110,8 @@ exercise against the Bayesian norm, trained on all real PMData people. Run: `pyt
 
 | Within-person AUC, worse mood tomorrow | Crew-input model | Same as today |
 |---|---|---|
-| Real people (scored out of person) | **0.679** (+0.035..+0.111) | 0.608 |
-| Simulated crew (30 missions) | 0.656 | **0.693** |
+| Real people (scored out of person) | **0.675** (+0.032..+0.106) | 0.608 |
+| Simulated crew (30 missions) | 0.651 | **0.693** |
 
 On real people the reduced model still beats "same as today". On the simulated crew it does not: the simulator's
 mood only copies each person's level, spread and day-to-day persistence (`docs/simulation.md`), so "same as today"
@@ -121,7 +121,7 @@ does not carry over to real people (`docs/personal-norm.md`).
 
 Second try: a per-indicator "tomorrow likely between X and Y" for the crew, from the chart forecast
 (`docs/forecast.md`). Its point forecast beats "same as today" on the crew for pulse, sleep, exercise and HRV
-(7% overall) but not for mood, and its 80% band holds only 49-77% of the crew's values, because events from day 16
+(7% overall) but not for mood, and its 80% band holds only 53-78% of the crew's values, because events from day 16
 move values more than real days do. Not honest enough to show (`python -m pipeline.forecast_eval sim`).
 
 **What would make it work:** build the crew's ordinary days from real days of real people (replay a PMData
