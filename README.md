@@ -24,7 +24,7 @@ Working now:
 - **Week trends and support**: each card shows what has been going one way for a week (e.g. Maria's sleep going down before her sleep problem), a kind message (take it easier / you're doing well) and demo food tips.
 - **Patient file**: a fictional biography turned into an exposure history (e.g. years as a jet pilot, outdoor work, previous long flights) and from it sourced risks and checks, as NASA's lifetime surveillance of astronaut health does.
 - **Crew-wide signal and daily brief**: when 3+ crew members move the worrying way on the same day, the app points to a shared cause (air, noise, schedule) instead of treating people one by one; the CMO gets one short brief written by fixed rules from the data.
-- **Tomorrow's outlook (real-data demo)**: the chance that tomorrow's mood or energy is below the person's usual, with the reasons (SHAP) and a 30-day strip of forecast vs what really happened. Learned from other real people only (PMData), and shown only because it beats "same as today" on people it never saw (mood 0.68 vs 0.61). See `docs/wellbeing-model.md`.
+- **Tomorrow's outlook (real-data demo)**: the chance that tomorrow's mood or energy is below the person's usual, with the reasons (SHAP) and a 30-day strip of forecast vs what really happened. Learned from other real people only (PMData), and shown only because it beats "same as today" on people it never saw (mood 0.70 vs 0.61). Both models read the same Bayesian personal norm as the statuses. See `docs/wellbeing-model.md`.
 - **Risk model**: one random forest per event, trained on simulated missions, with SHAP explanations (which signs pushed the risk up). Chosen over logistic regression and LightGBM, see `docs/model-comparison.md`.
 
 Planned:

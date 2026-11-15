@@ -53,9 +53,7 @@ def main() -> None:
     te, _ = M.sim_features(test_days, floors)
     Xtr, Xte = M.matrix(tr), M.matrix(te)
 
-    real = pd.read_csv(PROCESSED / "features_pmdata.csv")
-    real = real[real["target_worse_mood"].notna()].copy()
-    real["has_norm"] = real["heart_rate_base"].notna().astype(float)
+    real = M.real_people()
     Xreal, yreal = M.matrix(real), real["target_worse_mood"].to_numpy()
 
     rows = []
