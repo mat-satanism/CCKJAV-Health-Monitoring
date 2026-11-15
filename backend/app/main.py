@@ -389,7 +389,7 @@ def demo_reset():
     return {"ok": True, "measurements": len(MEASUREMENTS)}
 
 
-# One-address deploy (the Hugging Face Space, see Dockerfile): the built frontend is served from the same place as
+# One-address deploy (Render, see Dockerfile and render.yaml): the built frontend is served from the same place as
 # the API, so the site needs no second server. Mounted last, so every API route above still wins.
 STATIC_DIR = os.environ.get("CHN_STATIC_DIR")
 if STATIC_DIR and Path(STATIC_DIR).is_dir():

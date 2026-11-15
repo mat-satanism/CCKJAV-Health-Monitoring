@@ -88,14 +88,15 @@ npm run dev
 Open http://localhost:5173. The backend starts with a synthetic demo mission; "Reset demo" in the UI restores it.
 
 ## Public site
-The whole app runs in one container (`Dockerfile`): the API also serves the built website, on port 7860.
+The whole app runs in one container (`Dockerfile`): the API also serves the built website, on one address.
 Try it locally: `docker build -t chn . && docker run -p 7860:7860 chn`, then open http://localhost:7860.
 
-It is published as a Hugging Face Space. After every merge to `main`, `.github/workflows/deploy-space.yml` uploads
-what the app needs (`deploy/push_space.py`; `python deploy/push_space.py --dry-run` lists it) and the Space
-rebuilds. `.github/workflows/keep-awake.yml` opens the site every 6 hours, because a free Space sleeps after 48 hours
-without visitors. Set once in the GitHub repo (Settings → Secrets and variables → Actions): the secret `HF_TOKEN`
-(a Hugging Face token with write access) and the variable `HF_SPACE` (`<hf-user>/<space-name>`).
+It is published on Render (free plan), described in `render.yaml`: on render.com choose New → Blueprint and pick
+this repository; it then redeploys by itself after every merge to `main`. A free service sleeps after 15 minutes
+without visitors, so `.github/workflows/keep-awake.yml` opens it every 10 minutes; set the repo variable `SITE_URL`
+(Settings → Secrets and variables → Actions → Variables) to the site's address, e.g.
+`https://crew-health-navigator.onrender.com`. Before a presentation, open the site once by hand: GitHub can start
+scheduled jobs a few minutes late, and waking a sleeping service takes up to a minute.
 
 The demo is shared: a check-in or "Reset demo" by one visitor is seen by everyone.
 
