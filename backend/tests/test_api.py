@@ -26,10 +26,10 @@ def test_status_has_all_systems():
 
 
 def test_one_red_reading_asks_to_remeasure_a_second_calls_the_ground():
-    client.post("/measurements", json=[{"ts": _now(), "type": "temp", "value": 39.5, "unit": "°C"}])
+    client.post("/measurements", json=[{"ts": _now(), "type": "temp", "value": 39.5, "unit": "°C", "reason": "wearable off"}])
     ins = client.get("/insights").json()
     assert ins["level"] == "crew" and any(i["recheck"] and i["type"] == "temp" for i in ins["items"])
-    client.post("/measurements", json=[{"ts": _now(), "type": "temp", "value": 39.4, "unit": "°C"}])
+    client.post("/measurements", json=[{"ts": _now(), "type": "temp", "value": 39.4, "unit": "°C", "reason": "wearable off"}])
     assert client.get("/insights").json()["level"] == "ground"
 
 
@@ -59,14 +59,28 @@ def test_bad_inputs_are_rejected_with_a_reason():
 
 def test_time_without_zone_is_utc_and_status_still_works():
     naive = datetime.now(UTC).replace(tzinfo=None).isoformat()
-    assert client.post("/measurements", json=[{"ts": naive, "type": "heart_rate", "value": 52, "unit": "bpm"}]).status_code == 200
+    assert client.post("/measurements", json=[{"ts": naive, "type": "heart_rate", "value": 52, "unit": "bpm", "reason": "wearable off"}]).status_code == 200
     assert client.get("/status").status_code == 200
     assert client.get("/measurements", params={"type": "heart_rate", "start": "2000-01-01T00:00:00"}).status_code == 200
 
 
 def test_values_typed_in_the_app_are_stored_as_self_reports():
-    r = client.post("/measurements", json=[{"ts": _now(), "type": "heart_rate", "value": 52, "unit": "bpm", "source": "sensor"}])
+    r = client.post("/measurements", json=[{"ts": _now(), "type": "heart_rate", "value": 52, "unit": "bpm",
+                                            "source": "sensor", "reason": "wearable off"}])
     assert r.json()[0]["source"] == "manual"
+
+
+def test_device_values_are_not_typed_without_a_reason():
+    r = client.post("/measurements", json=[{"ts": _now(), "type": "heart_rate", "value": 52, "unit": "bpm"}])
+    assert r.status_code == 422 and "wearable" in r.json()["detail"]
+    ok = client.post("/measurements", json=[{"ts": _now(), "type": "mood", "value": 4, "unit": "1-5"}])
+    assert ok.status_code == 200   # how the person feels needs no reason: only they can say it
+
+
+def test_every_indicator_says_who_collects_it():
+    meta = client.get("/meta").json()["indicators"]
+    assert {m["collected_by"] for m in meta.values()} <= {"device", "test", "medic", "self"}
+    assert meta["mood"]["collected_by"] == "self" and meta["heart_rate"]["collected_by"] == "device"
 
 
 def test_unknown_indicator_rejected():
@@ -77,7 +91,7 @@ def test_unknown_indicator_rejected():
 
 def _post(type_, value, unit):
     return client.post("/measurements", json=[
-        {"ts": _now(), "type": type_, "value": value, "unit": unit}])
+        {"ts": _now(), "type": type_, "value": value, "unit": unit, "reason": "wearable off"}])
 
 
 def test_skipped_workout_is_not_a_ground_emergency():
@@ -173,7 +187,7 @@ def test_every_indicator_and_system_has_sourced_content():
 def test_a_check_in_from_today_is_the_newest_value():
     from datetime import UTC, datetime
     now = datetime.now(UTC).replace(hour=0, minute=5).isoformat()   # early morning: before the demo's 08:00
-    client.post("/measurements", json=[{"ts": now, "type": "heart_rate", "value": 55, "unit": "bpm"}])
+    client.post("/measurements", json=[{"ts": now, "type": "heart_rate", "value": 55, "unit": "bpm", "reason": "wearable off"}])
     assert _status("heart_rate")["latest"] == 55
 
 

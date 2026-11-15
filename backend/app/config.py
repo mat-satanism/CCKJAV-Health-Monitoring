@@ -4,17 +4,22 @@ from pathlib import Path
 
 DATA_DIR = Path(__file__).resolve().parents[2] / "data"
 
+# collected_by: who provides the value, as on the space station (docs/data-entry.md):
+#   device = the wearable sends it by itself (CSA Bio-Monitor measures pulse, ECG, blood pressure, breathing,
+#            skin temperature, activity); test = the app's 3-minute reaction test records it;
+#   medic  = the crew medical officer measures it at a check-up or when someone is unwell;
+#   self   = only the astronaut can say it (how they feel).
 INDICATORS: dict[str, dict] = {
-    "heart_rate":   {"label": "Heart rate",     "unit": "bpm",   "system": "cardiovascular"},
-    "bp_sys":       {"label": "Systolic BP",    "unit": "mmHg",  "system": "cardiovascular"},
-    "bp_dia":       {"label": "Diastolic BP",   "unit": "mmHg",  "system": "cardiovascular"},
-    "glucose":      {"label": "Blood glucose",  "unit": "mg/dL", "system": "metabolic"},
-    "temp":         {"label": "Body temp",      "unit": "°C",    "system": "immune"},
-    "sleep_hours":  {"label": "Sleep",          "unit": "h",     "system": "sleep"},
-    "mood":         {"label": "Mood",           "unit": "1-5",   "system": "behavioral"},
-    "exercise_min": {"label": "Exercise",       "unit": "min",   "system": "musculoskeletal"},
-    "hrv_ms":       {"label": "Heart rate variability", "unit": "ms", "system": "cardiovascular"},
-    "reaction_ms":  {"label": "Reaction time",  "unit": "ms",    "system": "behavioral"},
+    "heart_rate":   {"label": "Heart rate",     "unit": "bpm",   "system": "cardiovascular", "collected_by": "device"},
+    "bp_sys":       {"label": "Systolic BP",    "unit": "mmHg",  "system": "cardiovascular", "collected_by": "device"},
+    "bp_dia":       {"label": "Diastolic BP",   "unit": "mmHg",  "system": "cardiovascular", "collected_by": "device"},
+    "glucose":      {"label": "Blood glucose",  "unit": "mg/dL", "system": "metabolic", "collected_by": "medic"},
+    "temp":         {"label": "Body temp",      "unit": "°C",    "system": "immune", "collected_by": "medic"},
+    "sleep_hours":  {"label": "Sleep",          "unit": "h",     "system": "sleep", "collected_by": "device"},
+    "mood":         {"label": "Mood",           "unit": "1-5",   "system": "behavioral", "collected_by": "self"},
+    "exercise_min": {"label": "Exercise",       "unit": "min",   "system": "musculoskeletal", "collected_by": "device"},
+    "hrv_ms":       {"label": "Heart rate variability", "unit": "ms", "system": "cardiovascular", "collected_by": "device"},
+    "reaction_ms":  {"label": "Reaction time",  "unit": "ms",    "system": "behavioral", "collected_by": "test"},
 }
 
 # How long a value stays "fresh", in days. Daily signals are measured every day; blood pressure, glucose and
@@ -75,3 +80,6 @@ def _load_content(name: str) -> dict[str, dict]:
 
 # Plain-language explanations and advice with sources (data/content/*.json).
 CONTENT: dict[str, dict] = {name: _load_content(name) for name in ("indicators", "systems", "sources", "measurement_plan", "exposures")}
+
+COLLECTED_BY_TEXT = {"device": "the wearable sends it automatically", "test": "the 3-minute test records it",
+                     "medic": "the crew medical officer measures it", "self": "the astronaut reports it"}
