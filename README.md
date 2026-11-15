@@ -88,5 +88,17 @@ Open http://localhost:5173. The backend starts with a synthetic demo mission; "R
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for workflow.
 
+## Public site
+The whole app runs in one container (`Dockerfile`): the API also serves the built website, on port 7860.
+Try it locally: `docker build -t chn . && docker run -p 7860:7860 chn`, then open http://localhost:7860.
+
+It is published as a Hugging Face Space. After every merge to `main`, `.github/workflows/deploy-space.yml` uploads
+what the app needs (`deploy/push_space.py`; `python deploy/push_space.py --dry-run` lists it) and the Space
+rebuilds. `.github/workflows/keep-awake.yml` opens the site every 6 hours, because a free Space sleeps after 48 hours
+without visitors. Set once in the GitHub repo (Settings → Secrets and variables → Actions): the secret `HF_TOKEN`
+(a Hugging Face token with write access) and the variable `HF_SPACE` (`<hf-user>/<space-name>`).
+
+The demo is shared: a check-in or "Reset demo" by one visitor is seen by everyone.
+
 ## Sources
 See [docs/sources.md](docs/sources.md). Based on NASA Human Research Program and CSA public resources.

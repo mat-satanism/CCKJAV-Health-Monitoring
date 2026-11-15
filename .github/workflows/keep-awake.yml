@@ -1,0 +1,18 @@
+# A free Hugging Face Space goes to sleep after 48 hours with no visitors. Opening it every 6 hours keeps it awake.
+# GitHub pauses scheduled jobs in a repo with no commits for 60 days: then re-enable it in the Actions tab.
+name: Keep the site awake
+on:
+  schedule:
+    - cron: "17 */6 * * *"
+  workflow_dispatch:
+jobs:
+  ping:
+    if: ${{ vars.HF_SPACE != '' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Open the site
+        env:
+          HF_SPACE: ${{ vars.HF_SPACE }}
+        run: |
+          host=$(echo "$HF_SPACE" | tr '[:upper:]' '[:lower:]' | tr '/_.' '---')
+          curl -fsS --retry 5 --retry-delay 60 --max-time 120 "https://${host}.hf.space/health"
