@@ -2,17 +2,18 @@ import { useEffect, useState } from 'react'
 import {
   Area, CartesianGrid, ComposedChart, Line, ReferenceLine, ResponsiveContainer, Tooltip, XAxis, YAxis,
 } from 'recharts'
-import { api } from '../api'
+import { api, ApiError } from '../api'
+import { COLLECTED_BY } from '../collected'
 import type { AstronautCard, AstronautHistory, HistoryPoint, Meta, Status, SystemId } from '../types'
 import { BodyMap } from './BodyMap'
 import { MeasurementPlan } from './MeasurementPlan'
+import { MedicPanel } from './MedicPanel'
 import { SourceLinks } from './Sources'
 import { Tabbed } from './Tabbed'
 
 // One crew member of the simulated mission: body map for the chosen day, history of every indicator with
 // the personal norm band, check-in for that day, readiness, medical history. All data is synthetic.
 
-const FIELDS = ['heart_rate', 'bp_sys', 'bp_dia', 'glucose', 'temp', 'sleep_hours', 'exercise_min', 'hrv_ms', 'reaction_ms']
 const MOODS = ['😞', '🙁', '😐', '🙂', '😄']
 const SYMPTOMS = ['fever', 'headache', 'fatigue', 'trouble sleeping', 'dizziness when standing']
 const DOT: Record<Status, string> = {
@@ -65,45 +66,31 @@ function Readiness({ card, onDone }: { card: AstronautCard; onDone: () => void }
   )
 }
 
+/** The astronaut's own check-in: only what no device can tell (how they feel, symptoms). Pulse, sleep, exercise,
+ * blood pressure and HRV come from the wearable, reaction time from the test, glucose and temperature from the
+ * medic (as on the space station; docs/data-entry.md). */
 function CheckInFor({ card, meta, onSaved }: { card: AstronautCard; meta: Meta; onSaved: () => void }) {
-  const [values, setValues] = useState<Record<string, string>>({})
   const [mood, setMood] = useState<number | null>(null)
   const [symptoms, setSymptoms] = useState<string[]>(card.symptoms)
   const [msg, setMsg] = useState('')
+  const automatic = Object.keys(meta.indicators).filter((k) => meta.indicators[k].collected_by !== 'self')
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault()
-    const out: Record<string, number> = {}
-    for (const [k, v] of Object.entries(values)) if (v.trim() !== '') out[k] = Number(v)
-    if (mood) out.mood = mood
+    const out: Record<string, number> = mood ? { mood } : {}
     const symptomsChanged = symptoms.join() !== card.symptoms.join()
-    if (!Object.keys(out).length && !symptomsChanged) { setMsg('Enter at least one value, a mood or a symptom'); return }
+    if (!mood && !symptomsChanged) { setMsg('Pick how you feel or a symptom'); return }
     try {
       await api.enterForAstronaut(card.astronaut_id, card.day, out, symptoms)
-      setValues({}); setMood(null); setMsg('Saved for day ' + card.day); onSaved()
+      setMood(null); setMsg('Saved for day ' + card.day); onSaved()
     } catch (err) {
-      setMsg(String(err).includes(': 422') ? 'A value is outside the possible range, please check it.'
-        : 'Could not save. Is the backend running?')
+      setMsg(err instanceof ApiError ? (err.detail ?? 'Please check the values.') : 'Could not save. Is the backend running?')
     }
   }
 
   return (
     <form className="checkin" onSubmit={submit}>
-      <h2>Check-in for {card.name}, day {card.day}</h2>
-      <p className="small muted">Values you enter replace the simulated ones for this day. Statuses and tasks update; the 48-hour risks stay the model's.</p>
-      <div className="grid">
-        {FIELDS.map((f) => {
-          const now = card.indicators.find((i) => i.type === f)
-          return (
-            <label key={f}>
-              <span>{meta.indicators[f].label} <small>{meta.indicators[f].unit}</small></span>
-              <input type="number" step="any" inputMode="decimal" value={values[f] ?? ''}
-                placeholder={now ? String(now.value) : ''}
-                onChange={(e) => setValues({ ...values, [f]: e.target.value })} />
-            </label>
-          )
-        })}
-      </div>
+      <h2>How does {card.name} feel today? <small className="muted">day {card.day}</small></h2>
       <div className="moods" role="radiogroup" aria-label="Mood">
         {MOODS.map((m, i) => (
           <button type="button" key={m} role="radio" aria-checked={mood === i + 1}
@@ -122,6 +109,12 @@ function CheckInFor({ card, meta, onSaved }: { card: AstronautCard; meta: Meta; 
       </fieldset>
       <button className="primary">Save</button>
       {msg && <span className={msg.startsWith('Saved') ? 'muted' : 'err'}> {msg}</span>}
+      <p className="small muted">Everything else arrives by itself:</p>
+      <ul className="arrives small">
+        {automatic.map((k) => (
+          <li key={k}>{meta.indicators[k].label} <span className="muted">{COLLECTED_BY[meta.indicators[k].collected_by]}</span></li>
+        ))}
+      </ul>
     </form>
   )
 }
@@ -144,7 +137,8 @@ function MedicalHistory({ card }: { card: AstronautCard }) {
       <h3>Medicine on day {card.day}</h3>
       {card.medication_today.length
         ? <ul>{card.medication_today.map((m) => (
-          <li key={m.drug + m.reason}>{m.drug} {m.dose} <small className="muted">({m.reason}; given by {m.given_by})</small></li>
+          <li key={m.drug + m.reason + (m.logged_at ?? '')}>{m.drug} {m.dose}{' '}
+            <small className="muted">({m.reason}; {m.given_by === 'self' ? 'taken by themselves' : `given by ${m.given_by}`}{m.note ? `; ${m.note}` : ''})</small></li>
         ))}</ul>
         : <p className="muted">None</p>}
       {a.notes && <p className="small muted">{a.notes}</p>}
@@ -239,7 +233,8 @@ export function PersonView({ aid, day, meta, onDay, onChanged, onOpenFile }: Pro
                 <header>
                   <span className="dot" />
                   <strong title={meta.content.indicators[i.type]?.why}>{i.label}</strong>
-                  {i.entered && <span className="source source-manual">entered</span>}
+                  {i.entered && <span className="source source-manual"
+                    title={i.entry_reason ?? undefined}>{i.entered_by === 'medic' ? 'typed by medic' : 'self-report'}</span>}
                   <span className="value">{i.value} <small>{i.unit}</small></span>
                 </header>
                 <p className="muted">{i.message}</p>
@@ -270,6 +265,8 @@ export function PersonView({ aid, day, meta, onDay, onChanged, onOpenFile }: Pro
         <Tabbed label={`${card.name}: check-in and records`} tabs={[
           { id: 'checkin', label: 'Check-in', content: <CheckInFor key={`${aid}-${card.day}`} card={card} meta={meta} onSaved={reload} /> },
           { id: 'history', label: 'Medical', badge: card.anamnesis.allergies.length ? '!' : undefined, content: <MedicalHistory card={card} /> },
+          { id: 'medic', label: 'Medic', badge: card.notes.length || undefined,
+            content: <MedicPanel key={`${aid}-${card.day}`} card={card} meta={meta} onSaved={reload} /> },
           {
             id: 'food', label: 'Food', content: (
               <section>

@@ -39,7 +39,11 @@ Indicators: `heart_rate` (bpm), `bp_sys`/`bp_dia` (mmHg), `glucose` (mg/dL), `te
 Body systems: `cardiovascular`, `musculoskeletal`, `behavioral`, `immune`, `metabolic`, `sleep`.
 
 ## Validation
+Who provides each value is `collected_by` in `/meta`: `device` (the wearable), `test` (the 3-minute test), `medic`
+or `self` (`docs/data-entry.md`).
+
 `POST /measurements` rejects (422), with the reason in `detail`:
+- a value that is not self-reported (`collected_by` other than `self`) without a `reason` (why it is typed by hand);
 - unknown indicator types, and values outside the plausible range in `BOUNDS` (`backend/app/config.py`), e.g. heart rate 20-250 bpm, mood 1-5;
 - a unit that is not the indicator's unit (e.g. temperature in °F);
 - a time more than 12 hours in the future (a typo, or a clock far off);
@@ -97,7 +101,9 @@ One rule for every view (`backend/app/status.py`), personal norm first:
 | GET | /mission/report?day=N&period=day\|week | report for the flight surgeon, made overnight: per person status, days off usual, symptoms, risks, medicine given, not-ready days; plus the alarms of the period |
 | GET | /mission/astronaut/{id}?day=N | one crew member's card for day N (default: current day): indicators (with `entered`), body `systems`, risks, synthetic `anamnesis`, `medication_today`, `readiness` |
 | GET | /mission/astronaut/{id}/history | every mission day per indicator: value, status, personal `norm`, `low`/`high` = 95% prediction band, `z` = distance from the norm in prediction scales, `entered` |
-| POST | /mission/astronaut/{id}/entries?day=N | `{"values": {"temp": 39.2}, "symptoms": ["fever"]}` replaces that day's simulated values; statuses and tasks follow, risks stay the model's. Saved to `data/local/mission_entries.json`, removed by `/demo/reset` |
+| POST | /mission/astronaut/{id}/entries?day=N | `{"values": {"mood": 4}, "symptoms": ["fever"], "by": "astronaut"}` replaces that day's simulated values; statuses and tasks follow, risks stay the model's. The astronaut (`by: "astronaut"`, default) may send only self-reported values (`collected_by: "self"`) and symptoms; the medic (`by: "medic"`) may send any value, with a `reason` when it normally comes from the wearable or the test. Each entered indicator then carries `entered_by` and `entry_reason`. Saved to `data/local/mission_entries.json`, removed by `/demo/reset` |
+| POST | /mission/astronaut/{id}/medications?day=N | `{"drug", "dose", "reason", "given_by": "medic"|"self", "note"}` adds a dose to the medication log; it appears in `medication_today` with `logged_at` |
+| POST | /mission/astronaut/{id}/notes?day=N | `{"subjective", "objective", "assessment", "plan"}` (at least one) adds the medic's SOAP note; the card's `notes` lists this day's and earlier notes, newest first |
 | POST | /mission/astronaut/{id}/readiness?day=N | `{"ready": true, "note": ""}` morning readiness check; returns a short `reply` |
 | GET | /wellbeing | real-data demo: `{available, person, source, note, models: {mood, fatigue}: {question, inputs, usual_rate, within_person_auc, same_as_today_auc}, days: [{mission_day, for_date, mood, fatigue}]}`; each forecast is `{probability, times_usual, reasons[], happened}` for the next day. Made by `python -m pipeline.wellbeing export`; `available: false` if the file is missing. See docs/wellbeing-model.md |
 | GET | /reference/blood?crew=C001 | BloodRow[]: NASA Inspiration4 blood tests, reference only, not daily status |
