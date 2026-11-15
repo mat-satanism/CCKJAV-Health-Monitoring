@@ -1,0 +1,52 @@
+{
+ "own_norm": {
+  "people": 79,
+  "spread_bpm": 31.7,
+  "below_limit": 9,
+  "limit": 55
+ },
+ "early_warning": {
+  "who": "john",
+  "first_alert_day": 16,
+  "onset_day": 18,
+  "lead_days": 2
+ },
+ "forecast": [
+  {
+   "label": "Lower mood tomorrow",
+   "model": 0.681,
+   "reference": 0.608,
+   "lo": 0.038,
+   "hi": 0.115,
+   "people": 16,
+   "gain": 0.073
+  },
+  {
+   "label": "Less energy tomorrow",
+   "model": 0.644,
+   "reference": 0.59,
+   "lo": 0.008,
+   "hi": 0.118,
+   "people": 16,
+   "gain": 0.054
+  },
+  {
+   "label": "Less ready to train",
+   "model": 0.645,
+   "reference": 0.627,
+   "lo": -0.019,
+   "hi": 0.051,
+   "people": 16,
+   "gain": 0.017
+  },
+  {
+   "label": "Sad, tense or tired (LifeSnaps)",
+   "model": 0.531,
+   "reference": 0.53,
+   "lo": -0.039,
+   "hi": 0.04,
+   "people": 58,
+   "gain": 0.001
+  }
+ ]
+}
