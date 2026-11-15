@@ -58,7 +58,7 @@ docs/            api contract, sources
 - Notebooks go to `notebooks/`, raw data to `data/raw/` (keep large files out of git).
 - **Cleaned data:** `python -m pipeline.get_data` then `python -m pipeline.build` fills `data/processed/` (daily wearable table, Inspiration4 blood tests, NHANES reference ranges). Columns and cleaning rules: [docs/data.md](docs/data.md).
 - **Simulation and model:** `python -m pipeline.build` also writes the simulated crew mission to `data/processed/sim/`; `python -m pipeline.model` trains the risk model (`models/risk_model.json`) and writes the demo predictions. Design, assumptions and results: [docs/simulation.md](docs/simulation.md).
-- **Wellbeing forecast on real people:** `python -m pipeline.wellbeing` predicts a worse mood, fatigue or readiness tomorrow on PMData and LifeSnaps, scored within each person on people the model never saw against "same as today". `python -m pipeline.wellbeing export` writes the app's forecasts to `data/processed/wellbeing_demo.json`. Results: [docs/wellbeing-model.md](docs/wellbeing-model.md).
+- **Wellbeing forecast on real people:** `python -m pipeline.wellbeing` predicts a worse mood, fatigue or readiness tomorrow on PMData and LifeSnaps, scored within each person on people the model never saw against "same as today". Pitch charts and the one-page ML summary: `python -m pipeline.pitch_charts` -> [docs/pitch/](docs/pitch/README.md). `python -m pipeline.wellbeing export` writes the app's forecasts to `data/processed/wellbeing_demo.json`. Results: [docs/wellbeing-model.md](docs/wellbeing-model.md).
 
 ## Quick start
 Backend:
