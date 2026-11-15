@@ -25,10 +25,10 @@ def trend(values: list[float], n: int = 5) -> str | None:
 # band: width of the 80% band in units of the person's spread, so that 80% of real values fall inside.
 FORECAST = {
     "heart_rate":   {"persistence": 0.9, "band": 2.52},
-    "sleep_hours":  {"persistence": 0.0, "band": 1.43},
-    "mood":         {"persistence": 0.0, "band": 1.19},
-    "exercise_min": {"persistence": 0.2, "band": 1.14},
-    "hrv_ms":       {"persistence": 0.6, "band": 1.65},
+    "sleep_hours":  {"persistence": 0.0, "band": 1.51},
+    "mood":         {"persistence": 0.0, "band": 1.3},
+    "exercise_min": {"persistence": 0.0, "band": 1.32},
+    "hrv_ms":       {"persistence": 0.5, "band": 1.59},
 }
 # No open daily data for pressure, glucose, temperature, reaction time: an ASSUMPTION, between the fitted ones.
 FORECAST_DEFAULT = {"persistence": 0.5, "band": 1.5}

@@ -63,11 +63,11 @@
    },
    {
     "label": "Short sleep\n(1+ h below usual, wristband)",
-    "rate": 0.162,
-    "lo": 0.105,
-    "hi": 0.215,
-    "other": 0.142,
-    "days": 216
+    "rate": 0.153,
+    "lo": 0.092,
+    "hi": 0.209,
+    "other": 0.141,
+    "days": 209
    }
   ]
  },
@@ -117,30 +117,30 @@
   },
   {
    "label": "Less energy tomorrow",
-   "model": 0.648,
+   "model": 0.649,
    "reference": 0.59,
    "lo": 0.009,
-   "hi": 0.121,
+   "hi": 0.127,
    "people": 16,
-   "gain": 0.058
+   "gain": 0.059
   },
   {
    "label": "Less ready to train",
-   "model": 0.648,
+   "model": 0.639,
    "reference": 0.627,
-   "lo": -0.01,
-   "hi": 0.051,
+   "lo": -0.023,
+   "hi": 0.05,
    "people": 16,
-   "gain": 0.021
+   "gain": 0.012
   },
   {
    "label": "Sad, tense or tired (LifeSnaps)",
-   "model": 0.545,
+   "model": 0.515,
    "reference": 0.53,
-   "lo": -0.027,
-   "hi": 0.054,
+   "lo": -0.061,
+   "hi": 0.028,
    "people": 58,
-   "gain": 0.015
+   "gain": -0.015
   }
  ]
 }

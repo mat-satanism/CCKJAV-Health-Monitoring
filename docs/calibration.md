@@ -16,9 +16,9 @@ middle). For a health tool that is the wrong direction:
 
 | Infection, the model said | Happened (raw forest) | Happened (recalibrated, shipped) |
 |---|---|---|
-| 1-5% | 0.7-2.1% | 1.8-3.1% |
-| 30-50% (said 38%) | **65%** | 44% (said 39%) |
-| 50-100% (said 55%) | **83%** | 72% (said 62%) |
+| 1-5% | 1.0-2.5% | 1.8-3.7% |
+| 30-50% (said 38%) | **60%** | 42% (said 39%) |
+| 50-100% (said 53%) | **88%** | 73% (said 62%) |
 
 Fix: a logistic fit on the forest's log-odds per event (Platt scaling), fitted on **100 separate simulated
 missions** (seed 99, used for nothing else), stored as `platt: [a, b]` in `models/risk_model.json` and applied in
@@ -27,14 +27,16 @@ caught/precision stay the same); it only makes the numbers honest.
 
 | Event | ECE raw → shipped | Brier raw → shipped |
 |---|---|---|
-| Infection | 0.67 → **0.34** pp | 0.0144 → **0.0137** |
-| Deconditioning | 0.74 → **0.39** pp | 0.0140 → **0.0134** |
-| Low mood | 0.30 → 0.19 pp | 0.0170 → 0.0170 |
-| Sleep disruption | 0.35 → 0.34 pp | 0.0277 → 0.0277 |
-| CO2 build-up | 0.60 → 0.80 pp | 0.0222 → 0.0222 |
+| Infection | 0.70 → **0.35** pp | 0.0144 → **0.0137** |
+| Deconditioning | 0.68 → **0.38** pp | 0.0131 → **0.0123** |
+| Low mood | 0.22 → 0.19 pp | 0.0170 → 0.0170 |
+| Sleep disruption | 0.48 → 0.54 pp | 0.0277 → 0.0277 |
+| CO2 build-up | 0.63 → 0.70 pp | 0.0222 → 0.0222 |
 
-In the demo, John's infection risk on day 16 goes from 22× to 32× usual (still 2 days before the fever);
-Maria's sleep risk on day 19 from 5.5× to 5.6×. The false alarms (Maria day 16, Kenji days 20-21, Stefan
+(Re-run on the cleaned data of 2026-11-15, PR #12.)
+
+In the demo, John's infection risk on day 16 goes from 22× to 31× usual (still 2 days before the fever);
+Maria's sleep risk on day 19 from 5.2× to 5.1×. The false alarms (Maria day 16, Kenji day 20, Stefan
 days 26-27) stay, at similar multiples. SHAP signs are still computed on the forest itself: they rank and filter
 the reasons, they do not add up to the recalibrated risk.
 

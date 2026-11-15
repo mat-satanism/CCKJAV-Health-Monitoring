@@ -15,7 +15,17 @@ Writes:
 """
 import pandas as pd
 
-from . import demo, features, inspiration4, lifesnaps, mmash, nhanes, pmdata, simulation
+from . import (
+    bigideas,
+    demo,
+    features,
+    inspiration4,
+    lifesnaps,
+    mmash,
+    nhanes,
+    pmdata,
+    simulation,
+)
 from .common import PROCESSED
 
 
@@ -38,6 +48,11 @@ def main() -> None:
     blood = inspiration4.load()
     blood.to_csv(PROCESSED / "inspiration4_blood.csv", index=False)
     print(f"inspiration4_blood.csv  {len(blood):>6} rows, {blood['analyte'].nunique()} analytes")
+
+    glucose = bigideas.load()
+    glucose.to_csv(PROCESSED / "glucose_morning.csv", index=False, float_format="%.1f")
+    print(f"glucose_morning.csv     {len(glucose):>6} days, {glucose['person_id'].nunique()} people; "
+          f"day-to-day: {bigideas.day_to_day(glucose)}")
 
     ref = nhanes.load()
     ref.to_csv(PROCESSED / "nhanes_reference.csv", index=False)

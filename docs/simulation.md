@@ -132,11 +132,11 @@ The rule is "the biggest |z| of any indicator today". "Top 5%" = alerts on the 5
 
 | Event | Share of days | AUC model | AUC rule | Caught with top-5% alerts | Precision of those alerts |
 |---|---|---|---|---|---|
-| Sleep disruption | 3.0% | 0.830 | 0.679 | 24.3% | 14.7% |
-| Infection | 2.0% | 0.948 | 0.801 | 66.9% | 26.4% |
-| Deconditioning | 1.9% | 0.930 | 0.648 | 53.8% | 20.8% |
-| Low mood | 1.8% | 0.859 | 0.674 | 29.3% | 10.7% |
-| CO2 build-up | 2.4% | 0.809 | 0.644 | 29.3% | 13.9% |
+| Sleep disruption | 3.0% | 0.828 | 0.675 | 23.0% | 13.9% |
+| Infection | 2.0% | 0.944 | 0.796 | 69.3% | 27.3% |
+| Deconditioning | 1.9% | 0.960 | 0.648 | 76.6% | 29.6% |
+| Low mood | 1.8% | 0.856 | 0.675 | 33.3% | 12.1% |
+| CO2 build-up | 2.4% | 0.802 | 0.644 | 28.7% | 13.6% |
 
 **Update 2026-11-15:** the risk model now reads the Bayesian norm, like the statuses; numbers and the real-mood
 correction are in `docs/personal-norm.md` ("The models read the same norm"). The paragraphs below are the
@@ -192,3 +192,16 @@ Event effects on both are ASSUMPTIONS (in `EVENTS`): e.g. infection lowers HRV b
 reaction 30 ms slower. They use their own random stream, so all earlier simulated values stayed the same.
 Weekly or occasional measures (body mass, bone scans, blood, urine, saliva, the full cognition battery) are not
 simulated; the app lists them with sources in "Also measured, not daily" (`data/content/measurement_plan.json`).
+
+## Data cleaning (2026-11-15)
+
+Rebuilt after cleaning the daily table (`docs/data.md`, "Cleaning update"). Two changes reach the simulation:
+- **Exercise**: each astronaut copies the exercise days of a real person, and days the watch was not worn used
+  to count as 0 minutes. Now they are left out: share of no-exercise days for Maria's real person 28% → 9%,
+  Amara's 14% → 10%. The risk model catches deconditioning (little exercise) much better: 54% → 76% of events.
+- **Glucose**: the day-to-day change is now real (BIG IDEAs morning glucose, 16 people): spread 8.2 mg/dL,
+  no carry-over from day to day. It was assumed: 6.0 mg/dL with persistence 0.2.
+
+The risk-model table above is the re-run. Blood pressure levels now come from NHANES adults without diagnosed high blood pressure (`docs/data.md`).
+Demo story: John's infection risk is 22× usual on day 16 (31× after the recalibration of `docs/calibration.md`; 0.3× or less
+on days 1-15); false alarms: Maria day 16, Stefan days 26-27.
