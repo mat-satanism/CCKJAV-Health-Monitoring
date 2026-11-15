@@ -59,7 +59,8 @@ def main() -> None:
 
     space, token = os.environ["HF_SPACE"], os.environ["HF_TOKEN"]
     api = HfApi(token=token)
-    api.create_repo(space, repo_type="space", space_sdk="docker", exist_ok=True)
+    # private=False on purpose: the site must be open to everyone, and a private Space needs a paid plan (HTTP 402)
+    api.create_repo(space, repo_type="space", space_sdk="docker", exist_ok=True, private=False)
     with tempfile.TemporaryDirectory() as tmp:
         stage(Path(tmp))
         api.upload_folder(folder_path=tmp, repo_id=space, repo_type="space", delete_patterns="*",
