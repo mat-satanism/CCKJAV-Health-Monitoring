@@ -24,6 +24,8 @@ export interface IndicatorStatus {
   source?: 'manual' | 'sensor' | 'synthetic' | null
   message: string
   actions: string[]
+  age_days?: number | null
+  recheck?: boolean
 }
 
 // ---------- simulated crew mission (synthetic, docs/simulation.md) ----------
@@ -140,11 +142,15 @@ export interface StatusResponse {
 
 export interface Insights {
   level: 'self' | 'crew' | 'ground'
-  items: { type: string; status: Status; message: string; actions: string[] }[]
+  items: { type: string; status: Status; message: string; actions: string[]; recheck: boolean }[]
   comm_note: string | null
 }
 
-export interface Task { id: string; title: string; points: number; done: boolean }
+export type TaskOutcome = 'better' | 'same' | 'worse' | 'gone'
+export interface Task {
+  id: string; title: string; points: number; done: boolean
+  feedback?: TaskOutcome | null; feedback_ts?: string | null
+}
 
 export interface MissionContext {
   environment: EnvironmentId

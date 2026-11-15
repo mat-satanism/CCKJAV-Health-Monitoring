@@ -19,8 +19,9 @@ Every synthetic value is labelled "synthetic" in the API and in the app.
 
 - How each event moves the numbers (e.g. infection: pulse +12, temperature +1.8 °C, HRV -12 ms): `EVENTS`.
 - Day-to-day spread of pressure, glucose, temperature, reaction time: `ASSUMED`.
-- The safety limits for pulse, pressure, temperature, sleep: demo values, marked TODO in `data/thresholds.json`
-  until a source is found; glucose and reaction time have sources.
+- The safety limits: each one in `data/thresholds.json` says which number comes from a source (CDC fever line,
+  AHA/ACC 2025 blood pressure stages, NASA exercise time, NHANES glucose, PVT lapses) and which one is our choice
+  inside or around it (`docs/sources.md`). The values did not change when the sources were added.
 - Advice for mission events (`EVENT_ACTIONS`) is a placeholder, not from a clinical source. So are the isolation
   protocol (fever: isolate; close contact = a shared task in the last 2 days: check temperature twice a day for 3
   days), the support messages and the food tips (`backend/app/mission.py`). The app labels them as placeholders.

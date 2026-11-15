@@ -6,18 +6,19 @@ also written to SAVED_PATH (data/local/checkins.json, not in git), so a backend 
 """
 import json
 import os
-from datetime import datetime
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
+from typing import Annotated
 
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel
+from pydantic import BaseModel, Field, StringConstraints
 
 from . import analytics, rules
 from .config import BOUNDS, CONTENT, DATA_DIR, ENVIRONMENTS, INDICATORS, SYSTEMS
 from .demo import blood_reference, demo_mission, wellbeing_forecast
 from .mission import MISSION, available_environments, saved_path
-from .models import Measurement, MissionContext, Task
+from .models import Measurement, MissionContext, Task, TaskFeedback
 
 app = FastAPI(title="CCKJAV Health Monitoring API")
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
@@ -27,6 +28,9 @@ SAVED_PATH = Path(os.environ.get("CHN_SAVED_PATH", DATA_DIR / "local" / "checkin
 CONTEXT = MissionContext(environment="mars_base", mission_day=94, **{
     k: ENVIRONMENTS["mars_base"][k] for k in ("gravity_g", "comm_delay_s")})
 TASKS: list[Task] = []
+MAX_ITEMS = 100                       # measurements per request: a day's check-in is about 10
+FUTURE_SLACK = timedelta(hours=12)    # clocks differ a little; a value from tomorrow or 2099 is a typo
+INTEGER_SCALES = {"mood"}
 
 
 def _default_tasks() -> list[Task]:
@@ -40,9 +44,14 @@ def _default_tasks() -> list[Task]:
 
 
 def _saved() -> list[Measurement]:
+    """Values entered earlier. A broken file is set aside (renamed .broken), so the app still starts."""
     if not SAVED_PATH.exists():
         return []
-    return [Measurement(**m) for m in json.loads(SAVED_PATH.read_text(encoding="utf-8"))]
+    try:
+        return [Measurement(**m) for m in json.loads(SAVED_PATH.read_text(encoding="utf-8"))]
+    except (ValueError, TypeError, KeyError):
+        SAVED_PATH.replace(SAVED_PATH.with_suffix(".broken"))
+        return []
 
 
 def _save(items: list[Measurement]) -> None:
@@ -114,10 +123,22 @@ def put_context(ctx: MissionContext):
 
 @app.post("/measurements", response_model=list[Measurement])
 def add_measurements(items: list[Measurement]):
+    """Values typed in the app's check-in. They are self-reports: `source` is always stored as "manual"."""
+    if len(items) > MAX_ITEMS:
+        raise HTTPException(422, f"At most {MAX_ITEMS} measurements per request")
+    now = datetime.now(UTC)
     for m in items:
+        expected = INDICATORS[m.type]["unit"]
+        if m.unit != expected:
+            raise HTTPException(422, f"{m.type} must be in {expected}, got {m.unit!r}")
+        if m.ts > now + FUTURE_SLACK:
+            raise HTTPException(422, f"{m.type} has a time in the future ({m.ts.isoformat()})")
+        if m.type in INTEGER_SCALES and m.value != int(m.value):
+            raise HTTPException(422, f"{m.type} is a whole-number scale, got {m.value}")
         lo, hi = BOUNDS[m.type]
         if not lo <= m.value <= hi:
             raise HTTPException(422, f"{m.type}={m.value} is outside the plausible range {lo}-{hi}")
+    items = [m.model_copy(update={"source": "manual"}) for m in items]
     MEASUREMENTS.extend(items)
     _save(items)
     return items
@@ -125,6 +146,8 @@ def add_measurements(items: list[Measurement]):
 
 @app.get("/measurements", response_model=list[Measurement])
 def list_measurements(type: str | None = None, start: datetime | None = None, end: datetime | None = None):
+    start = start and (start.replace(tzinfo=UTC) if start.tzinfo is None else start)
+    end = end and (end.replace(tzinfo=UTC) if end.tzinfo is None else end)
     out = [m for m in MEASUREMENTS
            if (type is None or m.type == type)
            and (start is None or m.ts >= start) and (end is None or m.ts <= end)]
@@ -187,14 +210,17 @@ def mission_doctor(role: str = "cmo"):
     return _mission().doctor(role)
 
 
+Symptom = Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=60)]
+
+
 class CrewEntry(BaseModel):
-    values: dict[str, float] = {}
-    symptoms: list[str] | None = None
+    values: dict[str, float] = Field(default={}, max_length=20)
+    symptoms: list[Symptom] | None = Field(default=None, max_length=10)
 
 
 class Readiness(BaseModel):
     ready: bool
-    note: str = ""
+    note: str = Field(default="", max_length=500)
 
 
 def _crew_member(aid: str, day: int | None = None):
@@ -309,7 +335,7 @@ def insights():
     inds = _indicator_statuses()
     level = rules.escalation(inds)
     delay = CONTEXT.comm_delay_s or 0
-    items = [{"type": s.type, "status": s.status, "message": s.message, "actions": s.actions}
+    items = [{"type": s.type, "status": s.status, "message": s.message, "actions": s.actions, "recheck": s.recheck}
              for s in inds.values() if s.status in ("yellow", "red")]
     note = None
     if level == "ground" and delay > 60:
@@ -318,7 +344,7 @@ def insights():
 
 
 @app.get("/forecast/{indicator}")
-def forecast(indicator: str, days: int = 7):
+def forecast(indicator: str, days: Annotated[int, Query(ge=1, le=30)] = 7):
     """Back to the person's own norm, with an 80% band; fitted on real people (docs/forecast.md)."""
     if indicator not in INDICATORS:
         raise HTTPException(404, "Unknown indicator")
@@ -343,6 +369,16 @@ def complete_task(task_id: str):
     if task is None:
         raise HTTPException(404, "Unknown task")
     task.done = True
+    return task
+
+
+@app.post("/tasks/{task_id}/feedback", response_model=Task)
+def task_feedback(task_id: str, body: TaskFeedback):
+    """Did it help? The answer is kept with the task, so the next advice can learn from it (mentors' idea)."""
+    task = next((t for t in TASKS if t.id == task_id), None)
+    if task is None:
+        raise HTTPException(404, "Unknown task")
+    task.feedback, task.feedback_ts = body.outcome, datetime.now(UTC)
     return task
 
 

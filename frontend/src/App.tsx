@@ -214,7 +214,8 @@ export default function App() {
             <Tabbed label="Outlook, tasks and check-in" tabs={[
               { id: 'outlook', label: 'Tomorrow', content: <WellbeingCard /> },
               { id: 'tasks', label: 'Tasks', badge: tasks.filter((t) => !t.done).length || undefined,
-                content: <TasksCard tasks={tasks} onDone={(id) => api.completeTask(id).then(refresh)} /> },
+                content: <TasksCard tasks={tasks} onDone={(id) => api.completeTask(id).then(refresh)}
+                  onFeedback={(id, o) => api.taskFeedback(id, o).then(refresh)} /> },
               { id: 'checkin', label: 'Check-in', content: <CheckIn meta={meta} onSaved={refresh} /> },
             ]} />
           </aside>
