@@ -50,10 +50,11 @@ def test_each_person_is_scored_by_a_model_that_never_saw_them():
 
 def test_check_in_only_drops_every_wearable_input():
     cols = wellbeing.feature_columns("pmdata", wellbeing.add_pmdata_targets(_table()).assign(
-        **{c: 0.0 for c in ["steps_z", "steps_dev3", "mood_z", "sleep_hours_z", "sleep_hours_device_z", "weekend"]}))
+        **{c: 0.0 for c in ["steps_bz", "steps_bz3", "mood_bz", "sleep_hours_bz", "sleep_hours_device_bz",
+                            "heart_rate_bz", "weekend"]}))
     kept = wellbeing.check_in_only(cols)
-    assert "steps_z" not in kept and "heart_rate_z" not in kept and "sleep_hours_device_z" not in kept
-    assert "mood_z" in kept and "sleep_hours_z" in kept   # self-reported sleep stays
+    assert "steps_bz" not in kept and "heart_rate_bz" not in kept and "sleep_hours_device_bz" not in kept
+    assert "mood_bz" in kept and "sleep_hours_bz" in kept   # self-reported sleep stays
 
 
 def test_last_days_features_use_only_the_past():
@@ -102,6 +103,7 @@ def test_reasons_read_as_plain_words():
     assert wellbeing.describe("stress_dev3", -1.0) == "calm (1-5, 5 = relaxed) 1.0 below usual over the last 3 days"
     assert wellbeing.describe("mood_d1", 1.0) == "mood (1-5) +1 since yesterday"
     assert wellbeing.describe("weekend", 1.0) == "weekend"
+    assert wellbeing.describe("mood_bz", -1.8) == "mood (1-5) 1.8 spreads below usual today"
 
 
 def test_exported_demo_never_trained_on_the_demo_person():
@@ -111,3 +113,24 @@ def test_exported_demo_never_trained_on_the_demo_person():
     data = json.loads(wellbeing.EXPORT_FILE.read_text(encoding="utf-8"))
     assert data["person"] == DEMO_PERSON and "never in training" in data["source"]
     assert len(data["days"]) == 30
+
+
+def test_bayes_inputs_use_the_same_norm_as_the_app():
+    from app import status
+
+    from pipeline import bayes_features as bf
+    window = [3.0, 4.0, 3.0, 3.0, 2.0, 4.0, 3.0, 3.0]
+    ours = bf.bayes_norm(window, bf.APP_PRIORS["mood"])
+    app = status.predictive("mood", window)
+    assert ours == (app["center"], app["scale"])
+
+
+def test_bayes_inputs_use_only_the_past():
+    from pipeline import bayes_features as bf
+    f = _table(n_people=2, days=30).assign(is_test=False)
+    a = bf.add_bayes(f, ["mood"])
+    changed = f.copy()
+    changed.loc[changed["date"] > "2020-01-15", "mood"] = 1.0
+    b = bf.add_bayes(changed, ["mood"])
+    past = a["date"] <= "2020-01-15"
+    pd.testing.assert_frame_equal(a.loc[past, ["mood_bz", "mood_bz3"]], b.loc[past, ["mood_bz", "mood_bz3"]])

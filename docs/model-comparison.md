@@ -45,5 +45,11 @@ come from our simulator, so the numbers show the approach, not real medical skil
 Update (same day): after adding heart rate variability and reaction time (8 more features) the forest scores
 0.632 on real mood (PMData has neither, so they count as 0); the comparison above was run before that.
 
-Not tried yet: Bayesian personal norms (a mentor's suggestion for the "is this normal for this person" layer,
-planned separately) and Cox time-to-event models (postponed).
+Update 2026-11-15, inputs against the Bayesian norm (same as the app's statuses): mean over events, ROC AUC /
+PR AUC / F1: logistic 0.873 / 0.186 / 0.244, forest 0.878 / 0.253 / 0.261, LightGBM 0.887 / 0.273 / 0.278.
+LightGBM is still slightly ahead on the simulation. On real mood all three are at or below guessing (forest 0.565,
+LightGBM 0.500, logistic 0.479): the earlier 0.632-0.660 was mostly a shared median definition of target and
+inputs, see `docs/personal-norm.md`. The forest stays: exact SHAP, and nothing here is judged on real mood any more
+(that is the wellbeing model's job, trained on real people).
+
+Not tried yet: Cox time-to-event models (postponed). Bayesian personal norms: done, see above.

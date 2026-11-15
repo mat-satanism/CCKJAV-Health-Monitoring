@@ -44,4 +44,41 @@ Yellow only asks to re-measure or look closer, so we accept that. Run: `python -
 - A gradual mission-time trend f(t) and exposure effects (gravity, radiation): one crew in one environment
   cannot separate them from other changes (the concept itself says so).
 - Separate norms at rest and during exercise: needs several readings a day; we have one daily value.
-- The risk model's features still use the old median norm; the Bayesian norm drives statuses and charts.
+
+## The models read the same norm (2026-11-15)
+
+Until now only the statuses used the Bayesian norm; both models measured "unusual" against the old 14-day
+median. Now the risk model (`pipeline/model.py`, `NORM = "bayes"`) and the wellbeing forecast
+(`pipeline/wellbeing.py`) take each signal as its distance from the Bayesian norm, in the person's predictive
+scale (`pipeline/bayes_features.py`, same formulas as `status.predictive`, tested). Priors: the app's own for its
+indicators; for check-in answers the app does not have (fatigue, stress) and LifeSnaps signals, fitted on training
+people only.
+
+**Wellbeing forecast, real people**, AUC within a person (mean of 3 splits of people; the comparison keeps every
+other input the same):
+
+| Tomorrow | Same as today | Median-norm inputs | Bayesian-norm inputs |
+|---|---|---|---|
+| Worse mood | 0.608 | 0.679 | **0.686** |
+| Less energy | 0.590 | 0.640 | **0.649** |
+| Less ready | 0.627 | 0.644 | 0.642 |
+| Negative feeling (LifeSnaps) | 0.530 | 0.531 | **0.550** |
+
+Not worse anywhere, slightly better on three of four (within the noise).
+
+**Risk model, 100 new simulated missions** (mean over 5 events): ROC AUC 0.875 → 0.878, PR AUC 0.221 → 0.253,
+events caught in the top 5% riskiest days 40.7% → 44.3%, precision 17.3% → 18.6%. The gain is mostly
+deconditioning (caught 54% → 71%). The demo story holds: John's infection risk is 22× usual on day 16, two days
+before the fever; Maria's sleep risk rises on days 19-20 before day 21.
+
+**Risk model on real mood: an honest correction.** The sim-trained forest scored 0.632 on real PMData mood, close
+to "same as today" (0.644). With Bayesian inputs it scores 0.565. The reason is the target: "worse than usual"
+was defined against the same 14-day median as the old inputs, which flatters median inputs. Defined the way the
+app sees "usual" (the Bayesian centre), the old forest scores **0.438** and the new one **0.504**, against 0.653 for
+"same as today". So the simulation-trained model does not carry over to real mood under either norm; the earlier
+"on par with the reference" was mostly the shared definition. Real-data forecasting is the wellbeing model's job
+(`docs/wellbeing-model.md`), which is trained on real people.
+
+## Still open from the mentor's concept
+
+- Personal priors per astronaut from pre-flight data (we use one population prior per indicator).

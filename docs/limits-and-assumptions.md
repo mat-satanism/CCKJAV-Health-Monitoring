@@ -45,7 +45,9 @@ Every synthetic value is labelled "synthetic" in the API and in the app.
 
 - On simulated missions the model is good (infection ROC AUC 0.95). That shows the approach works **if** the
   early signs look like our simulation. It does not prove anything about real astronauts.
-- On real people the forest only matches the simple "same as today" reference for mood (AUC 0.63-0.66 vs 0.644).
+- The sim-trained risk model does not carry over to real mood (AUC 0.50-0.57 vs 0.64-0.65 for "same as today";
+  the earlier 0.63-0.66 was mostly a shared median definition, see `docs/personal-norm.md`). Mood and energy on
+  real people are forecast by the wellbeing model, trained on real people (`docs/wellbeing-model.md`).
 - No model can predict what it has never seen; a new kind of problem will show as "unusual for this person"
   (the personal norm), not as a named risk.
 

@@ -138,6 +138,10 @@ The rule is "the biggest |z| of any indicator today". "Top 5%" = alerts on the 5
 | Low mood | 1.8% | 0.859 | 0.674 | 29.3% | 10.7% |
 | CO2 build-up | 2.4% | 0.809 | 0.644 | 29.3% | 13.9% |
 
+**Update 2026-11-15:** the risk model now reads the Bayesian norm, like the statuses; numbers and the real-mood
+correction are in `docs/personal-norm.md` ("The models read the same norm"). The paragraphs below are the
+median-norm version.
+
 **Real people (PMData, 16 people, 1517 days), target "tomorrow's mood is worse than usual":** the sim-trained
 `low_mood` risk scores AUC 0.632 and `sleep_disruption` 0.609 (before HRV and reaction time were added: 0.660,
 95% interval over people 0.625-0.689, and 0.595), while
@@ -164,8 +168,9 @@ Rules, chosen with the data:
 - (Replaced later the same day by the Bayesian personal norm, see `docs/personal-norm.md`.) Yellow = 3 or more spreads from the person's own norm. With 8 indicators a 2-spread rule marks someone yellow
   on 54% of calm simulated astronaut-days, 2.5 spreads on 30%, 3 spreads on 13% (1-3% per indicator).
 - Only measured facts take someone off a high-demand task (a red indicator, fever, dizziness when standing). A high
-  model risk (5x the usual level or more) only shows "CMO to confirm fitness": on day 19 the model raises a false
-  alarm for Kenji (infection 5.6x usual), and an automatic swap would be wrong.
+  model risk (5x the usual level or more) only shows "CMO to confirm fitness": on day 26 the model raises a false
+  alarm for Stefan (infection 10.8x usual; with the median norm it was Kenji on day 19, 5.6x), and an automatic
+  swap would be wrong.
 - Doctors see risks from 3x the usual level.
 
 Demo walk-through: day 16 John's infection risk is 10.8x usual (pulse +6.2 bpm vs his norm); day 18 fever 38.3 °C,
