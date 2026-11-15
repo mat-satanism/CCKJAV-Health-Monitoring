@@ -35,12 +35,20 @@ SYSTEMS: dict[str, dict] = {
 }
 
 # comm_delay_s values are one-way approximations; verify before the pitch.
-ENVIRONMENTS: dict[str, dict] = {
-    "iss":       {"label": "Space station (LEO)", "gravity_g": 0.0,  "comm_delay_s": 0},
-    "transit":   {"label": "Deep-space transit",  "gravity_g": 0.0,  "comm_delay_s": 600},
-    "rover":     {"label": "Mars surface rover",       "gravity_g": 0.38, "comm_delay_s": 1200},
-    "moon_base": {"label": "Moon base",           "gravity_g": 0.16, "comm_delay_s": 1.3},
-    "mars_base": {"label": "Mars base",           "gravity_g": 0.38, "comm_delay_s": 1200},
+ENVIRONMENTS: dict[str, dict] = {   # "note": what this place changes in the simulated mission (docs/environments.md)
+    "iss":       {"label": "Space station (LEO)", "gravity_g": 0.0,  "comm_delay_s": 0,
+                  "note": "0 g: muscles and blood vessels decondition faster. Earth's magnetic field shields from solar "
+                          "flares. Doctors on Earth see the data live."},
+    "transit":   {"label": "Deep-space transit",  "gravity_g": 0.0,  "comm_delay_s": 600,
+                  "note": "0 g and no planet to shield: the most radiation and the fastest deconditioning. "
+                          "Signal delay up to 10 min."},
+    "rover":     {"label": "Mars surface rover",       "gravity_g": 0.38, "comm_delay_s": 1200,
+                  "note": "A small pressurised cabin: CO2 builds up sooner than in a base. 20 min signal delay."},
+    "moon_base": {"label": "Moon base",           "gravity_g": 0.16, "comm_delay_s": 1.3,
+                  "note": "1/6 g, no air or magnetic field: about twice the radiation of Mars. Doctors on Earth are "
+                          "1.3 s away."},
+    "mars_base": {"label": "Mars base",           "gravity_g": 0.38, "comm_delay_s": 1200,
+                  "note": "The original mission: 0.38 g, a thin atmosphere, a 20 min signal delay to Earth."},
 }
 
 

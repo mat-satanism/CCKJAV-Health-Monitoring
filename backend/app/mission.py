@@ -73,27 +73,44 @@ EVENT_ACTIONS = {
 }
 
 
-def _read(name: str) -> list[dict]:
-    with (SIM_DIR / name).open(newline="", encoding="utf-8") as f:
+def sim_dir(env: str) -> Path:
+    """Mars base is the original mission in sim/; every other place has its own folder (pipeline/environments.py)."""
+    return SIM_DIR if env == "mars_base" else SIM_DIR / env
+
+
+def available_environments() -> list[str]:
+    return [e for e in ENVIRONMENTS if (sim_dir(e) / "crew.csv").exists() and (sim_dir(e) / "predictions.csv").exists()]
+
+
+def saved_path(env: str) -> Path:
+    if env == "mars_base":
+        return MISSION_SAVED_PATH
+    return MISSION_SAVED_PATH.with_name(f"{MISSION_SAVED_PATH.stem}_{env}{MISSION_SAVED_PATH.suffix}")
+
+
+def _read(name: str, env: str = "mars_base") -> list[dict]:
+    with (sim_dir(env) / name).open(newline="", encoding="utf-8") as f:
         return list(csv.DictReader(f))
 
 
 class Mission:
-    def __init__(self) -> None:
-        self.crew = _read("crew.csv")
+    def __init__(self, env: str = "mars_base") -> None:
+        self.env = env
+        self.saved_path = saved_path(env)
+        self.crew = _read("crew.csv", env)
         self.ids = [c["astronaut_id"] for c in self.crew]
         self.days_total = 0
         self.values: dict[tuple[str, int], dict] = {}
-        for r in _read("days.csv"):
+        for r in _read("days.csv", env):
             day = int(r["mission_day"])
             self.days_total = max(self.days_total, day)
             self.values[(r["astronaut_id"], day)] = {
                 **{i: float(r[i]) for i in INDICATORS},
                 "symptoms": [s for s in r["symptoms"].split(";") if s],
             }
-        self.preds = {(r["astronaut_id"], int(r["mission_day"])): r for r in _read("predictions.csv")}
-        self.events = _read("events.csv")
-        self.tasks = _read("tasks.csv")
+        self.preds = {(r["astronaut_id"], int(r["mission_day"])): r for r in _read("predictions.csv", env)}
+        self.events = _read("events.csv", env)
+        self.tasks = _read("tasks.csv", env)
         model = json.loads(MODEL_PATH.read_text())
         self.base_rates = {e: v["base_rate"] for e, v in model["events"].items()}
         self.anamnesis = json.loads(ANAMNESIS_PATH.read_text(encoding="utf-8"))["crew"]
@@ -104,10 +121,16 @@ class Mission:
         self.day = 15
         self._load_saved()
 
+    def switch(self, env: str) -> None:
+        """Same crew in another place: reload that place's simulated mission, keep the day."""
+        day = self.day
+        self.__init__(env)  # type: ignore[misc]
+        self.day = min(day, self.days_total)
+
     # ---------- values entered in the app ----------
     def _load_saved(self) -> None:
-        if MISSION_SAVED_PATH.exists():
-            saved = json.loads(MISSION_SAVED_PATH.read_text(encoding="utf-8"))
+        if self.saved_path.exists():
+            saved = json.loads(self.saved_path.read_text(encoding="utf-8"))
             self.entries, self.readiness = saved.get("entries", {}), saved.get("readiness", {})
         for key, e in self.entries.items():
             aid, day = key.split("|")
@@ -119,8 +142,8 @@ class Mission:
             self.values[(aid, day)]["symptoms"] = entry["symptoms"]
 
     def _persist(self) -> None:
-        MISSION_SAVED_PATH.parent.mkdir(parents=True, exist_ok=True)
-        MISSION_SAVED_PATH.write_text(json.dumps({"entries": self.entries, "readiness": self.readiness}, indent=1),
+        self.saved_path.parent.mkdir(parents=True, exist_ok=True)
+        self.saved_path.write_text(json.dumps({"entries": self.entries, "readiness": self.readiness}, indent=1),
                                       encoding="utf-8")
 
     def enter(self, aid: str, day: int, values: dict[str, float], symptoms: list[str] | None = None) -> None:
@@ -156,7 +179,7 @@ class Mission:
     def reset(self) -> None:
         self.values = copy.deepcopy(self.simulated)
         self.entries, self.readiness = {}, {}
-        MISSION_SAVED_PATH.unlink(missing_ok=True)
+        self.saved_path.unlink(missing_ok=True)
         self.day = 15
 
     # ---------- one astronaut ----------
@@ -558,12 +581,16 @@ class Mission:
                  for a in crew for r in a["risks"] if r["level"] != "normal"]
         symptoms = [{"astronaut_id": a["astronaut_id"], "name": a["name"], "symptoms": a["symptoms"]}
                     for a in crew if a["symptoms"]]
-        delay_s = ENVIRONMENTS["mars_base"]["comm_delay_s"]
+        delay_s = ENVIRONMENTS[self.env]["comm_delay_s"]
         if role == "ground":
+            if delay_s >= 60:
+                guidance = (f"You see the crew's data about {round(delay_s / 60)} minutes late, and your advice takes as "
+                            "long to arrive. Advise the CMO on trends and risks; anything urgent is handled onboard first.")
+            else:
+                guidance = ("Live link: you see the crew's data as it comes and can talk to the CMO directly. Lead on "
+                            "anything above usual risk; the CMO acts onboard.")
             header = {"role": "ground", "title": "Flight surgeon on Earth", "data_delay_min": round(delay_s / 60),
-                      "reply_round_trip_min": round(2 * delay_s / 60),
-                      "guidance": "You see the crew's data about 20 minutes late, and your advice takes as long to arrive. "
-                                  "Advise the CMO on trends and risks; anything urgent is handled onboard first."}
+                      "reply_round_trip_min": round(2 * delay_s / 60), "guidance": guidance}
         else:
             header = {"role": "cmo", "title": "Crew medical officer (onboard)", "data_delay_min": 0,
                       "reply_round_trip_min": 0,

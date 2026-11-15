@@ -111,10 +111,6 @@ footer { margin-top: 32px; font-size: .78rem; color: var(--muted); font-family: 
 .context { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; color: var(--muted); font-size: .8rem; }
 .context > span { font-family: var(--font-mono); padding: .25rem .65rem; border-radius: 999px; border: 1px solid var(--border);
   background: rgba(255,255,255,.02); white-space: nowrap; }
-.context > span.env { color: var(--text); border-color: color-mix(in srgb, #ff8a5b 45%, transparent);
-  background: color-mix(in srgb, #ff8a5b 10%, transparent); }
-.context > span.env::before { content: ''; display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 7px;
-  background: radial-gradient(circle at 35% 35%, #ffb08a, #c2512a); vertical-align: 0; }
 .context button { font-size: .8rem; border-radius: 999px; }
 
 /* status lamps */
@@ -647,3 +643,42 @@ kbd { font-family: var(--font-mono); font-size: .66rem; padding: 1px 5px; border
   .tile-value { font-size: 1.8rem; }
 }
 .crew-card:hover, .crew-card:focus-within { z-index: 5; }
+
+/* ================= where the mission happens ================= */
+.env-switch { position: relative; }
+.env-iss { --planet: radial-gradient(circle at 35% 35%, #9fe0ff, #2f7fd0 60%, #1d4f8f); --env: #6cc9ff; }
+.env-transit { --planet: radial-gradient(circle at 35% 35%, #e3d7ff, #8b6cf0 55%, #3d2a8a); --env: #a78bfa; }
+.env-moon_base { --planet: radial-gradient(circle at 35% 35%, #f4f4f4, #a7adb8 55%, #5e636d); --env: #c5cad3; }
+.env-mars_base, .env-rover { --planet: radial-gradient(circle at 35% 35%, #ffb08a, #d0612f 55%, #7d2e12); --env: #ff8a5b; }
+.env-switch > button.env { display: inline-flex; align-items: center; gap: 8px; font-family: var(--font-mono); font-size: .8rem;
+  padding: .25rem .7rem; border-radius: 999px; color: var(--text);
+  border: 1px solid color-mix(in srgb, var(--env) 45%, transparent); background: color-mix(in srgb, var(--env) 10%, transparent); }
+.env-switch > button.env:hover { border-color: var(--env); background: color-mix(in srgb, var(--env) 18%, transparent); }
+.env-switch > button.env.busy { opacity: .6; cursor: progress; }
+.env i, .env-opt i { width: 10px; height: 10px; border-radius: 50%; background: var(--planet); flex: none;
+  box-shadow: 0 0 8px color-mix(in srgb, var(--env) 60%, transparent); }
+.env-opt i { width: 26px; height: 26px; margin-top: 2px; }
+.caret { width: 6px; height: 6px; border-right: 1.5px solid var(--muted); border-bottom: 1.5px solid var(--muted);
+  transform: translateY(-2px) rotate(45deg); }
+.env-menu { position: absolute; right: 0; top: calc(100% + 8px); z-index: 30; width: min(360px, calc(100vw - 32px));
+  list-style: none; margin: 0; padding: 6px; border-radius: var(--radius);
+  background: color-mix(in srgb, var(--surface-solid) 96%, transparent); border: 1px solid var(--border-hi);
+  box-shadow: 0 24px 60px -20px rgba(0,0,0,.95); backdrop-filter: blur(16px); animation: rise .2s ease-out; }
+.env-menu-head { padding: 8px 10px 6px; font-size: .74rem; color: var(--muted); }
+.env-opt { all: unset; box-sizing: border-box; cursor: pointer; width: 100%; display: flex; gap: 12px; padding: 10px; border-radius: 10px; }
+.env-opt:hover, .env-opt:focus-visible { background: rgba(255,255,255,.05); }
+.env-opt.on { background: color-mix(in srgb, var(--env) 12%, transparent); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--env) 45%, transparent); }
+.env-opt-text { display: grid; gap: 2px; }
+.env-opt strong { font-family: var(--font-display); font-weight: 600; font-size: .95rem; color: var(--text); }
+.env-stats { font-family: var(--font-mono); font-size: .7rem; color: var(--env); }
+.env-note { font-size: .78rem; color: var(--muted); line-height: 1.35; }
+
+/* a short message after switching place */
+.toast { position: fixed; left: 50%; bottom: 24px; z-index: 40; transform: translateX(-50%); max-width: min(560px, calc(100vw - 32px));
+  margin: 0; padding: 12px 18px; border-radius: 14px; font-size: .88rem; color: var(--text);
+  background: color-mix(in srgb, var(--surface-solid) 95%, transparent); border: 1px solid var(--border-hi);
+  box-shadow: 0 20px 50px -16px rgba(0,0,0,.9), 0 0 30px -12px var(--accent); animation: toast 6s ease both; }
+@keyframes toast { 0% { opacity: 0; transform: translate(-50%, 16px); } 6%, 90% { opacity: 1; transform: translate(-50%, 0); }
+  100% { opacity: 0; transform: translate(-50%, 8px); } }
+.delay.live { color: var(--green); }
+.guidance.delayed:has(.delay.live) { border-color: var(--border); box-shadow: inset 3px 0 var(--green); }
