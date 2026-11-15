@@ -31,7 +31,7 @@ function HistoryChart({ points, day, onDay }: { points: HistoryPoint[]; day: num
         <CartesianGrid stroke="var(--grid)" vertical={false} />
         <XAxis dataKey="day" tick={{ fontSize: 10, fill: 'var(--muted)' }} interval={4} />
         <YAxis tick={{ fontSize: 10, fill: 'var(--muted)' }} domain={['auto', 'auto']} />
-        <Tooltip contentStyle={{ background: 'var(--surface)', border: '1px solid var(--border)' }}
+        <Tooltip contentStyle={{ background: 'var(--panel)', border: '1px solid var(--border-hi)', borderRadius: 10, fontFamily: 'var(--font-mono)', fontSize: 12 }}
           formatter={(v, name) => (Array.isArray(v) ? [`${v[0]} to ${v[1]}`, 'usual range'] : [v, name])}
           labelFormatter={(d) => `Day ${d}`} />
         <Area dataKey="band" stroke="none" fill="var(--accent)" fillOpacity={0.12} isAnimationActive={false} name="usual range" />

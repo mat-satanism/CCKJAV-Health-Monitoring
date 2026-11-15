@@ -71,7 +71,25 @@ export default function App() {
   return (
     <div className="app">
       <header className="topbar">
-        <h1>Crew Health Navigator</h1>
+        <div className="brand">
+          <svg viewBox="0 0 40 40" aria-hidden="true">
+            <defs>
+              <linearGradient id="logo-g" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0" stopColor="#6cc9ff" /><stop offset="1" stopColor="#a78bfa" />
+              </linearGradient>
+            </defs>
+            <ellipse cx="20" cy="20" rx="17" ry="7" fill="none" stroke="url(#logo-g)" strokeWidth="1.6"
+              transform="rotate(-28 20 20)" opacity=".9" />
+            <circle cx="20" cy="20" r="8" fill="url(#logo-g)" />
+            <path d="M15.5 20h2.5l1.5-3 2 6 1.5-3h2.5" fill="none" stroke="#071022" strokeWidth="1.6"
+              strokeLinecap="round" strokeLinejoin="round" />
+            <circle cx="35" cy="12" r="1.8" fill="#fff" />
+          </svg>
+          <div>
+            <h1>Crew Health Navigator</h1>
+            <span className="brand-sub">Mission medical console</span>
+          </div>
+        </div>
         <nav className="tabs" role="tablist">
           {TABS.map((t) => (
             <button key={t.id} role="tab" aria-selected={tab === t.id} className={tab === t.id ? 'on' : ''}
