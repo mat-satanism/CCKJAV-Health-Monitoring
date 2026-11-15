@@ -8,7 +8,9 @@ This module gives the models the same view, so "unusual for this person" means t
     <signal>_bz3    the same, mean of the last 3 days
 
 Only values before today enter the norm. Priors: the app's own (models/norm_priors.json) where the app has the
-indicator; otherwise fitted on the training people's days (folds 0-3), never on held-out people.
+indicator; otherwise fitted on people's days. In cross-validation (wellbeing.out_of_person_scores) those fitted
+priors are refitted for every fold on the other folds' people only (`refit_for_fold`), so no scored person's data
+shapes their own inputs. Outside cross-validation they come from folds 0-3, never the held-out fold 4.
 """
 import json
 import math
@@ -51,15 +53,29 @@ def fit_prior(f: pd.DataFrame, col: str) -> dict:
     return {"m0": float(means.mean()), "tau0": float(means.std()), "sigma": float(np.sqrt(variances.mean()))}
 
 
-def priors_for(f: pd.DataFrame, signals: list[str]) -> dict[str, dict]:
-    train = f[~f["is_test"]]
+def priors_for(f: pd.DataFrame, signals: list[str], train_mask: pd.Series | None = None) -> dict[str, dict]:
+    train = f[~f["is_test"]] if train_mask is None else f[train_mask]
     return {s: APP_PRIORS[APP_PRIOR[s]] if s in APP_PRIOR else fit_prior(train, s) for s in signals}
 
 
-def add_bayes(f: pd.DataFrame, signals: list[str]) -> pd.DataFrame:
+def fitted_signals(signals: list[str]) -> list[str]:
+    """Signals whose prior is learned from people's data (the app has no prior for them)."""
+    return [s for s in signals if s not in APP_PRIOR]
+
+
+def refit_for_fold(f: pd.DataFrame, signals: list[str], train_mask: pd.Series) -> pd.DataFrame:
+    """The same table with the fitted-prior signals recomputed from the training people (`train_mask`) only."""
+    fitted = fitted_signals(signals)
+    if not fitted:
+        return f
+    out = add_bayes(f, fitted, train_mask=train_mask)
+    return out.loc[f.index]
+
+
+def add_bayes(f: pd.DataFrame, signals: list[str], train_mask: pd.Series | None = None) -> pd.DataFrame:
     """Add <signal>_bz and <signal>_bz3. Rows are a full daily calendar per person; gaps are skipped like the app."""
     f = f.sort_values(["person_id", "date"]).copy()
-    priors = priors_for(f, signals)
+    priors = priors_for(f, signals, None if train_mask is None else train_mask.reindex(f.index))
     for s in signals:
         bz = np.full(len(f), np.nan)
         pos = 0

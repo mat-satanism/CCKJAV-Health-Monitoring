@@ -58,7 +58,7 @@ def _titles(fig, title: str, subtitle: str, source: str) -> None:
 
 FORECASTS = [   # (label, task name, inputs): the variants shipped in the app, the forest with all inputs otherwise
     ("Lower mood tomorrow", "worse mood", "check-in + last days"),
-    ("Less energy tomorrow", "more tired (fatigue)", "all inputs"),
+    ("Less energy tomorrow", "more tired (fatigue)", "check-in + last days"),
     ("Less ready to train", "less ready (readiness)", "all inputs"),
     ("Sad, tense or tired (LifeSnaps)", "negative feeling", "all inputs"),
 ]

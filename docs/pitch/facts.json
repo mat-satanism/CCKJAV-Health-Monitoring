@@ -129,9 +129,9 @@
   ]
  },
  "demo_person": {
-  "high_days": 7,
+  "high_days": 8,
   "high_then_bad": 3,
-  "other_days": 21,
+  "other_days": 20,
   "other_then_bad": 4
  },
  "blood_panel": {
@@ -170,7 +170,7 @@
   ]
  },
  "alerts": {
-  "calibrated": false,
+  "calibrated": true,
   "rows": [
    {
     "method": "Status rules (any yellow or red)",
@@ -182,18 +182,18 @@
    },
    {
     "method": "Model, risk 3x usual or more",
-    "flagged_before_events": 0.986,
+    "flagged_before_events": 0.987,
     "median_days_ahead": 4.0,
-    "flagged_in_a_calm_week": 0.414,
-    "flags_per_calm_astronaut_week": 0.99,
+    "flagged_in_a_calm_week": 0.376,
+    "flags_per_calm_astronaut_week": 0.92,
     "events": 717
    },
    {
     "method": "Model, risk 5x usual or more",
-    "flagged_before_events": 0.883,
+    "flagged_before_events": 0.887,
     "median_days_ahead": 3.0,
-    "flagged_in_a_calm_week": 0.172,
-    "flags_per_calm_astronaut_week": 0.32,
+    "flagged_in_a_calm_week": 0.17,
+    "flags_per_calm_astronaut_week": 0.33,
     "events": 717
    }
   ]
@@ -201,37 +201,37 @@
  "forecast": [
   {
    "label": "Lower mood tomorrow",
-   "model": 0.703,
+   "model": 0.699,
    "reference": 0.608,
-   "lo": 0.057,
-   "hi": 0.134,
+   "lo": 0.045,
+   "hi": 0.143,
    "people": 16,
-   "gain": 0.095
+   "gain": 0.092
   },
   {
    "label": "Less energy tomorrow",
-   "model": 0.649,
+   "model": 0.641,
    "reference": 0.59,
-   "lo": 0.009,
-   "hi": 0.127,
+   "lo": 0.008,
+   "hi": 0.099,
    "people": 16,
-   "gain": 0.059
+   "gain": 0.051
   },
   {
    "label": "Less ready to train",
-   "model": 0.639,
+   "model": 0.624,
    "reference": 0.627,
-   "lo": -0.023,
-   "hi": 0.05,
+   "lo": -0.038,
+   "hi": 0.036,
    "people": 16,
-   "gain": 0.012
+   "gain": -0.003
   },
   {
    "label": "Sad, tense or tired (LifeSnaps)",
    "model": 0.515,
    "reference": 0.53,
-   "lo": -0.061,
-   "hi": 0.028,
+   "lo": -0.054,
+   "hi": 0.021,
    "people": 58,
    "gain": -0.015
   }

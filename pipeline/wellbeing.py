@@ -57,7 +57,8 @@ DEVICE = ("heart_rate", "sleep_hours_device", "exercise_min", "steps", "stress_s
 LS_SIGNALS = ["heart_rate", "sleep_hours_device", "exercise_min", "steps", "stress_score", "temp_skin"]
 CHECK_IN = ["mood", "fatigue", "stress", "readiness", "sleep_quality", "soreness", "sleep_hours"]
 NORM = "bayes"   # inputs against the app's Bayesian personal norm (docs/personal-norm.md); "median" = old rule
-HISTORY = ("_lag1", "_d1", "_min3")   # yesterday's answer, change since yesterday, worst of the last 3 days
+# yesterday's answer, change since yesterday, worst of the last 3 days, days since the last below-usual day
+HISTORY = ("_lag1", "_d1", "_min3", "_since_low")
 
 
 def add_pmdata_targets(f: pd.DataFrame, cols: tuple[str, ...] = ("mood", "fatigue", "readiness")) -> pd.DataFrame:
@@ -69,7 +70,19 @@ def add_pmdata_targets(f: pd.DataFrame, cols: tuple[str, ...] = ("mood", "fatigu
         tomorrow = g.shift(-1)
         f[f"y_{col}"] = (tomorrow < usual).astype(float).where(tomorrow.notna() & usual.notna())
         f[f"ref_{col}"] = usual - f[col]          # how far below usual today: "same as today" as a score
+        # Days since this person's last below-usual answer, counted up to today (today's answer is known today).
+        # Chosen by the nested check (docs/wellbeing-model.md): it was the most picked addition for mood and fatigue.
+        low = (f[col] < usual).astype(float)
+        f[f"{col}_since_low"] = low.groupby(f["person_id"]).transform(_days_since)
     return f
+
+
+def _days_since(x: pd.Series) -> pd.Series:
+    out, n = [], np.nan
+    for v in x:
+        n = 0.0 if v == 1 else (n + 1 if not np.isnan(n) else np.nan)
+        out.append(n)
+    return pd.Series(out, index=x.index)
 
 
 def add_history(f: pd.DataFrame) -> pd.DataFrame:
@@ -124,11 +137,20 @@ def models() -> dict:
 
 
 def out_of_person_scores(f: pd.DataFrame, cols: list[str], target: str) -> dict[str, np.ndarray]:
-    """Each row scored by a model trained only on the other folds' people."""
+    """Each row scored by a model trained only on the other folds' people.
+
+    Inputs whose norm prior is learned from people (steps, fatigue, stress; LifeSnaps signals) are recomputed for
+    every fold with priors from the other folds only, so a scored person never shapes their own inputs.
+    """
     out = {name: np.full(len(f), np.nan) for name in models()}
-    x, y = f[cols].to_numpy(float), f[target].to_numpy(int)
+    y = f[target].to_numpy(int)
+    signals = sorted({c.rsplit("_bz", 1)[0] for c in cols if "_bz" in c})
+    refit = bool(bayes_features.fitted_signals(signals))
+    x = f[cols].to_numpy(float)
     for fold in sorted(f["fold"].unique()):
         test = (f["fold"] == fold).to_numpy()
+        if refit:
+            x = bayes_features.refit_for_fold(f, signals, f["fold"] != fold)[cols].to_numpy(float)
         for name, m in models().items():
             m.fit(x[~test], y[~test])
             out[name][test] = m.predict_proba(x[test])[:, 1]
@@ -259,7 +281,7 @@ EXPORT_FILE = PROCESSED / "wellbeing_demo.json"
 MIN_REASON = 0.01   # a sign is named only if it adds at least 1 percentage point to the risk
 EXPORT_TASKS = {   # target -> (task name, inputs): the best honest variant per target (docs/wellbeing-model.md)
     "mood": ("worse mood", "check-in + last days"),
-    "fatigue": ("more tired (fatigue)", "all inputs"),
+    "fatigue": ("more tired (fatigue)", "check-in + last days"),
 }
 LABELS = {
     "mood": "mood (1-5)", "fatigue": "energy (1-5, 5 = fresh)", "stress": "calm (1-5, 5 = relaxed)",
@@ -299,6 +321,8 @@ def describe(col: str, value: float) -> str:
         return f"{LABELS[col[:-3]]} {value:+g} since yesterday"
     if col.endswith("_min3"):
         return f"lowest {LABELS[col[:-5]]} in 3 days: {value:g}"
+    if col.endswith("_since_low"):
+        return f"{value:g} days since {LABELS[col[:-10]]} was last below usual"
     return f"{LABELS.get(col, col)} today: {value:g}"
 
 

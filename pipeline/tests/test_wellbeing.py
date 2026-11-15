@@ -134,3 +134,18 @@ def test_bayes_inputs_use_only_the_past():
     b = bf.add_bayes(changed, ["mood"])
     past = a["date"] <= "2020-01-15"
     pd.testing.assert_frame_equal(a.loc[past, ["mood_bz", "mood_bz3"]], b.loc[past, ["mood_bz", "mood_bz3"]])
+
+
+def test_fold_priors_ignore_the_scored_people():
+    from pipeline import bayes_features as b
+    f = pd.DataFrame({"person_id": ["a"] * 10 + ["b"] * 10, "date": list(range(10)) * 2,
+                      "fold": [0] * 10 + [1] * 10, "is_test": False,
+                      "stress": [3.0] * 10 + [100.0, 101.0, 99.0, 100.0, 102.0, 98.0, 100.0, 101.0, 99.0, 100.0]})
+    p = b.priors_for(f, ["stress"], train_mask=f["fold"] != 1)["stress"]
+    assert p["m0"] == 3.0                                   # person b (fold 1) does not enter fold 1's prior
+
+
+def test_days_since_low_counts_from_the_last_low_day_and_only_looks_back():
+    from pipeline.wellbeing import _days_since
+    out = _days_since(pd.Series([0.0, 1.0, 0.0, 0.0, 1.0, 0.0]))
+    assert out.isna().tolist()[0] and out.tolist()[1:] == [0, 1, 2, 0, 1]

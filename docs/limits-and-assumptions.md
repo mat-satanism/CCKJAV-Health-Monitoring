@@ -41,6 +41,10 @@ Every synthetic value is labelled "synthetic" in the API and in the app.
 - Metrics: ROC AUC, PR AUC, precision, recall, F1. Accuracy is not used: events are 2-3% of days, so
   "never alert" would be 97% accurate and useless.
 
+- Simulated test missions are new missions, not new people: their astronauts copy the same 11 real PMData people
+  as the training missions. Holding people out (missions from 8 people for training, 3 for testing, and swapped)
+  gives ROC AUC 0.855-0.868 instead of 0.871: almost the same, but said here.
+
 ## What the numbers do and do not mean
 
 - On simulated missions the model is good (infection ROC AUC 0.95). That shows the approach works **if** the
