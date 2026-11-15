@@ -15,7 +15,7 @@ Working now:
 - **Trends**: charts with the personal baseline line and a 7-day forecast that goes back to the person's own norm, with an 80% band; fitted and checked on real people (15% better than "same as today", the old straight line was 44% worse). See `docs/forecast.md`.
 - **Assistant**: rule-based advice with escalation levels (self / crew / ground) and a comms-delay note.
 - **Daily tasks** with points.
-- **Mission context**: one Mars-base mission (0.38 g, 20 min signal delay).
+- **Mission context**: the same crew on a Mars base (0.38 g, 20 min signal delay), Moon base, space station, deep-space transit or Mars rover; each place has its own simulated mission. See `docs/environments.md`.
 - **Check-in per crew member**: pick an astronaut, tap the body, pick a day on the mission strip or any chart, see the history with their usual range, enter values and symptoms for that day, answer the morning readiness check, see their (synthetic) medical history and medicine for the day.
 - **Demo data (Check-in, real-data demo)**: 30 real days of one PMData participant for heart rate, sleep, mood and exercise; blood pressure, glucose and temperature are synthetic (typical NHANES level + simulated daily changes) and labelled as such.
 - **Crew mission (simulation)**: 5 astronauts over 30 days, synthetic data calibrated on real people. Mission clock, crew status, risks for the next 48 h, and tasks that move to a fit crew member with the reason (e.g. John's EVA goes to Stefan because of fever).
@@ -32,9 +32,8 @@ Working now:
 - **Two themes**: the original dark console and a light one that meets WCAG 2.2 AA contrast and never shows status by colour alone; a header button switches, the choice is remembered.
 
 Planned:
-- How-to-measure instructions in the check-in and body system descriptions.
 - Streaks and badges.
-- Printable report for the ground flight surgeon.
+- Sleep quality on a sourced scale (no source found yet for the 1-7 scale).
 
 > Not medical advice. Thresholds are for demonstration and must be verified with medical sources.
 
@@ -51,15 +50,17 @@ backend/app/
   demo.py        Check-in real-data demo: 30 real PMData days + synthetic BP, glucose, temp
 backend/tests/   pytest
 frontend/        React + Vite + TypeScript UI (see frontend/README.md)
-data/            thresholds.json (demo values)
-docs/            api contract, sources
+pipeline/        data cleaning, simulation, models, charts (python -m pipeline.<module>)
+models/          trained risk model and norm priors the app reads
+data/            thresholds.json (limits), content/ (sourced texts), processed/ (cleaned data, simulated missions)
+docs/            api contract, methods and results, sources, pitch charts
 ```
 
-## For the data / ML team
+## Data and models
 - **Models:** the personal norm and statuses are in `backend/app/status.py` (Bayesian, `docs/personal-norm.md`); the chart forecast and trend arrow in `backend/app/analytics.py`, fitted by `python -m pipeline.forecast_eval` ([docs/forecast.md](docs/forecast.md)); the risk model and the wellbeing forecast are trained in `pipeline/` and the app reads their precomputed files.
 - **Data:** to show real/cleaned data in the app, make `demo_mission()` in `backend/app/demo.py` return your records as `Measurement` objects.
 - **Thresholds:** edit `data/thresholds.json` and add the source to `docs/sources.md`.
-- Notebooks go to `notebooks/`, raw data to `data/raw/` (keep large files out of git).
+- Raw data goes to `data/raw/` (not in git; `python -m pipeline.get_data` downloads it).
 - **Cleaned data:** `python -m pipeline.get_data` then `python -m pipeline.build` fills `data/processed/` (daily wearable table, Inspiration4 blood tests, NHANES reference ranges). Columns and cleaning rules: [docs/data.md](docs/data.md). Which days have data, per person: [docs/data-completeness.md](docs/data-completeness.md).
 - **Can the percentages be trusted:** `python -m pipeline.calibration` checks both models; the risk model understated high risks, so it is recalibrated on separate missions (stored in `models/risk_model.json`). See [docs/calibration.md](docs/calibration.md).
 - **How many days the norm needs:** `python -m pipeline.norm_days` checks the calibration week (6 days) and the 14-day window on real people and the simulation: both hold up. See [docs/norm-days.md](docs/norm-days.md).
@@ -85,8 +86,6 @@ npm install
 npm run dev
 ```
 Open http://localhost:5173. The backend starts with a synthetic demo mission; "Reset demo" in the UI restores it.
-
-See [CONTRIBUTING.md](CONTRIBUTING.md) for workflow.
 
 ## Public site
 The whole app runs in one container (`Dockerfile`): the API also serves the built website, on port 7860.
