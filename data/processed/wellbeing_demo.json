@@ -113,7 +113,7 @@
     "probability": 0.306,
     "times_usual": 2.0,
     "reasons": [
-     "1 days since mood (1-5) was last below usual",
+     "1 day since mood (1-5) was last below usual",
      "mood (1-5) 0.7 spreads above usual today",
      "energy (1-5, 5 = fresh) 1.3 spreads below usual today"
     ],
@@ -249,7 +249,7 @@
     "probability": 0.294,
     "times_usual": 1.9,
     "reasons": [
-     "1 days since mood (1-5) was last below usual",
+     "1 day since mood (1-5) was last below usual",
      "mood (1-5) 0.8 spreads above usual today",
      "mood (1-5) +1 since yesterday"
     ],
@@ -453,7 +453,7 @@
     "probability": 0.275,
     "times_usual": 1.8,
     "reasons": [
-     "1 days since mood (1-5) was last below usual",
+     "1 day since mood (1-5) was last below usual",
      "mood (1-5) 0.6 spreads above usual today",
      "energy (1-5, 5 = fresh) 2.5 spreads below usual on average over the last 3 days"
     ],
@@ -667,7 +667,7 @@
     "probability": 0.263,
     "times_usual": 1.7,
     "reasons": [
-     "1 days since mood (1-5) was last below usual",
+     "1 day since mood (1-5) was last below usual",
      "mood (1-5) 0.4 spreads above usual today",
      "mood (1-5) +1 since yesterday"
     ],

@@ -5,12 +5,32 @@ import type {
 
 const BASE = import.meta.env.VITE_API_URL ?? 'http://127.0.0.1:8000'
 
+/** An error from the API, with its own reason (`detail`) when it gave one. */
+export class ApiError extends Error {
+  status: number
+  detail: string | null
+  constructor(status: number, message: string, detail: string | null) {
+    super(message); this.status = status; this.detail = detail
+  }
+}
+
+/** FastAPI explains a 422 either as a text or as a list of field problems. */
+function reason(body: unknown): string | null {
+  const d = (body as { detail?: unknown } | null)?.detail
+  if (typeof d === 'string') return d
+  if (Array.isArray(d)) return d.map((e: { loc?: unknown[]; msg?: string }) => `${(e.loc ?? []).slice(-1)[0] ?? ''}: ${e.msg ?? ''}`).join('; ')
+  return null
+}
+
 async function req<T>(path: string, init?: RequestInit): Promise<T> {
   const res = await fetch(`${BASE}${path}`, {
     headers: { 'Content-Type': 'application/json' },
     ...init,
   })
-  if (!res.ok) throw new Error(`${init?.method ?? 'GET'} ${path}: ${res.status}`)
+  if (!res.ok) {
+    const detail = reason(await res.json().catch(() => null))
+    throw new ApiError(res.status, `${init?.method ?? 'GET'} ${path}: ${res.status}`, detail)
+  }
   return res.json() as Promise<T>
 }
 

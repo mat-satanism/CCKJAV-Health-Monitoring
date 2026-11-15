@@ -322,7 +322,7 @@ def describe(col: str, value: float) -> str:
     if col.endswith("_min3"):
         return f"lowest {LABELS[col[:-5]]} in 3 days: {value:g}"
     if col.endswith("_since_low"):
-        return f"{value:g} days since {LABELS[col[:-10]]} was last below usual"
+        return f"{value:g} {'day' if value == 1 else 'days'} since {LABELS[col[:-10]]} was last below usual"
     return f"{LABELS.get(col, col)} today: {value:g}"
 
 

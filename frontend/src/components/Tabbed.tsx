@@ -3,8 +3,12 @@ import { useState, type ReactNode } from 'react'
 export interface TabItem { id: string; label: string; badge?: ReactNode; content: ReactNode }
 
 /** One panel, several cards behind small tabs: keeps a long side column to one screen. */
-export function Tabbed({ tabs, label }: { tabs: TabItem[]; label: string }) {
-  const [on, setOn] = useState(tabs[0]?.id)
+export function Tabbed({ tabs, label, active, onActive }: {
+  tabs: TabItem[]; label: string; active?: string; onActive?: (id: string) => void
+}) {
+  const [own, setOwn] = useState(tabs[0]?.id)
+  const on = active ?? own
+  const setOn = (id: string) => { setOwn(id); onActive?.(id) }
   const current = tabs.find((t) => t.id === on) ?? tabs[0]
   return (
     <section className="panel tabbed" aria-label={label}>

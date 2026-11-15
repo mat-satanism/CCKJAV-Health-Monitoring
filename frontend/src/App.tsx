@@ -4,6 +4,7 @@ import { BloodReference } from './components/BloodReference'
 import { BodyMap } from './components/BodyMap'
 import { CheckIn } from './components/CheckIn'
 import { DoctorView } from './components/DoctorView'
+import { EmergencyScreen } from './components/EmergencyScreen'
 import { MissionStrip } from './components/MissionStrip'
 import { MissionView } from './components/MissionView'
 import { PatientFile } from './components/PatientFile'
@@ -37,6 +38,9 @@ export default function App() {
   const [selected, setSelected] = useState<SystemId | null>('cardiovascular')
   const [error, setError] = useState<string | null>(null)
   const [version, setVersion] = useState(0)
+  const [sideTab, setSideTab] = useState('outlook')
+  const [measure, setMeasure] = useState<string | null>(null)       // field to re-measure in the check-in
+  const [emergencySeen, setEmergencySeen] = useState<string | null>(null)
 
   const refresh = useCallback(async () => {
     try {
@@ -85,6 +89,10 @@ export default function App() {
     setMission({ ...mission, day: next })
   }
   const patient = chosen ?? mission?.crew[0]?.astronaut_id ?? 'real'
+  // The emergency screen opens once per set of confirmed reds; closing it keeps it closed until something new turns red.
+  const confirmedReds = insights.items.filter((i) => i.status === 'red' && !i.recheck).map((i) => i.type).join(',')
+  const showEmergency = insights.level === 'ground' && confirmedReds !== '' && emergencySeen !== confirmedReds
+  const measureNow = (type: string) => { setSideTab('checkin'); setMeasure(type) }
   const openPerson = (aid: string) => { setPatient(aid); setFileOpen(false); setTab('astronaut') }
   const strip = mission && (
     <MissionStrip day={mission.day} total={mission.days_total} note={mission.note} onDay={changeDay} reloadKey={version} />
@@ -190,20 +198,27 @@ export default function App() {
               </p>
             </details>
             {selected && (
-              <SystemPanel key={`${selected}-${version}`} system={selected} meta={meta} indicators={status.indicators} />
+              <SystemPanel key={`${selected}-${version}`} system={selected} meta={meta} indicators={status.indicators}
+                onMeasure={measureNow} />
             )}
             {selected === 'metabolic' && <BloodReference />}
           </div>
 
           <aside className="side sticky-col">
-            <Tabbed label="Outlook, tasks and check-in" tabs={[
+            <Tabbed label="Outlook, tasks and check-in" active={sideTab}
+              onActive={(id) => { setSideTab(id); setMeasure(null) }} tabs={[
               { id: 'outlook', label: 'Tomorrow', content: <WellbeingCard /> },
               { id: 'tasks', label: 'Tasks', badge: tasks.filter((t) => !t.done).length || undefined,
                 content: <TasksCard tasks={tasks} onDone={(id) => api.completeTask(id).then(refresh)}
                   onFeedback={(id, o) => api.taskFeedback(id, o).then(refresh)} /> },
-              { id: 'checkin', label: 'Check-in', content: <CheckIn meta={meta} onSaved={refresh} /> },
+              { id: 'checkin', label: 'Check-in',
+                content: <CheckIn meta={meta} focus={measure} onSaved={() => { setMeasure(null); refresh() }} /> },
             ]} />
           </aside>
+          {showEmergency && (
+            <EmergencyScreen insights={insights} meta={meta} delayS={ctx.comm_delay_s ?? 0}
+              onClose={() => setEmergencySeen(confirmedReds)} />
+          )}
         </main>
       )}
       </div>
