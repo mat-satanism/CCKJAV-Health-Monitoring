@@ -1,0 +1,5 @@
+mission_id,event_id,type,hazard,who,prodrome_start,onset_day,end_day
+demo,demo-0,infection,closed environment,john,16,18,21
+demo,demo-1,deconditioning,gravity,maria,17,21,24
+demo,demo-2,solar_flare,radiation,crew,24,24,24
+demo,demo-3,low_mood,isolation,kenji,19,23,28

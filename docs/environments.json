@@ -1,0 +1,113 @@
+{
+ "auc": {
+  "mars_base": {
+   "co2_buildup": 0.802,
+   "deconditioning": 0.96,
+   "infection": 0.944,
+   "low_mood": 0.856,
+   "sleep_disruption": 0.828
+  },
+  "iss": {
+   "co2_buildup": 0.744,
+   "deconditioning": 0.955,
+   "infection": 0.948,
+   "low_mood": 0.845,
+   "sleep_disruption": 0.823
+  },
+  "transit": {
+   "co2_buildup": 0.779,
+   "deconditioning": 0.948,
+   "infection": 0.948,
+   "low_mood": 0.856,
+   "sleep_disruption": 0.822
+  },
+  "moon_base": {
+   "co2_buildup": 0.802,
+   "deconditioning": 0.962,
+   "infection": 0.947,
+   "low_mood": 0.845,
+   "sleep_disruption": 0.829
+  },
+  "rover": {
+   "co2_buildup": 0.775,
+   "deconditioning": 0.949,
+   "infection": 0.951,
+   "low_mood": 0.848,
+   "sleep_disruption": 0.823
+  }
+ },
+ "share_ahead": {
+  "mars_base": {
+   "co2_buildup": 0.024,
+   "deconditioning": 0.019,
+   "infection": 0.02,
+   "low_mood": 0.018,
+   "sleep_disruption": 0.03
+  },
+  "iss": {
+   "co2_buildup": 0.026,
+   "deconditioning": 0.028,
+   "infection": 0.018,
+   "low_mood": 0.018,
+   "sleep_disruption": 0.032
+  },
+  "transit": {
+   "co2_buildup": 0.024,
+   "deconditioning": 0.027,
+   "infection": 0.018,
+   "low_mood": 0.019,
+   "sleep_disruption": 0.031
+  },
+  "moon_base": {
+   "co2_buildup": 0.02,
+   "deconditioning": 0.024,
+   "infection": 0.017,
+   "low_mood": 0.018,
+   "sleep_disruption": 0.032
+  },
+  "rover": {
+   "co2_buildup": 0.035,
+   "deconditioning": 0.019,
+   "infection": 0.02,
+   "low_mood": 0.019,
+   "sleep_disruption": 0.031
+  }
+ },
+ "mean_risk_said": {
+  "mars_base": {
+   "co2_buildup": 0.029,
+   "deconditioning": 0.02,
+   "infection": 0.019,
+   "low_mood": 0.02,
+   "sleep_disruption": 0.03
+  },
+  "iss": {
+   "co2_buildup": 0.03,
+   "deconditioning": 0.027,
+   "infection": 0.019,
+   "low_mood": 0.021,
+   "sleep_disruption": 0.032
+  },
+  "transit": {
+   "co2_buildup": 0.029,
+   "deconditioning": 0.028,
+   "infection": 0.02,
+   "low_mood": 0.021,
+   "sleep_disruption": 0.031
+  },
+  "moon_base": {
+   "co2_buildup": 0.029,
+   "deconditioning": 0.025,
+   "infection": 0.018,
+   "low_mood": 0.021,
+   "sleep_disruption": 0.031
+  },
+  "rover": {
+   "co2_buildup": 0.03,
+   "deconditioning": 0.02,
+   "infection": 0.018,
+   "low_mood": 0.021,
+   "sleep_disruption": 0.031
+  }
+ }
+}

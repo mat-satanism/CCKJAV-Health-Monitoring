@@ -54,8 +54,10 @@ export function DoctorView({ day, mission, meta }: { day: number; mission: Missi
               onClick={() => setRole('ground')}>Flight surgeon · Earth</button>
           </div>
           {view.role === 'ground' && (
-            <p className="delay">
-              Data arrives {view.data_delay_min} min late · your advice reaches the crew {view.reply_round_trip_min} min after this data was taken
+            <p className={view.data_delay_min > 0 ? 'delay' : 'delay live'}>
+              {view.data_delay_min > 0
+                ? `Data arrives ${view.data_delay_min} min late · your advice reaches the crew ${view.reply_round_trip_min} min after this data was taken`
+                : 'Live link · no signal delay from this orbit'}
             </p>
           )}
         </div>

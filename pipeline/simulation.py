@@ -76,6 +76,41 @@ EVENTS = {
 }
 PREDICTED = [e for e in EVENTS if e != "solar_flare"]
 
+# Where the mission happens. Mars base is the original design (all factors 1), so its mission and every number
+# measured on it stay as they were; the other places scale how often an event starts ("rate") and how strongly it
+# moves the indicators ("effect"). ASSUMPTIONS with the reasoning and sources in docs/environments.md:
+# - gravity: deconditioning is stronger the less gravity there is; 0 g (station, transit) 1.5x Mars, Moon 1.25x.
+#   No human data exists for 0.16 g or 0.38 g, so the in-between values are an assumption.
+# - radiation: a solar particle event that sends the crew to shelter; Earth's magnetic field shields low orbit
+#   (0.2x), with no planet field or air on the Moon and in transit the exposure is about 2x the Mars surface
+#   (measured daily doses: transit 1.84, Moon 1.37, Mars 0.64 mSv).
+# - closed environment: a small pressurised rover reaches high CO2 sooner than a base (1.5x).
+ENVIRONMENTS = {
+    "mars_base": {"rate": {}, "effect": {}},
+    "iss":       {"rate": {"deconditioning": 1.5, "solar_flare": 0.2}, "effect": {"deconditioning": 1.5}},
+    "transit":   {"rate": {"deconditioning": 1.5, "solar_flare": 2.0}, "effect": {"deconditioning": 1.5}},
+    "moon_base": {"rate": {"deconditioning": 1.25, "solar_flare": 2.0}, "effect": {"deconditioning": 1.25}},
+    "rover":     {"rate": {"co2_buildup": 1.5}, "effect": {}},
+}
+# The demo story per place: John's infection on day 18 everywhere (the model's showcase), then what the place adds.
+DEMO_EVENTS_BY_ENV = {
+    "mars_base": None,   # DEMO_EVENTS below, unchanged
+    "iss":       [("infection", "john", 18, 4), ("deconditioning", "stefan", 22, 4), ("co2_buildup", "crew", 25, 2)],
+    "transit":   [("infection", "john", 18, 4), ("deconditioning", "maria", 21, 4), ("solar_flare", "crew", 24, 1),
+                  ("low_mood", "kenji", 23, 6)],
+    "moon_base": [("infection", "john", 18, 4), ("deconditioning", "stefan", 22, 4), ("sleep_disruption", "maria", 21, 6),
+                  ("solar_flare", "crew", 26, 1)],
+    "rover":     [("infection", "john", 18, 4), ("co2_buildup", "crew", 21, 3), ("sleep_disruption", "maria", 23, 5),
+                  ("co2_buildup", "crew", 27, 2)],
+}
+
+
+def scaled_effect(effect: dict, k: float) -> dict:
+    """An event's effect made k times stronger: deltas times k, the lost share of exercise times k."""
+    if k == 1:
+        return effect
+    return {key: (max(0.0, 1 - (1 - v) * k) if key == "exercise_factor" else v * k) for key, v in effect.items()}
+
 DEMO_SEED = 2026
 DEMO_CREW = [
     {"astronaut_id": "kenji", "name": "Kenji", "role": "Commander", "skills": "command;eva;robotics", "calibrated_from": "pm_p07"},
@@ -282,7 +317,8 @@ def _finish(s: dict[str, np.ndarray]) -> dict[str, np.ndarray]:
 
 
 def simulate_mission(mission_id: str, seed: int, crew: list[dict], cal: Calibration,
-                     events: list[Event], days: int = MISSION_DAYS) -> tuple[pd.DataFrame, pd.DataFrame]:
+                     events: list[Event], days: int = MISSION_DAYS, env: str = "mars_base") -> tuple[pd.DataFrame, pd.DataFrame]:
+    strength = ENVIRONMENTS[env]["effect"]
     rng = np.random.default_rng(seed)
     rng_new = np.random.default_rng([seed, 1])      # own stream for HRV and reaction time
     rows = []
@@ -293,9 +329,9 @@ def simulate_mission(mission_id: str, seed: int, crew: list[dict], cal: Calibrat
         _newer_indicators(rng_new, cal, s, person.mean["sleep_hours"])
         mine = [e for e in events if e.affects(aid)]
         for e in mine:
-            spec = EVENTS[e.type]
-            _apply(s, spec["prodrome_effect"], range(e.prodrome_start, e.onset))
-            _apply(s, spec["episode_effect"], range(e.onset, e.end + 1))
+            spec, k = EVENTS[e.type], strength.get(e.type, 1)
+            _apply(s, scaled_effect(spec["prodrome_effect"], k), range(e.prodrome_start, e.onset))
+            _apply(s, scaled_effect(spec["episode_effect"], k), range(e.onset, e.end + 1))
         s = _finish(s)
         for day in range(1, days + 1):
             active = [e for e in mine if e.onset <= day <= e.end]
@@ -316,11 +352,13 @@ def simulate_mission(mission_id: str, seed: int, crew: list[dict], cal: Calibrat
     return pd.DataFrame(rows), ev
 
 
-def random_events(rng: np.random.Generator, crew_ids: list[str], days: int = MISSION_DAYS) -> list[Event]:
+def random_events(rng: np.random.Generator, crew_ids: list[str], days: int = MISSION_DAYS,
+                  env: str = "mars_base") -> list[Event]:
     out = []
     for etype, spec in EVENTS.items():
+        rate = spec["rate"] * ENVIRONMENTS[env]["rate"].get(etype, 1)
         for who in (["crew"] if spec["crew"] else crew_ids):
-            for _ in range(rng.poisson(spec["rate"])):
+            for _ in range(rng.poisson(rate)):
                 first_onset = EVENT_FREE_DAYS + spec["prodrome"] + 1
                 if first_onset > days - 1:
                     continue
@@ -330,21 +368,22 @@ def random_events(rng: np.random.Generator, crew_ids: list[str], days: int = MIS
     return out
 
 
-def demo_mission(cal: Calibration) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
-    events = [Event(t, who, onset, length) for t, who, onset, length in DEMO_EVENTS]
-    days, ev = simulate_mission("demo", DEMO_SEED, DEMO_CREW, cal, events)
+def demo_mission(cal: Calibration, env: str = "mars_base") -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+    events = [Event(t, who, onset, length) for t, who, onset, length in (DEMO_EVENTS_BY_ENV[env] or DEMO_EVENTS)]
+    days, ev = simulate_mission("demo", DEMO_SEED, DEMO_CREW, cal, events, env=env)
     return pd.DataFrame(DEMO_CREW), days, ev
 
 
-def training_missions(cal: Calibration, n: int, seed: int, crew_size: int = 5) -> tuple[pd.DataFrame, pd.DataFrame]:
+def training_missions(cal: Calibration, n: int, seed: int, crew_size: int = 5,
+                      env: str = "mars_base") -> tuple[pd.DataFrame, pd.DataFrame]:
     """Many random missions for the model. Each mission draws its crew from the calibration pool."""
     rng = np.random.default_rng(seed)
     pool = sorted(cal.pool)
     all_days, all_events = [], []
     for m in range(n):
         crew = [{"astronaut_id": f"a{i}", "calibrated_from": str(rng.choice(pool))} for i in range(crew_size)]
-        events = random_events(rng, [c["astronaut_id"] for c in crew])
-        d, e = simulate_mission(f"m{m:04d}", int(rng.integers(2**31)), crew, cal, events)
+        events = random_events(rng, [c["astronaut_id"] for c in crew], env=env)
+        d, e = simulate_mission(f"m{m:04d}", int(rng.integers(2**31)), crew, cal, events, env=env)
         all_days.append(d)
         all_events.append(e)
     return pd.concat(all_days, ignore_index=True), pd.concat(all_events, ignore_index=True)
