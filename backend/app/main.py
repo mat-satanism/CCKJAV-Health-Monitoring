@@ -17,7 +17,7 @@ from pydantic import BaseModel, Field, StringConstraints
 from . import analytics, rules
 from .config import BOUNDS, CONTENT, DATA_DIR, ENVIRONMENTS, INDICATORS, SYSTEMS
 from .demo import blood_reference, demo_mission, wellbeing_forecast
-from .mission import MISSION
+from .mission import MISSION, available_environments, saved_path
 from .models import Measurement, MissionContext, Task, TaskFeedback
 
 app = FastAPI(title="CCKJAV Health Monitoring API")
@@ -31,7 +31,6 @@ TASKS: list[Task] = []
 MAX_ITEMS = 100                       # measurements per request: a day's check-in is about 10
 FUTURE_SLACK = timedelta(hours=12)    # clocks differ a little; a value from tomorrow or 2099 is a typo
 INTEGER_SCALES = {"mood"}
-MISSION_ENVIRONMENT = "mars_base"     # one mission, one crew (docs/api-contract.md)
 
 
 def _default_tasks() -> list[Task]:
@@ -72,8 +71,14 @@ def load() -> None:
 
 
 def reset() -> None:
+    global CONTEXT
     SAVED_PATH.unlink(missing_ok=True)
+    CONTEXT = CONTEXT.model_copy(update={"environment": "mars_base", **{
+        k: ENVIRONMENTS["mars_base"][k] for k in ("gravity_g", "comm_delay_s")}})
     if MISSION:
+        for env in ENVIRONMENTS:
+            saved_path(env).unlink(missing_ok=True)
+        MISSION.switch("mars_base")
         MISSION.reset()
     load()
 
@@ -105,9 +110,12 @@ def get_context():
 
 @app.put("/context", response_model=MissionContext)
 def put_context(ctx: MissionContext):
+    """Move the mission to another place: the same crew, that place's simulated days (pipeline/environments.py)."""
     global CONTEXT
-    if ctx.environment != MISSION_ENVIRONMENT:
-        raise HTTPException(422, f"This demo has one mission environment: {MISSION_ENVIRONMENT}")
+    if MISSION and ctx.environment != MISSION.env:
+        if ctx.environment not in available_environments():
+            raise HTTPException(409, f"No simulated mission for {ctx.environment}. Run: python -m pipeline.environments")
+        MISSION.switch(ctx.environment)
     env = ENVIRONMENTS[ctx.environment]
     CONTEXT = ctx.model_copy(update={"gravity_g": env["gravity_g"], "comm_delay_s": env["comm_delay_s"]})
     return CONTEXT
@@ -162,6 +170,7 @@ def status():
 def mission_info():
     m = _mission()
     return {"day": m.day, "days_total": m.days_total, "crew": m.crew, "source": "synthetic",
+            "environment": m.env, "environments": available_environments(),
             "note": "Simulated mission calibrated on real data. Not real astronauts."}
 
 

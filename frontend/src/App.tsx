@@ -11,10 +11,11 @@ import { PatientFile } from './components/PatientFile'
 import { PersonView } from './components/PersonView'
 import { InsightsCard, TasksCard } from './components/Sidebar'
 import { WellbeingCard } from './components/WellbeingCard'
+import { EnvSwitch } from './components/EnvSwitch'
 import { SystemPanel } from './components/SystemPanel'
 import { Tabbed } from './components/Tabbed'
 import type {
-  Insights, Meta, MissionContext, MissionInfo, StatusResponse, SystemId, Task,
+  EnvironmentId, Insights, Meta, MissionContext, MissionInfo, StatusResponse, SystemId, Task,
 } from './types'
 
 type Tab = 'mission' | 'doctor' | 'astronaut'
@@ -41,6 +42,12 @@ export default function App() {
   const [sideTab, setSideTab] = useState('outlook')
   const [measure, setMeasure] = useState<string | null>(null)       // field to re-measure in the check-in
   const [emergencySeen, setEmergencySeen] = useState<string | null>(null)
+  const [toast, setToast] = useState<string | null>(null)
+  useEffect(() => {
+    if (!toast) return
+    const t = setTimeout(() => setToast(null), 6000)
+    return () => clearTimeout(t)
+  }, [toast])
 
   const refresh = useCallback(async () => {
     try {
@@ -88,6 +95,12 @@ export default function App() {
     await api.setMissionDay(next)
     setMission({ ...mission, day: next })
   }
+  const changeEnv = async (environment: EnvironmentId) => {
+    await api.setContext({ ...ctx, environment })
+    await refresh()
+    const m = meta.environments[environment]
+    setToast(`Now: ${m.label}. ${m.note ?? ''} Days 1-15 are the calm calibration weeks everywhere; the place shows from day 16.`)
+  }
   const patient = chosen ?? mission?.crew[0]?.astronaut_id ?? 'real'
   // The emergency screen opens once per set of confirmed reds; closing it keeps it closed until something new turns red.
   const confirmedReds = insights.items.filter((i) => i.status === 'red' && !i.recheck).map((i) => i.type).join(',')
@@ -130,18 +143,20 @@ export default function App() {
           ))}
         </nav>
         <div className="context">
-          {/* One mission, one crew: the environment is fixed (switching it kept the same crew, which made no sense). */}
-          <span className="env">{meta.environments[ctx.environment]?.label ?? ctx.environment}</span>
+          {/* Same crew, another place: each place has its own simulated mission (pipeline/environments.py). */}
+          <EnvSwitch meta={meta} current={ctx.environment} available={mission?.environments ?? [ctx.environment]}
+            onPick={changeEnv} />
           <span>{ctx.gravity_g ?? 0} g</span>
           <span>
-            {ctx.comm_delay_s && ctx.comm_delay_s >= 60
-              ? `${Math.round(ctx.comm_delay_s / 60)} min` : `${ctx.comm_delay_s ?? 0} s`} signal delay
+            {!ctx.comm_delay_s || ctx.comm_delay_s < 1 ? 'live link to Earth'
+              : ctx.comm_delay_s >= 60 ? `${Math.round(ctx.comm_delay_s / 60)} min signal delay` : `${ctx.comm_delay_s} s signal delay`}
           </span>
           <button onClick={() => api.resetDemo().then(refresh)}>Reset demo</button>
         </div>
       </header>
 
-      <div className="view" key={tab}>
+      {toast && <p className="toast" role="status" key={toast}>{toast}</p>}
+      <div className="view" key={`${tab}-${ctx.environment}`}>
       {tab !== 'astronaut' && (
         missionError || !mission ? <p className="err">{missionError ?? 'Loading mission…'}</p> : (
           <>

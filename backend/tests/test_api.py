@@ -54,7 +54,7 @@ def test_bad_inputs_are_rejected_with_a_reason():
     assert client.post("/measurements", json=[{"ts": _now(), "type": "mood", "value": 2.5, "unit": "1-5"}]).status_code == 422
     assert client.post("/measurements", json=[{"ts": _now(), "type": "mood", "value": 3, "unit": "1-5"}] * 101).status_code == 422
     assert client.get("/forecast/mood", params={"days": 1000}).status_code == 422
-    assert client.put("/context", json={"environment": "moon_base", "mission_day": 1}).status_code == 422
+    assert client.put("/context", json={"environment": "venus_base", "mission_day": 1}).status_code == 422
 
 
 def test_time_without_zone_is_utc_and_status_still_works():

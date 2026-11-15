@@ -34,6 +34,7 @@ export interface CrewMember {
 }
 export interface MissionInfo {
   day: number; days_total: number; crew: CrewMember[]; source: 'synthetic'; note: string
+  environment?: EnvironmentId; environments?: string[]
 }
 export interface MissionIndicator {
   type: string; label: string; unit: string; value: number
@@ -167,7 +168,7 @@ export interface SystemContent { what: string; in_space: string; hazards: string
 export interface Meta {
   indicators: Record<string, { label: string; unit: string; system: SystemId }>
   systems: Record<SystemId, { label: string }>
-  environments: Record<EnvironmentId, { label: string; gravity_g: number; comm_delay_s: number }>
+  environments: Record<EnvironmentId, { label: string; gravity_g: number; comm_delay_s: number; note?: string }>
   content: {
     indicators: Record<string, IndicatorContent>
     systems: Record<SystemId, SystemContent>

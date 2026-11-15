@@ -50,8 +50,8 @@ A time without a time zone is read as UTC; every stored time is UTC. Values sent
 whatever the request says: only the app's own demo data is `synthetic`, and no sensor writes to this API yet.
 
 Other limits: `GET /forecast/{indicator}?days=` 1-30; check-in entries at most 20 values and 10 symptoms of 1-60
-characters; readiness note at most 500 characters. `PUT /context` only accepts `mars_base`: the app runs one mission
-(422 for any other environment; the mission day can change).
+characters; readiness note at most 500 characters. `PUT /context` moves the same crew to another place that has a
+simulated mission (`docs/environments.md`); an unknown place is 422, a known one without a simulated mission is 409.
 
 A broken saved file (`data/local/checkins.json` or the mission's own) is renamed to `.broken` and the app starts
 without it, instead of failing on start.
