@@ -104,7 +104,24 @@ def score(o: pd.DataFrame) -> tuple[pd.DataFrame, pd.Series]:
     return rel, cover
 
 
+def simulation_check() -> tuple[pd.DataFrame, pd.Series]:
+    """Tried for a per-astronaut 'tomorrow' view: the same forecast on 30 simulated missions (not shipped)."""
+    from . import model as M
+    from . import simulation as sim
+
+    cal = sim.calibrate(pd.read_csv(PROCESSED / "daily.csv"), pd.read_csv(PROCESSED / "nhanes_reference.csv"))
+    days, _ = sim.training_missions(cal, 30, M.TEST_SEED)
+    data = [(ind, f"{m}/{a}", g[ind].to_numpy(float))
+            for ind in ("heart_rate", "sleep_hours", "mood", "exercise_min", "hrv_ms")
+            for (m, a), g in days.sort_values("mission_day").groupby(["mission_id", "astronaut_id"])]
+    return score(origins(data))
+
+
 def main() -> None:
+    if sys.argv[1:] == ["sim"]:
+        rel, cover = simulation_check()
+        print(rel.to_string(), "\n\nShare inside the 80% band:\n", cover.to_string())
+        return
     data = series()
     people = sorted({p for _, p, _ in data})
     folds = assign_folds(people)
