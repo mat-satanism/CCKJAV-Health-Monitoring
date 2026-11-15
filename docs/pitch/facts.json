@@ -11,6 +11,100 @@
   "onset_day": 18,
   "lead_days": 2
  },
+ "blood": {
+  "glucose": {
+   "crew_up_minus_down_at_R+1": 4,
+   "lab_range": [
+    65.0,
+    99.0
+   ]
+  },
+  "white_blood_cell_count": {
+   "crew_up_minus_down_at_R+1": -4,
+   "lab_range": [
+    3.8,
+    10.8
+   ]
+  },
+  "monocytes": {
+   "crew_up_minus_down_at_R+1": 4,
+   "lab_range": [
+    0.0,
+    13.0
+   ]
+  }
+ },
+ "before_bad_mood": {
+  "any_day": 0.147,
+  "signals": [
+   {
+    "label": "Stressed day\n(calm 1+ below usual)",
+    "rate": 0.215,
+    "lo": 0.138,
+    "hi": 0.299,
+    "other": 0.126,
+    "days": 256
+   },
+   {
+    "label": "Short sleep\n(1+ h below usual, self-report)",
+    "rate": 0.178,
+    "lo": 0.115,
+    "hi": 0.235,
+    "other": 0.131,
+    "days": 343
+   },
+   {
+    "label": "Tired day\n(energy 1+ below usual)",
+    "rate": 0.168,
+    "lo": 0.118,
+    "hi": 0.232,
+    "other": 0.137,
+    "days": 292
+   },
+   {
+    "label": "Short sleep\n(1+ h below usual, wristband)",
+    "rate": 0.162,
+    "lo": 0.105,
+    "hi": 0.215,
+    "other": 0.142,
+    "days": 216
+   }
+  ]
+ },
+ "crew": {
+  "events": [
+   {
+    "type": "infection",
+    "who": "john",
+    "onset_day": 18,
+    "end_day": 21
+   },
+   {
+    "type": "sleep_disruption",
+    "who": "maria",
+    "onset_day": 21,
+    "end_day": 26
+   },
+   {
+    "type": "co2_buildup",
+    "who": "crew",
+    "onset_day": 25,
+    "end_day": 26
+   },
+   {
+    "type": "solar_flare",
+    "who": "crew",
+    "onset_day": 27,
+    "end_day": 27
+   }
+  ]
+ },
+ "demo_person": {
+  "high_days": 7,
+  "high_then_bad": 3,
+  "other_days": 21,
+  "other_then_bad": 4
+ },
  "forecast": [
   {
    "label": "Lower mood tomorrow",

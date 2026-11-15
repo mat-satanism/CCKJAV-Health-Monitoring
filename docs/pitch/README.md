@@ -34,6 +34,21 @@ and temperature are still inside the safe limits. It also gives false alarms (Ma
 days 26-27), which is why a prediction only asks the CMO to confirm and never moves a task by itself
 (`docs/simulation.md`).
 
+## All charts (pick for the slides)
+
+| File | Finding in the title | Data | Best for |
+|---|---|---|---|
+| `1-forecast-beats-same-as-today.png` | mood and energy tomorrow: the model beats "same as today" | real | the ML result |
+| `2-everyone-has-their-own-normal.png` | usual pulse differs by 32 bpm; a fixed limit flags 9 of 79 | real | the problem, why a personal norm |
+| `3-early-warning-before-fever.png` | infection flagged 2 days before the fever | simulated | the demo story |
+| `4-real-astronauts-blood.png` | after 3 days in space all four came back with higher glucose, fewer white cells | real astronauts (Inspiration4) | why monitor in space at all |
+| `5-what-comes-before-a-worse-mood.png` | after a stressed day a worse mood follows 21% vs 15% on any day | real | what the forecast reads, explanations |
+| `6-crew-at-a-glance.png` | one person drifting vs the whole crew at once (CO2) | simulated | the crew-wide signal, doctors' view |
+| `7-forecast-for-an-unseen-person.png` | a person the model never saw: worse mood after 3 of 7 high-risk days vs 4 of 21 others | real, one person | the app card, as an illustration |
+
+Strongest trio for a short pitch: **2 → 1 → 3** (problem, real result, demo story). Chart 4 is the only one with
+real astronauts; chart 7 is one person and should not be shown as proof.
+
 ## Why the judges can trust the numbers
 
 - **People never in both training and testing.** Folds are split by person, the demo person is never in training.
