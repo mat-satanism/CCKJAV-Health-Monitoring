@@ -290,3 +290,22 @@ details.more[open] > summary { margin-bottom: 12px; }
 .exposure ul.plan { color: var(--muted); }
 .brief ul { margin: 0; padding-left: 18px; display: grid; gap: 6px; }
 .brief li.crew-wide { color: var(--yellow); font-weight: 600; }
+
+/* Tomorrow's outlook (real-data demo) */
+.wellbeing h2 .tag { font-size: .7rem; font-weight: 500; color: var(--muted); border: 1px solid var(--border);
+  border-radius: 999px; padding: 1px 8px; margin-left: 6px; vertical-align: middle; }
+.wb-row { border-top: 1px solid var(--border); padding-top: 10px; margin-top: 10px; }
+.wb-head { display: flex; align-items: center; gap: 6px; margin: 0; }
+.wb-head .dot { background: var(--s); }
+.wb-x { margin-left: auto; font-variant-numeric: tabular-nums; color: var(--s); font-weight: 600; }
+.wb-reasons { margin: 6px 0 0; padding-left: 18px; font-size: .85rem; }
+.wb-score, .wb-note { font-size: .78rem; margin: 6px 0 0; }
+.wb-strip { margin: 8px 0 0; }
+.wb-strip figcaption { font-size: .72rem; }
+.wb-bars { display: flex; align-items: flex-end; gap: 2px; height: 36px; }
+.wb-bars span { position: relative; flex: 1; height: 100%; display: flex; align-items: flex-end; }
+.wb-bars i { display: block; width: 100%; background: var(--muted); opacity: .45; border-radius: 1px; min-height: 2px; }
+.wb-bars span.hi i { background: var(--yellow); opacity: .9; }
+.wb-bars b { position: absolute; top: -6px; left: 50%; width: 4px; height: 4px; margin-left: -2px;
+  border-radius: 50%; background: var(--text); }
+.wb-why { font-size: .8rem; margin: 4px 0 0; }

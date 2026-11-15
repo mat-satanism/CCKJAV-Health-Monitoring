@@ -94,3 +94,20 @@ def test_composite_features_use_only_the_past():
     past = a["date"] <= "2020-01-20"
     cols = [c for group in ws.COMPOSITE.values() for c in group]
     pd.testing.assert_frame_equal(a.loc[past, cols], b.loc[past, cols])
+
+
+def test_reasons_read_as_plain_words():
+    assert wellbeing.describe("ref_mood", 1.0) == "mood (1-5) 1.0 below usual today"
+    assert wellbeing.describe("fatigue_z", -2.6) == "energy (1-5, 5 = fresh) 2.6 spreads below usual today"
+    assert wellbeing.describe("stress_dev3", -1.0) == "calm (1-5, 5 = relaxed) 1.0 below usual over the last 3 days"
+    assert wellbeing.describe("mood_d1", 1.0) == "mood (1-5) +1 since yesterday"
+    assert wellbeing.describe("weekend", 1.0) == "weekend"
+
+
+def test_exported_demo_never_trained_on_the_demo_person():
+    import json
+
+    from pipeline.demo import DEMO_PERSON
+    data = json.loads(wellbeing.EXPORT_FILE.read_text(encoding="utf-8"))
+    assert data["person"] == DEMO_PERSON and "never in training" in data["source"]
+    assert len(data["days"]) == 30

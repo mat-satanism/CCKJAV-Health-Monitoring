@@ -1,3 +1,5 @@
+from datetime import UTC, datetime
+
 from fastapi.testclient import TestClient
 
 from app.main import app
@@ -145,3 +147,21 @@ def test_exposures_and_indicator_tests_cite_known_sources():
         assert e["monitoring"] or e["our_plan"]
     for ind in content["indicators"].values():
         assert ind["tests"] and all(s in content["sources"] for s in ind["sources"])
+
+
+def test_wellbeing_forecast_for_the_real_data_demo():
+    body = client.get("/wellbeing").json()
+    assert body["available"]
+    assert set(body["models"]) == {"mood", "fatigue"}
+    for m in body["models"].values():                   # never shown without beating "same as today"
+        assert m["within_person_auc"] > m["same_as_today_auc"]
+    days = body["days"]
+    assert [d["mission_day"] for d in days] == list(range(1, 31))
+    last = days[-1]
+    assert last["for_date"] == datetime.now(UTC).date().isoformat()   # the last demo day is yesterday
+    for d in days:
+        for key in ("mood", "fatigue"):
+            f = d[key]
+            assert 0 <= f["probability"] <= 1 and f["times_usual"] >= 0
+            assert len(f["reasons"]) <= 3
+    assert days[17]["mood"]["times_usual"] >= 1.5         # day 18: mood already low, tomorrow is worse too

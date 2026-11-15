@@ -116,5 +116,12 @@ simple start version: the variants are equivalent, and the simpler one is easier
 - 16 PMData people is few; intervals are wide. Many variants were compared (4 targets, several models and inputs),
   so an interval just above 0 can be luck; the mood result is the one with clear room above 0.
 - These are healthy people on Earth, not astronauts; the targets are self-reported feelings, not medical events.
-- Not yet connected to the app: the next step is to show "tomorrow may be harder" in the real-data check-in demo
-  with the SHAP reasons, marked as a forecast.
+
+## In the app
+
+`python -m pipeline.wellbeing export` trains the mood model (check-in + last days) and the fatigue model (all
+inputs) on every PMData person **except the demo person** (`pm_p06`), then forecasts that person's 30 demo days:
+probability, times the usual rate, up to 3 signs that raised the risk by at least 1 percentage point (SHAP), and
+what really happened the next day. Output: `data/processed/wellbeing_demo.json`, served by `GET /wellbeing` and
+shown as "Tomorrow's outlook" in Check-in → Real-data demo. The card names reasons only from 1.5× usual, turns
+yellow from 2×, and always shows the score against "same as today".

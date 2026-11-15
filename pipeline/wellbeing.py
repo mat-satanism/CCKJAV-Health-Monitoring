@@ -1,6 +1,7 @@
 """Wellbeing forecast on real people: can today's wearable data and check-in predict a worse day tomorrow?
 
     python -m pipeline.wellbeing          # after python -m pipeline.build
+    python -m pipeline.wellbeing export   # forecasts for the app's real-data demo -> data/processed/wellbeing_demo.json
 
 Data: PMData (16 people, morning questionnaire 1-5, readiness 0-10) and LifeSnaps (yes/no feelings).
 All PMData scales go "higher = better" (fatigue 5 = fresh, stress 5 = relaxed: they correlate positively
@@ -224,11 +225,127 @@ def run() -> tuple[pd.DataFrame, pd.DataFrame]:
 
 
 def main() -> None:
+    import json
+    import sys
+
+    if sys.argv[1:] == ["export"]:
+        out = export()
+        EXPORT_FILE.write_text(json.dumps(out, indent=1, ensure_ascii=False) + "\n", encoding="utf-8")
+        print(f"wrote {EXPORT_FILE} ({len(out['days'])} days)", json.dumps(out["models"], indent=1))
+        return
     scores, signals = run()
     with pd.option_context("display.width", 200, "display.max_columns", 20):
         print(scores.to_string(index=False))
         print()
         print(signals.to_string(index=False))
+
+
+
+# ---------------------------------------------------------------------------------------------
+# Export for the app: forecasts for the real-data demo person, from models that never saw them.
+#
+#     python -m pipeline.wellbeing export     -> data/processed/wellbeing_demo.json
+# ---------------------------------------------------------------------------------------------
+
+EXPORT_FILE = PROCESSED / "wellbeing_demo.json"
+MIN_REASON = 0.01   # a sign is named only if it adds at least 1 percentage point to the risk
+EXPORT_TASKS = {   # target -> (task name, inputs): the best honest variant per target (docs/wellbeing-model.md)
+    "mood": ("worse mood", "check-in + last days"),
+    "fatigue": ("more tired (fatigue)", "all inputs"),
+}
+LABELS = {
+    "mood": "mood (1-5)", "fatigue": "energy (1-5, 5 = fresh)", "stress": "calm (1-5, 5 = relaxed)",
+    "readiness": "readiness (0-10)", "sleep_quality": "sleep quality (1-5)", "soreness": "soreness (1-5, 5 = none)",
+    "sleep_hours": "sleep, self-report (h)", "sleep_hours_device": "sleep, wristband (h)",
+    "heart_rate": "resting pulse (bpm)", "exercise_min": "exercise (min)", "steps": "steps",
+}
+
+
+def export_columns(inputs: str, d: pd.DataFrame) -> list[str]:
+    cols = feature_columns("pmdata", d)
+    if inputs == "check-in + last days":
+        return check_in_only(cols) + [c for c in d.columns if c.endswith(HISTORY)]
+    return cols
+
+
+def describe(col: str, value: float) -> str:
+    """One input in plain words, e.g. 'mood (1-5) 1.5 below usual today'."""
+    if col == "weekend":
+        return "weekend" if value >= 0.5 else "weekday"
+    if col.startswith("ref_"):
+        name = LABELS[col[4:]]
+        return f"{name} {abs(value):.1f} {'below' if value > 0 else 'above'} usual today"
+    for suffix, text in (("_z", "today"), ("_dev3", "over the last 3 days")):
+        if col.endswith(suffix):
+            name = LABELS[col[: -len(suffix)]]
+            if suffix == "_z":
+                return f"{name} {abs(value):.1f} spreads {'below' if value < 0 else 'above'} usual {text}"
+            return f"{name} {abs(value):.1f} {'below' if value < 0 else 'above'} usual {text}"
+    if col.endswith("_lag1"):
+        return f"{LABELS[col[:-5]]} yesterday: {value:g}"
+    if col.endswith("_d1"):
+        return f"{LABELS[col[:-3]]} {value:+g} since yesterday"
+    if col.endswith("_min3"):
+        return f"lowest {LABELS[col[:-5]]} in 3 days: {value:g}"
+    return f"{LABELS.get(col, col)} today: {value:g}"
+
+
+def forecast_person(d: pd.DataFrame, cols: list[str], target: str, person: str, top: int = 3):
+    """Train on everyone but `person`, then forecast their days with SHAP reasons (only signs that raise the risk)."""
+    import shap
+
+    train, test = d[d["person_id"] != person], d[d["person_id"] == person]
+    imputer = SimpleImputer(strategy="median", keep_empty_features=True)
+    forest = RandomForestClassifier(**FOREST).fit(imputer.fit_transform(train[cols]), train[target].to_numpy(int))
+    x = imputer.transform(test[cols])
+    prob = forest.predict_proba(x)[:, 1]
+    contrib = shap.TreeExplainer(forest).shap_values(x, check_additivity=False)
+    contrib = contrib[1] if isinstance(contrib, list) else contrib[..., 1]
+    usual = float(train[target].mean())
+    out = []
+    for i, (_, row) in enumerate(test.iterrows()):
+        order = [j for j in np.argsort(-contrib[i])
+                 if contrib[i, j] >= MIN_REASON and pd.notna(row[cols[j]])][:top]
+        out.append({"probability": round(float(prob[i]), 3), "times_usual": round(float(prob[i]) / usual, 1),
+                    "reasons": [describe(cols[j], float(row[cols[j]])) for j in order],
+                    "happened": None if pd.isna(row[target]) else bool(row[target])})
+    return out, usual
+
+
+def export() -> dict:
+    from .demo import DEMO_DAYS, DEMO_PERSON, DEMO_START
+
+    f = load("pmdata")
+    start = pd.Timestamp(DEMO_START)
+    days = {}
+    models_info = {}
+    for key, (name, inputs) in EXPORT_TASKS.items():
+        task = next(t for t in TASKS if t.name == name)
+        d = f[f[task.target].notna() | (f["person_id"] == DEMO_PERSON)].reset_index(drop=True)
+        cols = export_columns(inputs, d)
+        train = d[d[task.target].notna() & d[task.reference].notna()].reset_index(drop=True)
+        people, y = train["person_id"].to_numpy(), train[task.target].to_numpy(int)
+        model_within = within_person_auc(people, y, out_of_person_scores(train, cols, task.target)["random forest"])
+        ref_within = within_person_auc(people, y, train[task.reference].to_numpy(float))
+        fit_on = pd.concat([train[train["person_id"] != DEMO_PERSON], d[d["person_id"] == DEMO_PERSON]])
+        window = fit_on["person_id"].ne(DEMO_PERSON) | fit_on["date"].between(
+            DEMO_START, (start + pd.Timedelta(days=DEMO_DAYS - 1)).strftime("%Y-%m-%d"))
+        fit_on = fit_on[window].reset_index(drop=True)
+        rows, usual = forecast_person(fit_on, cols, task.target, DEMO_PERSON)
+        dates = fit_on.loc[fit_on["person_id"] == DEMO_PERSON, "date"]
+        for date, r in zip(dates, rows):
+            day = (pd.Timestamp(date) - start).days + 1
+            days.setdefault(day, {"mission_day": day})[key] = r
+        models_info[key] = {
+            "question": f"Tomorrow: {name}?", "inputs": inputs, "usual_rate": round(usual, 3),
+            "within_person_auc": round(float(np.mean(list(model_within.values()))), 3),
+            "same_as_today_auc": round(float(np.mean(list(ref_within.values()))), 3),
+        }
+    return {
+        "person": DEMO_PERSON, "source": "PMData (real people); the demo person was never in training",
+        "note": "Forecast, not a diagnosis. Scored on people the model never saw: docs/wellbeing-model.md",
+        "models": models_info, "days": [days[k] for k in sorted(days)],
+    }
 
 
 if __name__ == "__main__":
