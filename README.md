@@ -1,5 +1,7 @@
 # Crew Health Navigator
 
+[![Tests](https://github.com/mat-satanism/CCKJAV-Health-Monitoring/actions/workflows/tests.yml/badge.svg)](https://github.com/mat-satanism/CCKJAV-Health-Monitoring/actions/workflows/tests.yml)
+
 **Try it: https://crew-health-navigator.onrender.com** (no installation; the first visit after a quiet spell can take up to a minute to wake the site)
 
 A health-monitoring tool for astronauts on long missions, built for the NASA Space Apps Challenge 2026. Each astronaut checks in once a day; the app compares every value with **that person's own norm**, says what looks unusual and why, and tells who should react: the astronaut, the crew medical officer on board, or the flight surgeon on Earth. It works without internet, because on Mars a message takes 20 minutes each way.
@@ -97,4 +99,4 @@ Everything is rebuilt by commands in `pipeline/`; the app reads the precomputed 
 The site runs on Render's free plan from the `Dockerfile` (`render.yaml`) and redeploys after every merge to `main`. A free service sleeps after 15 minutes without visitors, so `.github/workflows/keep-awake.yml` opens it every 10 minutes (repo variable `SITE_URL`). GitHub can start scheduled jobs a few minutes late: open the site by hand before a presentation. The demo is shared: a check-in or "Reset demo" by one visitor is seen by everyone.
 
 ## Sources and licences
-All sources: [docs/sources.md](docs/sources.md) (NASA Human Research Program and OSDR, CSA, CDC, AHA/ACC and the public datasets). The datasets keep their own licences, listed in [data/processed/README.md](data/processed/README.md); PMData is CC BY-NC 4.0, so non-commercial use only.
+All sources: [docs/sources.md](docs/sources.md) (NASA Human Research Program and OSDR, CSA, CDC, AHA/ACC and the public datasets). The code is under the [MIT License](LICENSE). The datasets keep their own licences, listed in [data/processed/README.md](data/processed/README.md); PMData is CC BY-NC 4.0, so non-commercial use only.

@@ -58,7 +58,6 @@ export function TasksCard({ tasks, onDone, onFeedback }: {
           )}
         </div>
       ))}
-      {/* TODO: streaks and badges */}
     </section>
   )
 }

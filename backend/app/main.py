@@ -28,7 +28,7 @@ from .demo import blood_reference, demo_mission, wellbeing_forecast
 from .mission import MISSION, available_environments, saved_path
 from .models import Measurement, MissionContext, Task, TaskFeedback
 
-app = FastAPI(title="CCKJAV Health Monitoring API")
+app = FastAPI(title="Crew Health Navigator API")
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
 
 MEASUREMENTS: list[Measurement] = []
